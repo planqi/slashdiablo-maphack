@@ -315,7 +315,7 @@ void Maphack::OnAutomapDraw() {
 		POINT MyPos;
 		Drawing::Hook::ScreenToAutomap(&MyPos,
 			D2CLIENT_GetUnitX(D2CLIENT_GetPlayerUnit()),
-			D2CLIENT_GetUnitY(D2CLIENT_GetPlayerUnit()));	
+			D2CLIENT_GetUnitY(D2CLIENT_GetPlayerUnit()));
 		for (Room1* room1 = player->pAct->pRoom1; room1; room1 = room1->pRoomNext) {
 			for (UnitAny* unit = room1->pUnitFirst; unit; unit = unit->pListNext) {
 				//POINT automapLoc;
@@ -466,7 +466,7 @@ void Maphack::OnAutomapDraw() {
 				}				
 			}
 		}
-		if (lkLinesColor>0) {
+		if (lkLinesColor > 0) {
 			for(Room2 *pRoom =  player->pPath->pRoom1->pRoom2->pLevel->pRoom2First; pRoom; pRoom = pRoom->pRoom2Next) {
 				for (PresetUnit* preset = pRoom->pPreset; preset; preset = preset->pPresetNext) {
 					DWORD xPos, yPos;
