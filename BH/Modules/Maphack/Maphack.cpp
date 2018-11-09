@@ -47,6 +47,7 @@ void Maphack::LoadConfig() {
 void Maphack::ReadConfig() {
 	BH::config->ReadInt("Reveal Mode", revealType);
 	BH::config->ReadInt("Show Monster Resistance", monsterResistanceThreshold);
+	BH::config->ReadInt("LK Chest Lines", lkLinesColor);
 
 	BH::config->ReadKey("Reload Config", "VK_NUMPAD0", reloadConfig);
 
@@ -314,7 +315,7 @@ void Maphack::OnAutomapDraw() {
 		POINT MyPos;
 		Drawing::Hook::ScreenToAutomap(&MyPos,
 			D2CLIENT_GetUnitX(D2CLIENT_GetPlayerUnit()),
-			D2CLIENT_GetUnitY(D2CLIENT_GetPlayerUnit()));
+			D2CLIENT_GetUnitY(D2CLIENT_GetPlayerUnit()));	
 		for (Room1* room1 = player->pAct->pRoom1; room1; room1 = room1->pRoomNext) {
 			for (UnitAny* unit = room1->pUnitFirst; unit; unit = unit->pListNext) {
 				//POINT automapLoc;
@@ -462,10 +463,26 @@ void Maphack::OnAutomapDraw() {
 						Drawing::Hook::ScreenToAutomap(&automapLoc, xPos, yPos);
 						Drawing::Boxhook::Draw(automapLoc.x - 1, automapLoc.y - 1, 2, 2, 255, Drawing::BTHighlight);
 					});
+				}				
+			}
+		}
+		if (lkLinesColor>0) {
+			for(Room2 *pRoom =  player->pPath->pRoom1->pRoom2->pLevel->pRoom2First; pRoom; pRoom = pRoom->pRoom2Next) {
+				for (PresetUnit* preset = pRoom->pPreset; preset; preset = preset->pPresetNext) {
+					DWORD xPos, yPos;
+					int lkLineColor = lkLinesColor;
+					if (preset->dwTxtFileNo == 160 && player->pPath->pRoom1->pRoom2->pLevel->dwLevelNo == 79) {
+						xPos = (preset->dwPosX) + (pRoom->dwPosX * 5);
+						yPos = (preset->dwPosY) + (pRoom->dwPosY * 5);
+						automapBuffer.push([xPos, yPos, MyPos, lkLineColor]()->void{
+							POINT automapLoc;
+							Drawing::Hook::ScreenToAutomap(&automapLoc, xPos, yPos);
+							Drawing::Linehook::Draw(MyPos.x, MyPos.y, automapLoc.x, automapLoc.y, lkLineColor);
+						});
+					}
 				}
 			}
 		}
-
 		if (!Toggles["Display Level Names"].state)
 			return;
 		for (list<LevelList*>::iterator it = automapLevels.begin(); it != automapLevels.end(); it++) {
