@@ -466,12 +466,12 @@ void Maphack::OnAutomapDraw() {
 				}				
 			}
 		}
-		if (lkLinesColor > 0) {
+		if (lkLinesColor > 0 && player->pPath->pRoom1->pRoom2->pLevel->dwLevelNo == MAP_A3_LOWER_KURAST) {
 			for(Room2 *pRoom =  player->pPath->pRoom1->pRoom2->pLevel->pRoom2First; pRoom; pRoom = pRoom->pRoom2Next) {
 				for (PresetUnit* preset = pRoom->pPreset; preset; preset = preset->pPresetNext) {
 					DWORD xPos, yPos;
 					int lkLineColor = lkLinesColor;
-					if (preset->dwTxtFileNo == 160 && player->pPath->pRoom1->pRoom2->pLevel->dwLevelNo == 79) {
+					if (preset->dwTxtFileNo == 160) {
 						xPos = (preset->dwPosX) + (pRoom->dwPosX * 5);
 						yPos = (preset->dwPosY) + (pRoom->dwPosY * 5);
 						automapBuffer.push([xPos, yPos, MyPos, lkLineColor]()->void{
