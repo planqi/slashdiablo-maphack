@@ -47,6 +47,7 @@ void Maphack::LoadConfig() {
 void Maphack::ReadConfig() {
 	BH::config->ReadInt("Reveal Mode", revealType);
 	BH::config->ReadInt("Show Monster Resistance", monsterResistanceThreshold);
+	BH::config->ReadInt("LK Chest Lines", lkLinesColor);
 
 	BH::config->ReadKey("Reload Config", "VK_NUMPAD0", reloadConfig);
 
@@ -370,14 +371,33 @@ void Maphack::OnAutomapDraw() {
 							immunityText += szResistances[n];
 						}
 					}
+					
+					//Determine Enchantments
+					string enchantText;
+					if (unit->pMonsterData->fBoss) {
+						string szEnchantments[] = {"ÿc3m", "ÿc1e", "ÿc9e", "ÿc3e"};
+						
+						for (int n = 0; n < 9; n++) {
+							if (unit->pMonsterData->anEnchants[n] == 25)	//Mana Burn
+								enchantText += szEnchantments[0];
+							if (unit->pMonsterData->anEnchants[n] == 9)		//Fire Enchanted
+								enchantText += szEnchantments[1];
+							if (unit->pMonsterData->anEnchants[n] == 17)	//Lightning Enchanted
+								enchantText += szEnchantments[2];
+							if (unit->pMonsterData->anEnchants[n] == 18)	//Cold Enchanted
+								enchantText += szEnchantments[3];
+						}
+					}
 
 					xPos = unit->pPath->xPos;
 					yPos = unit->pPath->yPos;
-					automapBuffer.push([immunityText, color, xPos, yPos, lineColor, MyPos]()->void{
+					automapBuffer.push([immunityText, enchantText, color, xPos, yPos, lineColor, MyPos]()->void{
 						POINT automapLoc;
 						Drawing::Hook::ScreenToAutomap(&automapLoc, xPos, yPos);
 						if (immunityText.length() > 0)
 							Drawing::Texthook::Draw(automapLoc.x, automapLoc.y - 8, Drawing::Center, 6, White, immunityText);
+						if (enchantText.length() > 0)
+							Drawing::Texthook::Draw(automapLoc.x, automapLoc.y - 14, Drawing::Center, 6, White, enchantText);
 						Drawing::Crosshook::Draw(automapLoc.x, automapLoc.y, color);
 						if (lineColor != -1) {
 							Drawing::Linehook::Draw(MyPos.x, MyPos.y, automapLoc.x, automapLoc.y, lineColor);
@@ -462,10 +482,26 @@ void Maphack::OnAutomapDraw() {
 						Drawing::Hook::ScreenToAutomap(&automapLoc, xPos, yPos);
 						Drawing::Boxhook::Draw(automapLoc.x - 1, automapLoc.y - 1, 2, 2, 255, Drawing::BTHighlight);
 					});
+				}				
+			}
+		}
+		if (lkLinesColor > 0 && player->pPath->pRoom1->pRoom2->pLevel->dwLevelNo == MAP_A3_LOWER_KURAST) {
+			for(Room2 *pRoom =  player->pPath->pRoom1->pRoom2->pLevel->pRoom2First; pRoom; pRoom = pRoom->pRoom2Next) {
+				for (PresetUnit* preset = pRoom->pPreset; preset; preset = preset->pPresetNext) {
+					DWORD xPos, yPos;
+					int lkLineColor = lkLinesColor;
+					if (preset->dwTxtFileNo == 160) {
+						xPos = (preset->dwPosX) + (pRoom->dwPosX * 5);
+						yPos = (preset->dwPosY) + (pRoom->dwPosY * 5);
+						automapBuffer.push([xPos, yPos, MyPos, lkLineColor]()->void{
+							POINT automapLoc;
+							Drawing::Hook::ScreenToAutomap(&automapLoc, xPos, yPos);
+							Drawing::Linehook::Draw(MyPos.x, MyPos.y, automapLoc.x, automapLoc.y, lkLineColor);
+						});
+					}
 				}
 			}
 		}
-
 		if (!Toggles["Display Level Names"].state)
 			return;
 		for (list<LevelList*>::iterator it = automapLevels.begin(); it != automapLevels.end(); it++) {

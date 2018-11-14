@@ -23,6 +23,7 @@ struct BaseSkill {
 class Maphack : public Module {
 	private:
 		int monsterResistanceThreshold;
+		int lkLinesColor;
 		unsigned int revealType;
 		unsigned int maxGhostSelection;
 		unsigned int reloadConfig;
