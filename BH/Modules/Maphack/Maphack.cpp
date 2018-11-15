@@ -115,6 +115,7 @@ void Maphack::ReadConfig() {
 	BH::config->ReadToggle("Remove Shake", "None", false, Toggles["Remove Shake"]);
 	BH::config->ReadToggle("Display Level Names", "None", true, Toggles["Display Level Names"]);
 	BH::config->ReadToggle("Monster Resistances", "None", true, Toggles["Monster Resistances"]);
+	BH::config->ReadToggle("Monster Enchantments", "None", true, Toggles["Monster Enchantments"]);
 
 	BH::config->ReadInt("Minimap Max Ghost", automapDraw.maxGhost);
 }
@@ -193,6 +194,9 @@ void Maphack::OnLoad() {
 
 	new Checkhook(settingsTab, 4, (Y += 15), &Toggles["Monster Resistances"].state, "Monster Resistances");
 	new Keyhook(settingsTab, 130, (Y + 2), &Toggles["Monster Resistances"].toggle, "");
+	
+	new Checkhook(settingsTab, 4, (Y += 15), &Toggles["Monster Enchantments"].state, "Monster Enchantments");
+	new Keyhook(settingsTab, 130, (Y + 2), &Toggles["Monster Enchantments"].toggle, "");
 
 	new Checkhook(settingsTab, 4, (Y += 15), &Toggles["Display Level Names"].state, "Level Names");
 	new Keyhook(settingsTab, 130, (Y + 2), &Toggles["Display Level Names"].toggle, "");
@@ -370,14 +374,33 @@ void Maphack::OnAutomapDraw() {
 							immunityText += szResistances[n];
 						}
 					}
+					
+					//Determine Enchantments
+					string enchantText;
+					if (unit->pMonsterData->fBoss && Toggles["Monster Enchantments"].state) {
+						string szEnchantments[] = {"ÿc3m", "ÿc1e", "ÿc9e", "ÿc3e"};
+						
+						for (int n = 0; n < 9; n++) {
+							if (unit->pMonsterData->anEnchants[n] == 25)	//Mana Burn
+								enchantText += szEnchantments[0];
+							if (unit->pMonsterData->anEnchants[n] == 9)		//Fire Enchanted
+								enchantText += szEnchantments[1];
+							if (unit->pMonsterData->anEnchants[n] == 17)	//Lightning Enchanted
+								enchantText += szEnchantments[2];
+							if (unit->pMonsterData->anEnchants[n] == 18)	//Cold Enchanted
+								enchantText += szEnchantments[3];
+						}
+					}
 
 					xPos = unit->pPath->xPos;
 					yPos = unit->pPath->yPos;
-					automapBuffer.push([immunityText, color, xPos, yPos, lineColor, MyPos]()->void{
+					automapBuffer.push([immunityText, enchantText, color, xPos, yPos, lineColor, MyPos]()->void{
 						POINT automapLoc;
 						Drawing::Hook::ScreenToAutomap(&automapLoc, xPos, yPos);
 						if (immunityText.length() > 0)
 							Drawing::Texthook::Draw(automapLoc.x, automapLoc.y - 8, Drawing::Center, 6, White, immunityText);
+						if (enchantText.length() > 0)
+							Drawing::Texthook::Draw(automapLoc.x, automapLoc.y - 14, Drawing::Center, 6, White, enchantText);
 						Drawing::Crosshook::Draw(automapLoc.x, automapLoc.y, color);
 						if (lineColor != -1) {
 							Drawing::Linehook::Draw(MyPos.x, MyPos.y, automapLoc.x, automapLoc.y, lineColor);
