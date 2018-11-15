@@ -494,6 +494,22 @@ enum TextColor {
 #define STAT_PASSIVEMAGICRESREDUC	358
 
 ///////////////////////////////////////////////////
+// Unit Enchantments
+///////////////////////////////////////////////////
+#define ENCH_EXTRA_STRONG			5
+#define ENCH_EXTRA_FAST				6
+#define ENCH_CURSED					7
+#define ENCH_MAGIC_RESISTANT		8
+#define ENCH_FIRE_ENCHANTED			9
+#define ENCH_LIGHTNING_ENCHANTED	17
+#define ENCH_COLD_ENCHANTED			18
+#define ENCH_MANA_BURN				25
+#define ENCH_TELEPORTATION			26
+#define ENCH_SPECTRAL_HIT			27
+#define ENCH_STONE_SKIN				28
+#define ENCH_MULTIPLE_SHOTS			29
+
+///////////////////////////////////////////////////
 // Skill Tab Definitions
 // (for GetUnitStat with STAT_SKILLTAB)
 ///////////////////////////////////////////////////

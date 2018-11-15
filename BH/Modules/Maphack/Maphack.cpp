@@ -381,13 +381,13 @@ void Maphack::OnAutomapDraw() {
 						string szEnchantments[] = {"ÿc3m", "ÿc1e", "ÿc9e", "ÿc3e"};
 						
 						for (int n = 0; n < 9; n++) {
-							if (unit->pMonsterData->anEnchants[n] == 25)	//Mana Burn
+							if (unit->pMonsterData->anEnchants[n] == ENCH_MANA_BURN)
 								enchantText += szEnchantments[0];
-							if (unit->pMonsterData->anEnchants[n] == 9)		//Fire Enchanted
+							if (unit->pMonsterData->anEnchants[n] == ENCH_FIRE_ENCHANTED)
 								enchantText += szEnchantments[1];
-							if (unit->pMonsterData->anEnchants[n] == 17)	//Lightning Enchanted
+							if (unit->pMonsterData->anEnchants[n] == ENCH_LIGHTNING_ENCHANTED)
 								enchantText += szEnchantments[2];
-							if (unit->pMonsterData->anEnchants[n] == 18)	//Cold Enchanted
+							if (unit->pMonsterData->anEnchants[n] == ENCH_COLD_ENCHANTED)
 								enchantText += szEnchantments[3];
 						}
 					}
