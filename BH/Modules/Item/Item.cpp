@@ -77,6 +77,7 @@ void Item::OnLoad() {
 
 	itemPropertyStringDamagePatch->Install();
 	itemPropertyStringPatch->Install();
+	itemPropertiesPatch->Install();
 
 	if (Toggles["Show Ethereal"].state || Toggles["Show Sockets"].state || Toggles["Show iLvl"].state || Toggles["Color Mod"].state ||
 		Toggles["Show Rune Numbers"].state || Toggles["Alt Item Style"].state || Toggles["Shorten Item Names"].state || Toggles["Advanced Item Display"].state)
@@ -178,6 +179,7 @@ void Item::OnUnload() {
 	itemNamePatch->Remove();
 	itemPropertyStringDamagePatch->Remove();
 	itemPropertyStringPatch->Remove();
+	itemPropertiesPatch->Remove();
 	viewInvPatch1->Remove();
 	viewInvPatch2->Remove();
 	viewInvPatch3->Remove();
@@ -579,22 +581,18 @@ void __stdcall Item::OnProperties(wchar_t * wTxt)
 		aLen = wcslen(wTxt);
 		ItemsTxt* armorTxt = GetArmorText(pItem);
 		DWORD base = D2COMMON_GetBaseStatSigned(pItem, STAT_DEFENSE, 0);
-		BOOL isED = TRUE;
-		//TODO: items with enhanced def mod can roll max def +1. below does not get the stat
-		//isED = D2COMMON_GetBaseStatSigned(pItem, STAT_ENHANCEDDEFENSE, 0) > 0;
 		DWORD min = armorTxt->dwminac;
-		DWORD max = armorTxt->dwmaxac + (isED ? 1 : 0);
-		if (pItem->pItemData->dwFlags & ITEM_ETHEREAL) {
-			min = (DWORD)(min * 1.50);
-			max = (DWORD)(max * 1.50);
+		DWORD max = armorTxt->dwmaxac;
+		if (base >= armorTxt->dwminac * 2.25) {
+			//ebug
+			min = (DWORD)(min * 2.25);
+			max = (DWORD)(max * 2.25);
+		} else if (base >= armorTxt->dwminac * 1.5) {
+			//eth
+			min = (DWORD)(min * 1.5);
+			max = (DWORD)(max * 1.5);
 		}
-		//hack... if not in range we assume it is ebugged
-		if (base > max) {
-			swprintf_s(wTxt + aLen, 1024 - aLen, L"%sBase Defense: %d [%d-%d]%s\n", L"ÿc9", base, (DWORD)(armorTxt->dwminac * 2.25), (DWORD)(armorTxt->dwmaxac * 2.25), L"ÿc3");
-		}
-		else {
-			swprintf_s(wTxt + aLen, 1024 - aLen, L"%sBase Defense: %d [%d-%d]%s\n", L"ÿc9", base, min, max, L"ÿc3");
-		}
+		swprintf_s(wTxt + aLen, 1024 - aLen, L"%sBase Defense: %d [%d-%d]%s\n", GetColorCode(TextColor::DarkGreen).c_str(), base, min, max, GetColorCode(TextColor::Blue).c_str());
 	}
 }
 
