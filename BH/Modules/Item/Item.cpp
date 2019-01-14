@@ -83,12 +83,6 @@ void Item::OnLoad() {
 		Toggles["Show Rune Numbers"].state || Toggles["Alt Item Style"].state || Toggles["Shorten Item Names"].state || Toggles["Advanced Item Display"].state)
 		itemNamePatch->Install();
 
-	if (Toggles["Always Show Item Stat Ranges"].state) {
-		itemPropertiesPatch->Install();
-		itemPropertyStringDamagePatch->Install();
-		itemPropertyStringPatch->Install();
-	}
-
 	DrawSettings();
 }
 
