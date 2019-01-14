@@ -340,7 +340,10 @@ void Maphack::OnAutomapDraw() {
 					if (unit->pMonsterData->fMinion)
 						color = monsterColors["Minion"];
 					//Cow king pack
-					if (unit->dwTxtFileNo == 391 && unit->pMonsterData->anEnchants[0] == 8 && unit->pMonsterData->anEnchants[1] == 17 && unit->pMonsterData->anEnchants[3] != 0)
+					if (unit->dwTxtFileNo == 391 &&
+							unit->pMonsterData->anEnchants[0] == ENCH_MAGIC_RESISTANT &&
+							unit->pMonsterData->anEnchants[1] == ENCH_LIGHTNING_ENCHANTED &&
+							unit->pMonsterData->anEnchants[3] != 0)
 						color = 0xE1;
 
 					// User can override colors of non-boss monsters
@@ -463,15 +466,15 @@ void Maphack::OnAutomapDraw() {
 										[color, unit, xPos, yPos, MyPos, borderColor, dotColor, pxColor, lineColor]()->void{
 									POINT automapLoc;
 									Drawing::Hook::ScreenToAutomap(&automapLoc, xPos, yPos);
-									if (borderColor != 0xff)
+									if (borderColor != UNDEFINED_COLOR)
 										Drawing::Boxhook::Draw(automapLoc.x - 4, automapLoc.y - 4, 8, 8, borderColor, Drawing::BTHighlight);
-									if (color != 0xff)
+									if (color != UNDEFINED_COLOR)
 										Drawing::Boxhook::Draw(automapLoc.x - 3, automapLoc.y - 3, 6, 6, color, Drawing::BTHighlight);
-									if (dotColor != 0xff)
+									if (dotColor != UNDEFINED_COLOR)
 										Drawing::Boxhook::Draw(automapLoc.x - 2, automapLoc.y - 2, 4, 4, dotColor, Drawing::BTHighlight);
-									if (pxColor != 0xff)
+									if (pxColor != UNDEFINED_COLOR)
 										Drawing::Boxhook::Draw(automapLoc.x - 1, automapLoc.y - 1, 2, 2, pxColor, Drawing::BTHighlight);
-									if (lineColor != 0xff) {
+									if (lineColor != UNDEFINED_COLOR) {
 										Drawing::Linehook::Draw(MyPos.x, MyPos.y, automapLoc.x, automapLoc.y, lineColor);
 									}
 								});
@@ -835,10 +838,12 @@ Level* Maphack::GetLevel(Act* pAct, int level)
 }
 
 int HoverMonsterColor(UnitAny *pUnit) {
+	int color = White;
 	if (pUnit->pMonsterData->fBoss)
-		return Gold;
-	else
-		return White;
+		color = Gold;
+	if (pUnit->pMonsterData->fChamp)
+		color = Blue;
+	return color;
 }
 int HoverObjectPatch(UnitAny* pUnit, DWORD tY, DWORD unk1, DWORD unk2, DWORD tX, wchar_t *wTxt)
 {

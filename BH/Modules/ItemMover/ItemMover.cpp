@@ -24,16 +24,16 @@ int CUBE_LEFT = 197;
 int CUBE_TOP = 199;
 int CELL_SIZE = 29;
 
-char quality_to_color[] = {
-	'0' + White, // none
-	'0' + White, // inferior
-	'0' + White, // normal
-	'0' + White, // superior
-	'0' + Blue, // magic
-	'0' + Green, // set
-	'0' + Yellow, // rare
-	'0' + Gold, // unique
-	'0' + Orange // craft
+int quality_to_color[] = {
+	White, // none
+	White, // inferior
+	White, // normal
+	White, // superior
+	Blue, // magic
+	Green, // set
+	Yellow, // rare
+	Gold, // unique
+	Orange // craft
 };
 
 void ItemMover::Init() {
@@ -431,22 +431,43 @@ void ItemMover::OnGamePacketRecv(BYTE* packet, bool* block) {
 				//PrintText(1, "Item packet: %s, %s, %X, %d, %d", item.name.c_str(), item.code, item.attrs->flags, item.sockets, GetDefense(&item));
 				if ((item.action == ITEM_ACTION_NEW_GROUND || item.action == ITEM_ACTION_OLD_GROUND) && success) {
 					bool showOnMap = false;
+					auto color = UNDEFINED_COLOR;
 
 					for (vector<Rule*>::iterator it = MapRuleList.begin(); it != MapRuleList.end(); it++) {
 						if ((*it)->Evaluate(NULL, &item)) {
-							if ((*BH::MiscToggles2)["Item Drop Notifications"].state && item.action == ITEM_ACTION_NEW_GROUND) {
-								PrintText(0, "Item dropped: \377c%c%s", quality_to_color[item.quality], item.name.c_str());
-							}
-							if ((*BH::MiscToggles2)["Item Close Notifications"].state && item.action == ITEM_ACTION_OLD_GROUND) {
-								PrintText(0, "Item close: \377c%c%s", quality_to_color[item.quality], item.name.c_str());
-							}
+							color = (*it)->action.notifyColor;
 							showOnMap = true;
-							break;
+							// if we leave this break here, we can't set notify colors as nicely
+							// for multiline 'building' configs
+							/* break; */
 						}
 					}
 
 					//PrintText(1, "Item on ground: %s, %s, %s, %X", item.name.c_str(), item.code, item.attrs->category.c_str(), item.attrs->flags);
-					if(!showOnMap) {
+					if(showOnMap) {
+						if (color == UNDEFINED_COLOR) {
+							color = quality_to_color[item.quality];
+						}
+						if ((*BH::MiscToggles2)["Item Drop Notifications"].state &&
+								item.action == ITEM_ACTION_NEW_GROUND &&
+								color != DEAD_COLOR
+							 ) {
+							PrintText(color, "%s%s",
+									item.name.c_str(),
+									(*BH::MiscToggles2)["Verbose Notifications"].state ? " \377c5drop" : ""
+									);
+						}
+						if ((*BH::MiscToggles2)["Item Close Notifications"].state &&
+								item.action == ITEM_ACTION_OLD_GROUND &&
+								color != DEAD_COLOR
+							 ) {
+							PrintText(color, "%s%s",
+									item.name.c_str(),
+									(*BH::MiscToggles2)["Verbose Notifications"].state ? " \377c5close" : ""
+									);
+						}
+					}
+					else {
 						for (vector<Rule*>::iterator it = IgnoreRuleList.begin(); it != IgnoreRuleList.end(); it++) {
 							if ((*it)->Evaluate(NULL, &item)) {
 								*block = true;

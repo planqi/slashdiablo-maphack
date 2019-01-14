@@ -460,7 +460,7 @@ void AutoTele::PrintText(DWORD Color, char *szText, ...) {
 		vsprintf_s(szBuffer,152, szText, Args);
 		va_end(Args); 
 		wchar_t Buffer[0x130];
-		MultiByteToWideChar(0, 1, szBuffer, 152, Buffer, 304);
+		MultiByteToWideChar(CODE_PAGE, 1, szBuffer, 152, Buffer, 304);
 		D2CLIENT_PrintGameString(Buffer, Color);	
 	}
 }

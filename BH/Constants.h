@@ -2,6 +2,8 @@
 
 #define BH_VERSION "BH 1.9.1"
 
+#define CODE_PAGE 1252 // windows-1252	ANSI Latin 1; Western European (Windows)
+
 enum TextColor {
 	Disabled=-1,
 	White=0,

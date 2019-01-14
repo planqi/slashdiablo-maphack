@@ -131,7 +131,7 @@ void Print(char* format, ...)
 	va_end(vaArgs);
 
 	wchar_t* wstr = new wchar_t[len];
-	MultiByteToWideChar(CP_ACP, 0, str, -1, wstr, len);
+	MultiByteToWideChar(CODE_PAGE, 0, str, -1, wstr, len);
 	if (IsGameReady())
 		D2CLIENT_PrintGameString(wstr, 0);
 	delete[] wstr;
@@ -149,7 +149,7 @@ void PartyPrint(char* format, ...)
 	va_end(vaArgs);
 
 	wchar_t* wstr = new wchar_t[len];
-	MultiByteToWideChar(CP_ACP, 0, str, -1, wstr, len);
+	MultiByteToWideChar(CODE_PAGE, 0, str, -1, wstr, len);
 	if (IsGameReady())
 		D2CLIENT_PrintPartyString(wstr, 0);
 	delete[] wstr;

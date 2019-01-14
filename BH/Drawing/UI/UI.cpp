@@ -230,8 +230,8 @@ bool UI::OnLeftClick(bool up, unsigned int mouseX, unsigned int mouseY) {
 			{
 				SetDragged(false);
 				if(!up) {
-					PrintText(135, "CTRL-click to open settings" );
-					PrintText(134, "Shift-drag to move" );
+					PrintText(7, "CTRL-click to open settings" );
+					PrintText(7, "Shift-drag to move" );
 				}
 			}
 			return true;

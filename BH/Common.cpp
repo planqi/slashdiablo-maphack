@@ -74,18 +74,18 @@ void Tokenize(const string& str,
 wchar_t* AnsiToUnicode(const char* str)
 {
 	wchar_t* buf = NULL;
-	int len = MultiByteToWideChar(CP_ACP, 0, str, -1, buf, 0);
+	int len = MultiByteToWideChar(CODE_PAGE, 0, str, -1, buf, 0);
 	buf = new wchar_t[len];
-	MultiByteToWideChar(CP_ACP, 0, str, -1, buf, len);
+	MultiByteToWideChar(CODE_PAGE, 0, str, -1, buf, len);
 	return buf;
 }
 
 char* UnicodeToAnsi(const wchar_t* str)
 {
 	char* buf = NULL;
-	int len = WideCharToMultiByte(CP_ACP, 0, str, -1, buf, 0, "?", NULL);
+	int len = WideCharToMultiByte(CODE_PAGE, 0, str, -1, buf, 0, "?", NULL);
 	buf = new char[len];
-	WideCharToMultiByte(CP_ACP, 0, str, -1, buf, len, "?", NULL);
+	WideCharToMultiByte(CODE_PAGE, 0, str, -1, buf, len, "?", NULL);
 	return buf;
 }
 
@@ -130,7 +130,7 @@ void PrintText(DWORD Color, char *szText, ...) {
 	vsprintf_s(szBuffer, 152, szText, Args);
 	va_end(Args); 
 	wchar_t Buffer[0x130];
-	MultiByteToWideChar(0, 1, szBuffer, 152, Buffer, 304);
+	MultiByteToWideChar(CODE_PAGE, 1, szBuffer, 152, Buffer, 304);
 	D2CLIENT_PrintGameString(Buffer, Color);	
 }
 

@@ -10,7 +10,9 @@
 	{"CRES", STAT_COLDRESIST},		\
 	{"FRES", STAT_FIRERESIST},		\
 	{"LRES", STAT_LIGHTNINGRESIST},	\
-	{"PRES", STAT_POISONRESIST}		\
+	{"PRES", STAT_POISONRESIST},	\
+	{"MINDMG", STAT_MINIMUMDAMAGE},	\
+	{"MAXDMG", STAT_MAXIMUMDAMAGE},	\
 
 // All colors here must also be defined in MAP_COLOR_REPLACEMENTS
 #define COLOR_REPLACEMENTS	\
@@ -350,11 +352,11 @@ namespace ItemDisplay {
 			BuildAction(&(rules[i].second), &(r->action));
 
 			RuleList.push_back(r);
-			if (r->action.colorOnMap != 0xff ||
-					r->action.borderColor != 0xff ||
-					r->action.dotColor != 0xff ||
-					r->action.pxColor != 0xff ||
-					r->action.lineColor != 0xff) {
+			if (r->action.colorOnMap != UNDEFINED_COLOR ||
+					r->action.borderColor != UNDEFINED_COLOR ||
+					r->action.dotColor != UNDEFINED_COLOR ||
+					r->action.pxColor != UNDEFINED_COLOR ||
+					r->action.lineColor != UNDEFINED_COLOR) {
 				MapRuleList.push_back(r);
 			}
 			else if (r->action.name.length() == 0) {
@@ -396,6 +398,7 @@ void BuildAction(string *str, Action *act) {
 	act->dotColor = ParseMapColor(act, "DOT");
 	act->pxColor = ParseMapColor(act, "PX");
 	act->lineColor = ParseMapColor(act, "LINE");
+	act->notifyColor = ParseMapColor(act, "NOTIFY");
 
 	// legacy support:
 	size_t map = act->name.find("%MAP%");
@@ -415,7 +418,7 @@ void BuildAction(string *str, Action *act) {
 
 		act->name.replace(map, 5, "");
 		act->colorOnMap = mapColor;
-		if (act->borderColor == 0xff)
+		if (act->borderColor == UNDEFINED_COLOR)
 			act->borderColor = act->colorOnMap;
 	}
 
@@ -427,9 +430,9 @@ void BuildAction(string *str, Action *act) {
 }
 
 int ParseMapColor(Action *act, const string& key_string) {
-	std::regex pattern("%" + key_string + "-([a-f0-9]{2})%",
+	std::regex pattern("%" + key_string + "-([a-f0-9]{1,4})%",
 		std::regex_constants::ECMAScript | std::regex_constants::icase);
-	int color = 0xff;
+	int color = UNDEFINED_COLOR;
 	std::smatch the_match;
 
 	if (std::regex_search(act->name, the_match, pattern)) {
@@ -615,7 +618,7 @@ void Condition::BuildConditions(vector<Condition*> &conditions, string token) {
 	} else if (key.compare(0, 3, "DEF") == 0) {
 		Condition::AddOperand(conditions, new ItemStatCondition(STAT_DEFENSE, 0, operation, value));
 	} else if (key.compare(0, 6, "MAXDUR") == 0) {
-		Condition::AddOperand(conditions, new ItemStatCondition(STAT_ENHANCEDMAXDURABILITY, 0, operation, value));
+		Condition::AddOperand(conditions, new DurabilityCondition(operation, value));
 	} else if (key.compare(0, 3, "RES") == 0) {
 		Condition::AddOperand(conditions, new ResistAllCondition(operation, value));
 	} else if (key.compare(0, 4, "FRES") == 0) {
@@ -660,12 +663,16 @@ void Condition::BuildConditions(vector<Condition*> &conditions, string token) {
 		Condition::AddOperand(conditions, new ItemStatCondition(STAT_DEXTERITY, 0, operation, value));
 	} else if (key.compare(0, 3, "FRW") == 0) {
 		Condition::AddOperand(conditions, new ItemStatCondition(STAT_FASTERRUNWALK, 0, operation, value));
+	} else if (key.compare(0, 6, "MINDMG") == 0) {
+		Condition::AddOperand(conditions, new ItemStatCondition(STAT_MINIMUMDAMAGE, 0, operation, value));
 	} else if (key.compare(0, 6, "MAXDMG") == 0) {
 		Condition::AddOperand(conditions, new ItemStatCondition(STAT_MAXIMUMDAMAGE, 0, operation, value));
 	} else if (key.compare(0, 2, "AR") == 0) {
 		Condition::AddOperand(conditions, new ItemStatCondition(STAT_ATTACKRATING, 0, operation, value));
 	} else if (key.compare(0, 3, "DTM") == 0) {
 		Condition::AddOperand(conditions, new ItemStatCondition(STAT_DAMAGETOMANA, 0, operation, value));
+	} else if (key.compare(0, 4, "MAEK") == 0) {
+		Condition::AddOperand(conditions, new ItemStatCondition(STAT_MANAAFTEREACHKILL, 0, operation, value));
 	} else if (key.compare(0, 7, "REPLIFE") == 0) {
 		Condition::AddOperand(conditions, new ItemStatCondition(STAT_REPLENISHLIFE, 0, operation, value));
 	} else if (key.compare(0, 8, "REPQUANT") == 0) {
@@ -1051,6 +1058,31 @@ bool EDCondition::EvaluateInternalFromPacket(ItemInfo *info, Condition *arg1, Co
 		}
 	}
 	return IntegerCompare(value, operation, targetED);
+}
+
+bool DurabilityCondition::EvaluateInternal(UnitItemInfo *uInfo, Condition *arg1, Condition *arg2) {
+	// Pulled from JSUnit.cpp in d2bs
+	DWORD value = 0;
+	Stat aStatList[256] = { NULL };
+	StatList* pStatList = D2COMMON_GetStatList(uInfo->item, NULL, 0x40);
+	if (pStatList) {
+		DWORD dwStats = D2COMMON_CopyStatList(pStatList, (Stat*)aStatList, 256);
+		for (UINT i = 0; i < dwStats; i++) {
+			if (aStatList[i].wStatIndex == STAT_ENHANCEDMAXDURABILITY && aStatList[i].wSubIndex == 0) {
+				value += aStatList[i].dwStatValue;
+			}
+		}
+	}
+	return IntegerCompare(value, operation, targetDurability);
+}
+bool DurabilityCondition::EvaluateInternalFromPacket(ItemInfo *info, Condition *arg1, Condition *arg2) {
+	DWORD value = 0;
+	for (vector<ItemProperty>::iterator prop = info->properties.begin(); prop < info->properties.end(); prop++) {
+		if (prop->stat == STAT_ENHANCEDMAXDURABILITY) {
+			value += prop->value;
+		}
+	}
+	return IntegerCompare(value, operation, targetDurability);
 }
 
 bool FoolsCondition::EvaluateInternal(UnitItemInfo *uInfo, Condition *arg1, Condition *arg2) {
