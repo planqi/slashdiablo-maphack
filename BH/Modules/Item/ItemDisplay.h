@@ -723,10 +723,12 @@ extern ItemNameLookupCache item_name_cache;
 extern MapActionLookupCache map_action_cache;
 extern IgnoreLookupCache do_not_block_cache;
 extern IgnoreLookupCache ignore_cache;
+extern map<string, string> condition_group;
 
 namespace ItemDisplay {
 	void InitializeItemRules();
 	void UninitializeItemRules();
+	bool UntestedSettingsUsed();
 }
 StatProperties *GetStatProperties(unsigned int stat);
 void BuildAction(string *str, Action *act);

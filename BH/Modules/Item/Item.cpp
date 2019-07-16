@@ -115,6 +115,10 @@ void Item::OnGameJoin() {
 	// reset the item name cache upon joining games
 	// (GUIDs not unique across games)
 	ResetCaches();
+	OnLoop();
+	if (ItemDisplay::UntestedSettingsUsed()) {
+		PrintText(2, "Warning - using experimental config settings");
+	}
 }
 
 void Item::LoadConfig() {
