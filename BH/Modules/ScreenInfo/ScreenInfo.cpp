@@ -275,7 +275,13 @@ void ScreenInfo::OnAutomapDraw() {
 	localtime_s(&time, &tTime);
 	strftime(szTime, sizeof(szTime), "%I:%M:%S %p", &time);
 
+	// The call to GetLevelName somehow invalidates pUnit. This is only observable in O2 builds. The game
+	// will crash when you attempt to open the map (which calls OnAutomapDraw function). We need to get the player unit
+	// again after calling this function. It may be a good idea in general not to store the return value of
+	// GetPlayerUnit.
 	char *level = UnicodeToAnsi(D2CLIENT_GetLevelName(pUnit->pPath->pRoom1->pRoom2->pLevel->dwLevelNo));
+	pUnit = D2CLIENT_GetPlayerUnit();
+	if (!pUnit) return;
 
 	CHAR szPing[10] = "";
 	sprintf_s(szPing, sizeof(szPing), "%d", *p_D2CLIENT_Ping);
