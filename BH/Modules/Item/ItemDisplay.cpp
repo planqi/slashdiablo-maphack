@@ -1302,8 +1302,8 @@ bool ItemPriceCondition::EvaluateInternal(UnitItemInfo *uInfo, Condition *arg1, 
 	return IntegerCompare(D2COMMON_GetItemPrice(D2CLIENT_GetPlayerUnit(), uInfo->item, D2CLIENT_GetDifficulty(), (DWORD)D2CLIENT_GetQuestInfo(), 0x201, 1), operation, targetStat);
 }
 bool ItemPriceCondition::EvaluateInternalFromPacket(ItemInfo *info, Condition *arg1, Condition *arg2) {
-	// TODO: Implement later
-	return false;
+    UnitAny *uAny = D2CLIENT_FindClientSideUnit(info->id, UNIT_ITEM);
+	return IntegerCompare(D2COMMON_GetItemPrice(D2CLIENT_GetPlayerUnit(), uAny, D2CLIENT_GetDifficulty(), (DWORD)D2CLIENT_GetQuestInfo(), 0x201, 1), operation, targetStat);
 }
 
 bool ResistAllCondition::EvaluateInternal(UnitItemInfo *uInfo, Condition *arg1, Condition *arg2) {
