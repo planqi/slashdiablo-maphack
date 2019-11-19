@@ -1,6 +1,7 @@
 #pragma once
 #include <list>
 #include <Windows.h>
+#include <string>
 
 namespace Drawing {
 	// HookGroups allow use of the basic hooks(Line,Text,Box,Frame)
