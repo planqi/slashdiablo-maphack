@@ -241,8 +241,7 @@ void Item::OnLeftClick(bool up, int x, int y, bool* block) {
 
 void __fastcall Item::ItemNamePatch(wchar_t *name, UnitAny *item)
 {
-	char* szName = UnicodeToAnsi(name);
-	string itemName = szName;
+    string itemName = wstring_to_string(wstring(name));
 	char* code = D2COMMON_GetItemText(item->dwTxtFileNo)->szCode;
 
 	if (Toggles["Advanced Item Display"].state) {
@@ -276,9 +275,9 @@ void __fastcall Item::ItemNamePatch(wchar_t *name, UnitAny *item)
 	//string test3 = test_code;
 	//itemName += " {" + test3 + "}";
 
-	MultiByteToWideChar(CODE_PAGE, MB_PRECOMPOSED, itemName.c_str(), itemName.length(), name, itemName.length());
-	name[itemName.length()] = 0;  // null-terminate the string since MultiByteToWideChar doesn't
-	delete[] szName;
+    auto patchedName = string_to_wstring(itemName);
+    wcsncpy(name, patchedName.c_str(), patchedName.size());
+    name[itemName.size()] = 0;  // null-terminate the string since wcsncpy doesn't
 }
 
 void Item::OrigGetItemName(UnitAny *item, string &itemName, char *code)

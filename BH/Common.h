@@ -50,6 +50,10 @@
 #include "D2Ptrs.h"
 
 void Tokenize(const std::string& str, std::vector<std::string>& tokens, const std::string& delimiters);
+
+std::wstring string_to_wstring(const std::string& str);
+std::string wstring_to_string(const std::wstring& wstr);
+
 wchar_t* AnsiToUnicode(const char* str);
 char* UnicodeToAnsi(const wchar_t* str);
 std::wstring GetColorCode(int ColNo);
