@@ -575,6 +575,7 @@ extern vector<pair<string, string>> rules;
 namespace ItemDisplay {
 	void InitializeItemRules();
 	void UninitializeItemRules();
+	void InitializeExternalRules(vector<std::pair<string, string>> itemConfigs);
 }
 StatProperties *GetStatProperties(unsigned int stat);
 void BuildAction(string *str, Action *act);

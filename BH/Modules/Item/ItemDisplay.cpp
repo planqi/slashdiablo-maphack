@@ -333,6 +333,11 @@ namespace ItemDisplay {
 
 		item_display_initialized = true;
 		rules.clear();
+
+		vector<pair<string, string>> itemConfigs;
+		BH::config->ReadMapList("ItemConfig", itemConfigs);
+		InitializeExternalRules(itemConfigs);
+
 		BH::config->ReadMapList("ItemDisplay", rules);
 		for (unsigned int i = 0; i < rules.size(); i++) {
 			string buf;
@@ -365,12 +370,31 @@ namespace ItemDisplay {
 		}
 	}
 
+	void InitializeExternalRules(vector<std::pair<string, string>> itemConfigs)
+	{
+		for (pair<string, string> pair : itemConfigs) {
+			Config* c = new Config(pair.second);
+			if (!c->Parse()) {
+				string msg = "Could not find ItemConfig.\nAttempted to load " +
+					pair.second + " (failed)";
+				MessageBox(NULL, msg.c_str(), "Failed to load ItemConfig", MB_OK);
+			}
+			vector<std::pair<string, string>> nestedItemConfigs;
+			c->ReadMapList("ItemConfig", nestedItemConfigs);
+			if (!nestedItemConfigs.empty()) {
+				InitializeExternalRules(nestedItemConfigs);
+			}
+			c->ReadMapList("ItemDisplay", rules);
+		}
+	}
+
 	void UninitializeItemRules() {
 		item_display_initialized = false;
 		RuleList.clear();
 		MapRuleList.clear();
 		IgnoreRuleList.clear();
 	}
+
 }
 
 void BuildAction(string *str, Action *act) {
