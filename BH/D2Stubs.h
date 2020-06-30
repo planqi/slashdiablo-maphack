@@ -9,3 +9,4 @@ DWORD __fastcall D2CLIENT_GetUIVar_STUB(DWORD varno);
 CellFile* __fastcall D2CLIENT_LoadUiImage(CHAR* szPath);
 DWORD __fastcall D2CLIENT_ClickParty_ASM(RosterUnit* RosterUnit, DWORD Mode);
 void __fastcall D2CLIENT_PlaySound(int SoundNo);
+void __fastcall D2CLIENT_SetSelectedUnit(UnitAny* pUnit);

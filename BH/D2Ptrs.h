@@ -111,7 +111,7 @@ FUNCPTR(D2CLIENT, GetCursorItem, UnitAny* __fastcall, (void), 0x16020, 0x144A0)
 FUNCPTR(D2CLIENT, GetMercUnit, UnitAny* __fastcall, (void), 0x97CD0, 0x9C0A0)
 // FUNCPTR(D2CLIENT, UnitTestSelect, DWORD __stdcall, (UnitAny* pUnit, DWORD _1, DWORD _2, DWORD _3), 0x8D030) // unused but we need to use it
 
-FUNCPTR(D2CLIENT, SetSelectedUnit_I, void __fastcall, (UnitAny *pUnit), 0x51860, 0x17060)
+//FUNCPTR(D2CLIENT, SetSelectedUnit_I, void __stdcall, (void), 0x51860, 0x17060)
 FUNCPTR(D2CLIENT, GetItemName, BOOL __stdcall, (UnitAny* pItem, wchar_t* wBuffer, DWORD dwSize), 0x914F0, 0x958C0)
 // FUNCPTR(D2CLIENT, GetItemNameString, void __stdcall, (UnitAny *pItem, wchar_t *wItemName, int nLen), 0x914F0)
 FUNCPTR(D2CLIENT, LoadItemDesc, BOOL __stdcall, (UnitAny* pPlayer, int type), 0x97820) // 1.13d
@@ -172,6 +172,7 @@ ASMPTR(D2CLIENT, OverrideShrinePatch_ORIG, 0x1155B8, 0x101B08)//Updated 1.13c
 
 VARPTR(D2CLIENT, ScreenSizeX, DWORD, 0xDBC48, 0xF7034)
 VARPTR(D2CLIENT, ScreenSizeY, DWORD, 0xDBC4C, 0xF7038)
+VARPTR(D2CLIENT, GameView, GameView*, 0x11C3C4, 0x11D20C)
 
 VARPTR(D2CLIENT, CursorHoverX, DWORD, 0xE0EB8, 0xEE4AC)
 VARPTR(D2CLIENT, CursorHoverY, DWORD, 0xE0EBC, 0xEE4B0)
@@ -314,6 +315,7 @@ ASMPTR(D2WIN, DrawTextBuffer, 0x12940, 0x134D0)
 
 ASMPTR(D2CLIENT, ParseStats_J, 0x54E10, 0x2CE40)
 
+ASMPTR(D2CLIENT, SetSelectedUnit_I, 0x51860, 0x17060)
 ////////////////////////////////////////////////////////////////////////////////////////////////
 // D2Common Ordinals
 ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -365,6 +367,8 @@ FUNCPTR(D2COMMON, GetQuestFlag2, int __stdcall, (void *QuestInfo, DWORD quest, D
 
 FUNCPTR(D2COMMON, AbsScreenToMap, void __stdcall, (long *pX, long *pY), -10474, -10720)
 FUNCPTR(D2COMMON, MapToAbsScreen, void __stdcall, (long *pX, long *pY), -11087, -10115)
+FUNCPTR(D2COMMON, GetUnitXOffset, int __stdcall, (UnitAny* pUnit), -10651, -10641)
+FUNCPTR(D2COMMON, GetUnitYOffset, int __stdcall, (UnitAny* pUnit), -11142, -10057)
 
 FUNCPTR(D2COMMON, CheckWaypoint, DWORD __stdcall, (DWORD WaypointTable, DWORD dwLevelId), -10373, -11029)
 
@@ -499,9 +503,13 @@ FUNCPTR(D2WIN, DrawCellFile, void __fastcall, (CellFile * pCellFile, int xPos, i
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
 FUNCPTR(D2WIN, DrawText, void __fastcall, (const wchar_t *wStr, int xPos, int yPos, DWORD dwColor, DWORD dwUnk), -10150, -10076)
+FUNCPTR(D2WIN, DrawFramedText, void __fastcall, (const wchar_t *wStr, int xPos, int yPos, int nColor, int Centered), -10085, -10137)
+FUNCPTR(D2WIN, DrawRectangledText, void __fastcall, (const wchar_t * wStr, int xPos, int yPos, int nRectColor, int nRectTrans, int nColor), -10013, -10078)
 
 FUNCPTR(D2WIN, GetTextSize, DWORD __fastcall, (wchar_t *wStr, DWORD* dwWidth, DWORD* dwFileNo), -10177, -10179)
 FUNCPTR(D2WIN, SetTextSize, DWORD __fastcall, (DWORD dwSize), -10184, -10047)
+FUNCPTR(D2WIN, GetTextWdith, int __fastcall, (const wchar_t *wStr), -10028, -10150)
+FUNCPTR(D2WIN, GetFontHeight, short __fastcall, (void), -10083, -10088)
 
 FUNCPTR(D2WIN, SetControlText, void* __fastcall, (Control* box, wchar_t* txt), -10042, -10007)
 FUNCPTR(D2WIN, GetTextWidthFileNo, DWORD __fastcall, (wchar_t *wStr, DWORD* dwWidth, DWORD* dwFileNo), -10177, -10179)
@@ -513,6 +521,7 @@ FUNCPTR(D2WIN, SetEditBoxCallback, VOID __fastcall, (Control* pControl, BOOL(__s
 FUNCPTR(D2WIN, SetEditBoxProc, void __fastcall, (Control* box, BOOL(__stdcall *FunCallBack)(Control*, DWORD, DWORD)), 0x13970, 0xF1D0)//Updated 1.13c
 FUNCPTR(D2WIN, SelectEditBoxText, void __fastcall, (Control* box), 0x7708, 0xEF80) //Updated 1.13c
 FUNCPTR(D2WIN, InitMPQ, DWORD __stdcall, (char *dll, const char *mpqfile, char *mpqname, int v4, int v5), 0x7E60, 0x7E50)
+FUNCPTR(D2WIN, CreateButton, Button* __fastcall, (int xPos, int yPos, int SizeX, int SizeY, CellFile *ptCellFile, BOOL(__stdcall *OnClick)(Control *), DWORD dwVKHotKey, DWORD CellFrame, DWORD ButtonFlags, DWORD TblTextNo, BOOL(__stdcall *OnHoverHandle)(Control *)), -10068, -10192)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 // D2Win Globals

@@ -48,6 +48,7 @@
 #include "../../D2Strings.h"
 #include "../../BH.h"
 #include "../../D2Stubs.h"
+#include "../../D2Helpers.h"
 #include "ItemDisplay.h"
 #include "../../MPQInit.h"
 #include "lrucache.hpp"
@@ -252,6 +253,47 @@ void Item::OnLoop() {
 		} else if (!D2CLIENT_FindServerSideUnit(viewingUnit->dwUnitId, viewingUnit->dwType)) {
 			viewingUnit = NULL;
 			D2CLIENT_SetUIVar(0x01, 1, 0);
+		}
+	}	
+}
+
+void Item::OnDraw() {
+	UnitAny* player = D2CLIENT_GetPlayerUnit();
+	for (Room1* room1 = player->pAct->pRoom1; room1; room1 = room1->pRoomNext) {
+		for (UnitAny* unit = room1->pUnitFirst; unit; unit = unit->pListNext) {
+			if (unit->dwType == UNIT_ITEM && (unit->dwFlags & UNITFLAG_REVEALED) == UNITFLAG_REVEALED) {
+				//string str = GetItemName(unit);
+				//const char* cstr = str.c_str();
+				wchar_t buffer[256] = L"";
+				D2CLIENT_GetItemName(unit, buffer, 256);				
+				int transp = 1;
+				BYTE boxColor = 0;
+				POINT textSize = Drawing::Texthook::GetTextSize(buffer, 1);
+				int mouseX = (*p_D2CLIENT_MouseX);
+				int mouseY = (*p_D2CLIENT_MouseY);
+				GameView* gv = *p_D2CLIENT_GameView;
+				int itemX = D2COMMON_GetUnitXOffset(unit);
+				int itemY = D2COMMON_GetUnitYOffset(unit);
+				int x1 = (itemX - gv->xOffset) - (textSize.x / 2) - 4;
+				int y1 = (itemY - gv->yOffset) - 4;
+				
+				if (mouseX >= x1 && mouseX <= x1 + textSize.x + 8 && mouseY <= y1 + 4 && mouseY >= y1 - textSize.y) {
+					boxColor = 0x8C;
+					transp = 3;
+					D2CLIENT_SetSelectedUnit(unit);
+				}
+				else {
+					boxColor = 0;
+					transp = 1;
+				}
+
+				//int viewX = *p_D2CLIENT_MouseOffsetX;
+				//int viewY = *p_D2CLIENT_MouseOffsetY;
+				//PrintText(1, "%d, %d", boxWidth, textSize.x);
+				
+				D2WIN_DrawRectangledText(buffer, x1, y1, boxColor, transp, Blue);
+
+			}
 		}
 	}
 }
