@@ -90,12 +90,11 @@ void __declspec(naked) __fastcall D2CLIENT_PlaySound(int SoundNo)
 	}
 }
 
-void __declspec(naked) __fastcall D2CLIENT_SetSelectedUnit(UnitAny* pUnit)
+void __declspec(naked) __fastcall D2CLIENT_SetSelectedUnit_STUB(UnitAny* pUnit)
 {
 	__asm
-	{
-		mov eax, ecx
-			call D2CLIENT_SetSelectedUnit_I
-			ret
+	{		
+		mov eax, ecx		
+		jmp D2CLIENT_SetSelectedUnit_I		
 	}
 }

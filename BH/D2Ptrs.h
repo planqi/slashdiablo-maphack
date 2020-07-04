@@ -111,7 +111,7 @@ FUNCPTR(D2CLIENT, GetCursorItem, UnitAny* __fastcall, (void), 0x16020, 0x144A0)
 FUNCPTR(D2CLIENT, GetMercUnit, UnitAny* __fastcall, (void), 0x97CD0, 0x9C0A0)
 // FUNCPTR(D2CLIENT, UnitTestSelect, DWORD __stdcall, (UnitAny* pUnit, DWORD _1, DWORD _2, DWORD _3), 0x8D030) // unused but we need to use it
 
-//FUNCPTR(D2CLIENT, SetSelectedUnit_I, void __stdcall, (void), 0x51860, 0x17060)
+//FUNCPTR(D2CLIENT, SetSelectedUnit_I, void __fastcall, (UnitAny *pUnit), 0x51860, 0x17060)
 FUNCPTR(D2CLIENT, GetItemName, BOOL __stdcall, (UnitAny* pItem, wchar_t* wBuffer, DWORD dwSize), 0x914F0, 0x958C0)
 // FUNCPTR(D2CLIENT, GetItemNameString, void __stdcall, (UnitAny *pItem, wchar_t *wItemName, int nLen), 0x914F0)
 FUNCPTR(D2CLIENT, LoadItemDesc, BOOL __stdcall, (UnitAny* pPlayer, int type), 0x97820) // 1.13d
@@ -251,7 +251,7 @@ VARPTR(D2CLIENT, MapId, DWORD, 0x11C3BC, 0x11D204) // unused but I want to add i
 VARPTR(D2CLIENT, AlwaysRun, DWORD, 0x11C3EC, 0x11D234)
 VARPTR(D2CLIENT, NoPickUp, DWORD, 0x11C2F0, 0x11D574) // unused but I want to add it
 
-// VARPTR(D2CLIENT, ScreenCovered, DWORD, 0x1E8F9) // unused, appears to be an int specifying which screens (if any) are opened...
+VARPTR(D2CLIENT, ScreenCovered, int, 0x11C414, 0x11D070) // int specifying whether the left or right or both sides of the screen are covered by UI panels
 
 VARPTR(D2CLIENT, ChatMsg, wchar_t*, 0x11EC80, 0x11D650)
 
@@ -550,3 +550,4 @@ FUNCPTR(D2MCPCLIENT, ParseGameListPacket, VOID __fastcall, (BYTE* pPacket), 0x6E
 #define D2CLIENT_ClickParty(RosterUnit, Mode)		(D2CLIENT_ClickParty_ASM(RosterUnit, Mode))
 #define D2CLIENT_xShake (*p_D2CLIENT_xShake)	//GameShake
 #define D2CLIENT_yShake (*p_D2CLIENT_yShake)	//GameShake
+//#define D2CLIENT_SetSelectedUnit(x) (D2CLIENT_SetSelectedUnit_STUB((DWORD)x))
