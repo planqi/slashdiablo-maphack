@@ -104,3 +104,4 @@ int CreateUnitItemInfo(UnitItemInfo *uInfo, UnitAny *item);
 // reset all rule lookup caches
 void ResetCaches();
 
+
