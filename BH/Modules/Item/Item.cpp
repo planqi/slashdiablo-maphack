@@ -319,8 +319,8 @@ void Item::OnDraw() {
 					boxColor = 0;
 					transp = BTOneHalf;
 				}
-				//Drawing::Boxhook::Draw(itemBox.left, itemBox.top, boxSize.x, boxSize.y, boxColor, transp);
-				//Drawing::Texthook::Draw(itemBox.left + 4, itemBox.bottom - 2 - textSize.y, Drawing::None, 1, White, buffer);
+				Drawing::Boxhook::Draw(itemBox.left, itemBox.top, boxSize.x, boxSize.y, boxColor, transp);
+				Drawing::Texthook::Draw(itemBox.left + 4, itemBox.bottom - 2 - textSize.y, Drawing::None, 1, White, buffer);
 			}
 		}
 	}
