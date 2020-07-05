@@ -61,7 +61,8 @@ map<std::string, Toggle> Item::Toggles;
 unsigned int Item::filterLevelSetting = 0;
 unsigned int Item::pingLevelSetting = 0;
 UnitAny* Item::viewingUnit;
-vector<RECT> itemsOnGround;
+vector<UnitAny*> itemsOnGround;
+vector<RECT> itemBoxes;
 
 Patch* itemNamePatch = new Patch(Call, D2CLIENT, { 0x92366, 0x96736 }, (int)ItemName_Interception, 6);
 Patch* itemPropertiesPatch = new Patch(Jump, D2CLIENT, { 0x5612C, 0x2E3FC }, (int)GetProperties_Interception, 6);
@@ -262,11 +263,14 @@ void Item::OnDraw() {
 	UnitAny* player = D2CLIENT_GetPlayerUnit();	
 	int coverSate = *p_D2CLIENT_ScreenCovered;
 	GameView* gameView = *p_D2CLIENT_GameView;	
-	RECT viewRect;
-	RECT mainItemBox;
+	RECT viewRect;	
 	int mouseX = (*p_D2CLIENT_MouseX);
 	int mouseY = (*p_D2CLIENT_MouseY);
-	itemsOnGround.clear();	
+	itemsOnGround.clear();
+	itemBoxes.clear();
+
+	if (D2CLIENT_GetUIState(UI_ESCMENU_MAIN))
+		return;
 
 	switch (coverSate)
 	{
@@ -283,54 +287,81 @@ void Item::OnDraw() {
 	for (Room1* room1 = player->pAct->pRoom1; room1; room1 = room1->pRoomNext) {
 		for (UnitAny* unit = room1->pUnitFirst; unit; unit = unit->pListNext) {
 			if (unit->dwType == UNIT_ITEM && IsInRange(unit, gameView, viewRect)) {
-				wchar_t buffer[256] = L"";
-				D2CLIENT_GetItemName(unit, buffer, 256);
-				BoxTrans transp = Drawing::BTOneHalf;
-				BYTE boxColor = 0;
-				POINT textSize = Drawing::Texthook::GetTextSize(buffer, 1);
-				int itemX = D2COMMON_GetUnitXOffset(unit);
-				int itemY = D2COMMON_GetUnitYOffset(unit);
-				int x = (itemX - gameView->xOffset) + (gameView->ViewRadius.left) - (textSize.x / 2);
-				int y = (itemY - gameView->yOffset) - 5;
-				RECT itemBox = { x - 4, y - textSize.y - 2, x + textSize.x + 4, y + 2 };
-				POINT boxSize = { itemBox.right - itemBox.left, itemBox.bottom - itemBox.top };
-				itemsOnGround.push_back(itemBox);
-				if (itemsOnGround.size() == 1) {
-					mainItemBox = itemBox;
-				}
-				for (unsigned int i = 0; i < itemsOnGround.size() - 1; i++) {					
-					if (!(itemBox.left >= itemsOnGround[i].right || itemBox.right <= itemsOnGround[i].left || itemBox.top >= itemsOnGround[i].bottom || itemBox.bottom <= itemsOnGround[i].top)) {  //is intefering					
-						itemsOnGround[itemsOnGround.size() - 1].bottom = itemsOnGround[i].top;
-						itemsOnGround[itemsOnGround.size() - 1].top = itemsOnGround[i].top - boxSize.y;
-					}
-					mainItemBox.bottom = max(mainItemBox.bottom, itemsOnGround[itemsOnGround.size() - 1].bottom);
-				}
-				if (itemBox.left < viewRect.left + gameView->ViewRadius.left || itemBox.right > viewRect.right + gameView->ViewRadius.left || itemBox.top < viewRect.top || itemBox.bottom > viewRect.bottom)
-					break;
-
-				if (mouseX >= itemBox.left && mouseX <= itemBox.right + 8 && mouseY <= itemBox.bottom && mouseY >= itemBox.top) {
-					boxColor = 0x8C;
-					transp = BTWhite;
-					if ((unit->dwFlags & UNITFLAG_SELECTABLE) == UNITFLAG_SELECTABLE) {
-						D2CLIENT_SetSelectedUnit_STUB(unit);
-					}
-				}
-				else {
-					boxColor = 0;
-					transp = BTOneHalf;
-				}
-				Drawing::Boxhook::Draw(itemBox.left, itemBox.top, boxSize.x, boxSize.y, boxColor, transp);
-				Drawing::Texthook::Draw(itemBox.left + 4, itemBox.bottom - 2 - textSize.y, Drawing::None, 1, White, buffer);
+				itemsOnGround.push_back(unit);
 			}
 		}
 	}
+	for (unsigned int i = 0; i < itemsOnGround.size(); i++) {
+		wchar_t buffer[256] = L"";
+		D2CLIENT_GetItemName(itemsOnGround[i], buffer, 256);
+		char* szName = UnicodeToAnsi(buffer);
+		string itemName = szName;
+		if (itemName == "Gold") {
+			int goldQuantity = D2COMMON_GetUnitStat(itemsOnGround[i], STAT_GOLD, 0);
+			int startIndex = itemName.find("G");
+			itemName.insert(startIndex, ::to_string(goldQuantity) + " ");
+		}
+		BoxTrans transp = Drawing::BTOneHalf;
+		BYTE boxColor = 0;
+		POINT textSize = Drawing::Texthook::GetTextSize(itemName, 1);
+		int itemX = D2COMMON_GetUnitXOffset(itemsOnGround[i]);
+		int itemY = D2COMMON_GetUnitYOffset(itemsOnGround[i]);
+		int x = (itemX - gameView->xOffset) + (gameView->ViewRadius.left) - (textSize.x / 2);
+		int y = (itemY - gameView->yOffset) - 5;
+		RECT itemBox = { x - 4, y - textSize.y - 2, x + textSize.x + 4, y + 2 };
+		POINT boxSize = { itemBox.right - itemBox.left, itemBox.bottom - itemBox.top };
+		int delim = itemName.find("\n");
+		//PrintText(White, "%d", delim);
+		if (delim > 0) {			
+			string firstHalf = itemName.substr(0, delim);
+			string secondHalf = itemName.substr(delim + 1, itemName.length() - delim - 4);
+			int firstWidth = Drawing::Texthook::GetTextSize(firstHalf, 1).x;
+			int secondWidth = Drawing::Texthook::GetTextSize(secondHalf, 1).x;
+			if (firstWidth < secondWidth) {
+				int spaces = (((secondWidth - firstWidth) / 2) / 10) + 1;
+				firstHalf.insert(0, spaces, ' ');
+				itemName.clear();
+				itemName = firstHalf + '\n' + secondHalf;
+			}
+			else if (secondWidth < firstWidth) {
+				int spaces = (((firstWidth - secondWidth) / 2) / 10) + 1; 
+				secondHalf.insert(0, spaces, ' ');
+				itemName.clear();
+				itemName = firstHalf + '\n' + secondHalf;
+			}
+			itemBox.top -= boxSize.y;
+			boxSize.y *= 2;		
+		}			
+		itemBoxes.push_back(itemBox);	
+		itemBoxes.back() = OrganizeBoxes(itemBoxes, itemBoxes.back(), boxSize);
+		if (itemBoxes.back().left < viewRect.left + gameView->ViewRadius.left || itemBoxes.back().right > viewRect.right + gameView->ViewRadius.left || itemBoxes.back().top < viewRect.top || itemBoxes.back().bottom > viewRect.bottom)
+			break;
+		if (mouseX >= itemBoxes.back().left && mouseX <= itemBoxes.back().right + 8 && mouseY <= itemBoxes.back().bottom && mouseY >= itemBoxes.back().top) {
+			boxColor = 0x8C;
+			transp = BTWhite;
+			if ((itemsOnGround[i]->dwFlags & UNITFLAG_SELECTABLE) == UNITFLAG_SELECTABLE) {
+				D2CLIENT_SetSelectedUnit_STUB(itemsOnGround[i]);
+			}
+		}
+		else {
+			boxColor = 0;
+			transp = BTOneHalf;
+		}
+		Drawing::Boxhook::Draw(itemBoxes.back().left, itemBoxes.back().top, boxSize.x, boxSize.y, boxColor, transp);
+		Drawing::Texthook::Draw(itemBoxes.back().left + 4, itemBoxes.back().bottom - 2 - textSize.y, Drawing::None, 1, White, itemName);		
+	}
 }
+
+
 
 void Item::OnKey(bool up, BYTE key, LPARAM lParam, bool* block) {	
 	if (key == 0x27) {
-		if (up) {
-			PrintText(1, "%d, %d", *p_D2CLIENT_ScreenSizeX, *p_D2CLIENT_ScreenSizeY);
-		}
+		if (up){
+			wchar_t wc[] = L"anasansasa";
+			wchar_t * pwc;
+			pwc = wcsrchr(wc, L'\n');
+			PrintText(White, "%d", pwc - wc + 1);
+		}			
 	}
 	if (key == showPlayer) {
 		*block = true;
@@ -1222,6 +1253,23 @@ BOOL Item::IsInRange(UnitAny* pUnit, GameView* gameView, RECT viewRect) {
 		return true;
 	
 	return false;
+}
+
+RECT Item::OrganizeBoxes(vector<RECT> iBoxes, RECT currBox, POINT bSize) {
+	BOOL moved = false;
+	RECT rRect;
+	rRect = currBox;
+	for (unsigned int j = 0; j < iBoxes.size() - 1; j++) {
+		if (!(currBox.left >= iBoxes[j].right || currBox.right <= iBoxes[j].left || currBox.top >= iBoxes[j].bottom || currBox.bottom <= iBoxes[j].top)) {  //is intersecting
+			rRect.bottom = iBoxes[j].top;
+			rRect.top = rRect.bottom - bSize.y;
+			moved = true;
+		}
+	}
+	if (moved)
+		rRect = OrganizeBoxes(iBoxes, rRect, bSize);
+
+	return rRect;
 }
 
 UnitAny* Item::GetViewUnit ()

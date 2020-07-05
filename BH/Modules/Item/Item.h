@@ -84,6 +84,7 @@ class Item : public Module {
 		static void __stdcall OnPropertyBuild(wchar_t* wOut, int nStat, UnitAny* pItem, int nStatParam);
 
 		static BOOL IsInRange(UnitAny* pUnit, GameView* gameView, RECT viewRect);
+		static RECT OrganizeBoxes(vector<RECT> iBoxes, RECT currBox, POINT bSize);
 		static UnitAny* GetViewUnit();
 
 		static unsigned int GetFilterLevel() { return filterLevelSetting; }
