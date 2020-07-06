@@ -68,6 +68,9 @@ Patch* itemNamePatch = new Patch(Call, D2CLIENT, { 0x92366, 0x96736 }, (int)Item
 Patch* itemPropertiesPatch = new Patch(Jump, D2CLIENT, { 0x5612C, 0x2E3FC }, (int)GetProperties_Interception, 6);
 Patch* itemPropertyStringDamagePatch = new Patch(Call, D2CLIENT, { 0x55D7B, 0x2E04B }, (int)GetItemPropertyStringDamage_Interception, 5);
 Patch* itemPropertyStringPatch = new Patch(Call, D2CLIENT, { 0x55D9D, 0x2E06D }, (int) GetItemPropertyString_Interception, 5);
+Patch* itemDisableAltPatch = new Patch(NOP, D2CLIENT, { 0xC3D4E, 0x1D74E }, 0, 6);
+Patch* itemGoldHoverDisplayPatch = new Patch(Call, D2CLIENT, { 0xC00B5, 0x2E06D }, (int)HoveredItemDisplay_Interception, 5);
+Patch* itemHoverDisplayPatch = new Patch(Call, D2CLIENT, { 0xC0159, 0x2E06D }, (int)HoveredItemDisplay_Interception, 5);
 Patch* viewInvPatch1 = new Patch(Call, D2CLIENT, { 0x953E2, 0x997B2 }, (int)ViewInventoryPatch1_ASM, 6);
 Patch* viewInvPatch2 = new Patch(Call, D2CLIENT, { 0x94AB4, 0x98E84 }, (int)ViewInventoryPatch2_ASM, 6);
 Patch* viewInvPatch3 = new Patch(Call, D2CLIENT, { 0x93A6F, 0x97E3F }, (int)ViewInventoryPatch3_ASM, 5);
@@ -84,6 +87,12 @@ void Item::OnLoad() {
 	itemPropertiesPatch->Install();
 	itemPropertyStringDamagePatch->Install();
 	itemPropertyStringPatch->Install();
+
+	if (Toggles["Always Show Items On Ground"].state) {
+		itemDisableAltPatch->Install();
+		itemHoverDisplayPatch->Install();
+		itemGoldHoverDisplayPatch->Install();
+	}	
 
 	if (Toggles["Show Ethereal"].state || Toggles["Show Sockets"].state || Toggles["Show iLvl"].state || Toggles["Color Mod"].state ||
 		Toggles["Show Rune Numbers"].state || Toggles["Alt Item Style"].state || Toggles["Shorten Item Names"].state || Toggles["Advanced Item Display"].state)
@@ -122,6 +131,8 @@ void Item::LoadConfig() {
 	BH::config->ReadToggle("Allow Unknown Items", "None", false, Toggles["Allow Unknown Items"]);
 	BH::config->ReadToggle("Suppress Invalid Stats", "None", false, Toggles["Suppress Invalid Stats"]);
 	BH::config->ReadToggle("Always Show Item Stat Ranges", "None", true, Toggles["Always Show Item Stat Ranges"]);
+	BH::config->ReadToggle("Always Show Items On Ground", "None", false, Toggles["Always Show Items On Ground"]);
+	
 	BH::config->ReadInt("Filter Level", filterLevelSetting);
 	BH::config->ReadInt("Ping Level", pingLevelSetting);
 
@@ -192,6 +203,10 @@ void Item::DrawSettings() {
 	new Checkhook(settingsTab, 4, y, &Toggles["Suppress Invalid Stats"].state, "Suppress Invalid Stats");
 	new Keyhook(settingsTab, keyhook_x, y+2, &Toggles["Suppress Invalid Stats"].toggle, "");
 	y += 15;
+	new Checkhook(settingsTab, 4, y, &Toggles["Always Show Items On Ground"].state, "Always Show Items On Ground");	                                           
+	new Keyhook(settingsTab, keyhook_x, y + 2, &Toggles["Always Show Items On Ground"].toggle, "");
+
+	y += 15;
 	
 	new Keyhook(settingsTab, 4, y+2, &showPlayer, "Show Player's Gear:   ");
 	y += 15;
@@ -223,16 +238,35 @@ void Item::OnUnload() {
 	itemPropertiesPatch->Remove();
 	itemPropertyStringDamagePatch->Remove();
 	itemPropertyStringPatch->Remove();
+	itemDisableAltPatch->Remove();
+	itemHoverDisplayPatch->Remove();
+	itemGoldHoverDisplayPatch->Remove();
 	viewInvPatch1->Remove();
 	viewInvPatch2->Remove();
 	viewInvPatch3->Remove();
 	ItemDisplay::UninitializeItemRules();
 }
 
+void Item::ResetPatches(){
+	if (Toggles["Always Show Items On Ground"].state) {
+		itemDisableAltPatch->Install();
+		itemHoverDisplayPatch->Install();
+		itemGoldHoverDisplayPatch->Install();
+	}		
+	else
+	{
+		itemDisableAltPatch->Remove();
+		itemHoverDisplayPatch->Remove();
+		itemGoldHoverDisplayPatch->Remove();
+	}
+		
+}
+
 void Item::OnLoop() {
 	static unsigned int localFilterLevel = 0;
 	static unsigned int localPingLevel = 0;
 	// This is a bit of a hack to reset the cache when the user changes the item filter level
+	ResetPatches();
 	if (localFilterLevel != filterLevelSetting) {
 		ResetCaches();
 		localFilterLevel = filterLevelSetting;
@@ -269,7 +303,7 @@ void Item::OnDraw() {
 	itemsOnGround.clear();
 	itemBoxes.clear();
 
-	if (D2CLIENT_GetUIState(UI_ESCMENU_MAIN))
+	if (D2CLIENT_GetUIState(UI_ESCMENU_MAIN) || D2CLIENT_GetUIState(UI_HELP_MENU) || D2CLIENT_GetUIState(UI_MESSAGE_LOG) || !Toggles["Always Show Items On Ground"].state)
 		return;
 
 	switch (coverSate)
@@ -308,10 +342,9 @@ void Item::OnDraw() {
 		int itemY = D2COMMON_GetUnitYOffset(itemsOnGround[i]);
 		int x = (itemX - gameView->xOffset) + (gameView->ViewRadius.left) - (textSize.x / 2);
 		int y = (itemY - gameView->yOffset) - 5;
-		RECT itemBox = { x - 4, y - textSize.y - 2, x + textSize.x + 4, y + 2 };
+		RECT itemBox = { x - 4, y - textSize.y - 2, x + textSize.x + 4, y + 3 };
 		POINT boxSize = { itemBox.right - itemBox.left, itemBox.bottom - itemBox.top };
-		int delim = itemName.find("\n");
-		//PrintText(White, "%d", delim);
+		int delim = itemName.find("\n");		
 		if (delim > 0) {			
 			string firstHalf = itemName.substr(0, delim);
 			string secondHalf = itemName.substr(delim + 1, itemName.length() - delim - 4);
@@ -355,14 +388,6 @@ void Item::OnDraw() {
 
 
 void Item::OnKey(bool up, BYTE key, LPARAM lParam, bool* block) {	
-	if (key == 0x27) {
-		if (up){
-			wchar_t wc[] = L"anasansasa";
-			wchar_t * pwc;
-			pwc = wcsrchr(wc, L'\n');
-			PrintText(White, "%d", pwc - wc + 1);
-		}			
-	}
 	if (key == showPlayer) {
 		*block = true;
 		if (up)
@@ -384,6 +409,7 @@ void Item::OnKey(bool up, BYTE key, LPARAM lParam, bool* block) {
 			*block = true;
 			if (up) {
 				(*it).second.state = !(*it).second.state;
+				ResetPatches();
 			}
 			return;
 		}
@@ -1365,6 +1391,18 @@ void __declspec(naked) GetItemPropertyString_Interception()
 		ret
 	}
 }
+
+__declspec(naked) void __fastcall HoveredItemDisplay_Interception()
+{	
+	__asm
+	{	
+		mov eax, [esp + 0]
+		mov ecx, [esp + 4]
+		mov edx, [esp + 8]
+		ret 12
+	}
+}
+
 
 void __declspec(naked) ViewInventoryPatch1_ASM()
 {

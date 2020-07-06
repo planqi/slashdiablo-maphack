@@ -62,7 +62,7 @@ class Item : public Module {
 	public:
 
 		Item() : Module("Item") {};
-
+		
 		void OnLoad();
 		void OnUnload();
 
@@ -70,6 +70,8 @@ class Item : public Module {
 		void DrawSettings();
 
 		void OnGameJoin();
+
+		void ResetPatches();
 
 		void OnLoop();
 		void OnDraw();
@@ -96,6 +98,7 @@ void ItemName_Interception();
 void __fastcall GetProperties_Interception();
 void GetItemPropertyStringDamage_Interception();
 void GetItemPropertyString_Interception();
+void __fastcall HoveredItemDisplay_Interception();
 void ViewInventoryPatch1_ASM();
 void ViewInventoryPatch2_ASM();
 void ViewInventoryPatch3_ASM();
