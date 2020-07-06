@@ -294,10 +294,10 @@ void Item::OnLoop() {
 }
 
 void Item::OnDraw() {
-	UnitAny* player = D2CLIENT_GetPlayerUnit();	
+	UnitAny* player = D2CLIENT_GetPlayerUnit();
 	int coverSate = *p_D2CLIENT_ScreenCovered;
-	GameView* gameView = *p_D2CLIENT_GameView;	
-	RECT viewRect;	
+	GameView* gameView = *p_D2CLIENT_GameView;
+	RECT viewRect;
 	int mouseX = (*p_D2CLIENT_MouseX);
 	int mouseY = (*p_D2CLIENT_MouseY);
 	itemsOnGround.clear();
@@ -327,9 +327,7 @@ void Item::OnDraw() {
 	}
 	for (unsigned int i = 0; i < itemsOnGround.size(); i++) {
 		wchar_t buffer[256] = L"";
-		D2CLIENT_GetItemName(itemsOnGround[i], buffer, 256);
-		char* szName = UnicodeToAnsi(buffer);
-		string itemName = szName;
+		string itemName = GetItemName(itemsOnGround[i]);		
 		if (itemName == "Gold") {
 			int goldQuantity = D2COMMON_GetUnitStat(itemsOnGround[i], STAT_GOLD, 0);
 			int startIndex = itemName.find("G");
@@ -368,7 +366,8 @@ void Item::OnDraw() {
 		itemBoxes.push_back(itemBox);	
 		itemBoxes.back() = OrganizeBoxes(itemBoxes, itemBoxes.back(), boxSize);
 		if (itemBoxes.back().left < viewRect.left + gameView->ViewRadius.left || itemBoxes.back().right > viewRect.right + gameView->ViewRadius.left || itemBoxes.back().top < viewRect.top || itemBoxes.back().bottom > viewRect.bottom)
-			break;
+			continue;		
+			
 		if (mouseX >= itemBoxes.back().left && mouseX <= itemBoxes.back().right + 8 && mouseY <= itemBoxes.back().bottom && mouseY >= itemBoxes.back().top) {
 			boxColor = 0x8C;
 			transp = BTWhite;
@@ -380,12 +379,10 @@ void Item::OnDraw() {
 			boxColor = 0;
 			transp = BTOneHalf;
 		}
-		Drawing::Boxhook::Draw(itemBoxes.back().left, itemBoxes.back().top, boxSize.x, boxSize.y, boxColor, transp);
-		Drawing::Texthook::Draw(itemBoxes.back().left + 4, itemBoxes.back().bottom - 2 - textSize.y, Drawing::None, 1, White, itemName);		
+		Drawing::Boxhook::Draw(itemBoxes.back().left, itemBoxes.back().top, boxSize.x, boxSize.y, boxColor, transp);		
+		Drawing::Texthook::Draw(itemBoxes.back().left + 4, itemBoxes.back().bottom - 2 - textSize.y, Drawing::None, 1, White, itemName);
 	}
 }
-
-
 
 void Item::OnKey(bool up, BYTE key, LPARAM lParam, bool* block) {	
 	if (key == showPlayer) {
