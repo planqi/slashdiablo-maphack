@@ -1403,7 +1403,6 @@ __declspec(naked) void __fastcall HoveredItemDisplay_Interception()
 	}
 }
 
-
 void __declspec(naked) ViewInventoryPatch1_ASM()
 {
 	__asm {
