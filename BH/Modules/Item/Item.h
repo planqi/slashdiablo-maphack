@@ -86,6 +86,7 @@ class Item : public Module {
 		static void __stdcall OnPropertyBuild(wchar_t* wOut, int nStat, UnitAny* pItem, int nStatParam);
 
 		static BOOL IsInRange(UnitAny* pUnit, GameView* gameView, RECT viewRect);
+		static int GetItemColor(UnitAny* pItem);
 		static RECT OrganizeBoxes(vector<RECT> iBoxes, RECT currBox, POINT bSize);
 		static UnitAny* GetViewUnit();
 
@@ -98,6 +99,7 @@ void ItemName_Interception();
 void __fastcall GetProperties_Interception();
 void GetItemPropertyStringDamage_Interception();
 void GetItemPropertyString_Interception();
+void __fastcall AltItemDisplay_Interception();
 void __fastcall HoveredItemDisplay_Interception();
 void ViewInventoryPatch1_ASM();
 void ViewInventoryPatch2_ASM();

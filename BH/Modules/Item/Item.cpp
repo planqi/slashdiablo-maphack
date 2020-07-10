@@ -68,7 +68,7 @@ Patch* itemNamePatch = new Patch(Call, D2CLIENT, { 0x92366, 0x96736 }, (int)Item
 Patch* itemPropertiesPatch = new Patch(Jump, D2CLIENT, { 0x5612C, 0x2E3FC }, (int)GetProperties_Interception, 6);
 Patch* itemPropertyStringDamagePatch = new Patch(Call, D2CLIENT, { 0x55D7B, 0x2E04B }, (int)GetItemPropertyStringDamage_Interception, 5);
 Patch* itemPropertyStringPatch = new Patch(Call, D2CLIENT, { 0x55D9D, 0x2E06D }, (int) GetItemPropertyString_Interception, 5);
-Patch* itemDisableAltPatch = new Patch(NOP, D2CLIENT, { 0xC3D4E, 0x1D74E }, 0, 6);
+Patch* itemDisableAltPatch = new Patch(Call, D2CLIENT, { 0x5946E, 0x1D74E }, (int)AltItemDisplay_Interception, 5);
 Patch* itemGoldHoverDisplayPatch = new Patch(Call, D2CLIENT, { 0xC00B5, 0x19AB5 }, (int)HoveredItemDisplay_Interception, 5);
 Patch* itemHoverDisplayPatch = new Patch(Call, D2CLIENT, { 0xC0159, 0x19B59 }, (int)HoveredItemDisplay_Interception, 5);
 Patch* viewInvPatch1 = new Patch(Call, D2CLIENT, { 0x953E2, 0x997B2 }, (int)ViewInventoryPatch1_ASM, 6);
@@ -326,9 +326,9 @@ void Item::OnDraw() {
 		}
 	}
 	for (unsigned int i = 0; i < itemsOnGround.size(); i++) {
-		wchar_t buffer[256] = L"";
-		string itemName = GetItemName(itemsOnGround[i]);		
-		if (itemName == "Gold") {
+		string itemName = GetItemName(itemsOnGround[i]);
+		char *code = D2COMMON_GetItemText(itemsOnGround[i]->dwTxtFileNo)->szCode;
+		if (code[0] == 'g' && code[1] == 'l' && code[2] == 'd') {
 			int goldQuantity = D2COMMON_GetUnitStat(itemsOnGround[i], STAT_GOLD, 0);
 			int startIndex = itemName.find("G");
 			itemName.insert(startIndex, ::to_string(goldQuantity) + " ");
@@ -342,10 +342,10 @@ void Item::OnDraw() {
 		int y = (itemY - gameView->yOffset) - 5;
 		RECT itemBox = { x - 4, y - textSize.y - 2, x + textSize.x + 4, y + 3 };
 		POINT boxSize = { itemBox.right - itemBox.left, itemBox.bottom - itemBox.top };
-		int delim = itemName.find("\n");		
-		if (delim > 0) {			
+		int delim = itemName.find("\n");
+		if (delim > 0) {
 			string firstHalf = itemName.substr(0, delim);
-			string secondHalf = itemName.substr(delim + 1, itemName.length() - delim - 4);
+			string secondHalf = itemName.substr(delim + 1, itemName.length() - delim);
 			int firstWidth = Drawing::Texthook::GetTextSize(firstHalf, 1).x;
 			int secondWidth = Drawing::Texthook::GetTextSize(secondHalf, 1).x;
 			if (firstWidth < secondWidth) {
@@ -355,14 +355,14 @@ void Item::OnDraw() {
 				itemName = firstHalf + '\n' + secondHalf;
 			}
 			else if (secondWidth < firstWidth) {
-				int spaces = (((firstWidth - secondWidth) / 2) / 10) + 1; 
+				int spaces = (((firstWidth - secondWidth) / 2) / 10) + 1;
 				secondHalf.insert(0, spaces, ' ');
 				itemName.clear();
 				itemName = firstHalf + '\n' + secondHalf;
 			}
 			itemBox.top -= boxSize.y;
 			boxSize.y *= 2;		
-		}			
+		}	
 		itemBoxes.push_back(itemBox);	
 		itemBoxes.back() = OrganizeBoxes(itemBoxes, itemBoxes.back(), boxSize);
 		if (itemBoxes.back().left < viewRect.left + gameView->ViewRadius.left || itemBoxes.back().right > viewRect.right + gameView->ViewRadius.left || itemBoxes.back().top < viewRect.top || itemBoxes.back().bottom > viewRect.bottom)
@@ -378,9 +378,10 @@ void Item::OnDraw() {
 		else {
 			boxColor = 0;
 			transp = BTOneHalf;
-		}
-		Drawing::Boxhook::Draw(itemBoxes.back().left, itemBoxes.back().top, boxSize.x, boxSize.y, boxColor, transp);		
-		Drawing::Texthook::Draw(itemBoxes.back().left + 4, itemBoxes.back().bottom - 2 - textSize.y, Drawing::None, 1, White, itemName);
+		}	
+		int color = GetItemColor(itemsOnGround[i]);
+		Drawing::Boxhook::Draw(itemBoxes.back().left, itemBoxes.back().top, boxSize.x, boxSize.y, boxColor, transp);
+		Drawing::Texthook::Draw(itemBoxes.back().left + 4, itemBoxes.back().bottom - 2 - textSize.y, Drawing::None, 1, (TextColor)color, itemName);
 	}
 }
 
@@ -1278,6 +1279,59 @@ BOOL Item::IsInRange(UnitAny* pUnit, GameView* gameView, RECT viewRect) {
 	return false;
 }
 
+int Item::GetItemColor(UnitAny* pItem) {
+	int color = White;
+	switch (pItem->pItemData->dwQuality)
+	{
+	case ITEM_QUALITY_MAGIC:
+		color = Blue;
+		break;
+
+	case ITEM_QUALITY_SET:
+		color = Green;
+		break;
+
+	case ITEM_QUALITY_RARE:
+		color = Yellow;
+		break;
+
+	case ITEM_QUALITY_UNIQUE:
+		color = Gold;
+		break;
+
+	case ITEM_QUALITY_CRAFT:
+		color = Orange;
+		break;
+
+	default:		
+		break;
+	}
+
+	if (pItem->pItemData->dwQuality <= 3 && (pItem->pItemData->dwFlags & ITEM_ETHEREAL || pItem->pItemData->dwFlags & ITEM_HASSOCKETS))
+		color = Grey;
+
+	if (D2COMMON_GetItemType(pItem) == 74)
+		color = Orange;
+
+	char *code = D2COMMON_GetItemText(pItem->dwTxtFileNo)->szCode;
+	if ((code[0] == 'p' && code[1] == 'k' && code[2] == '1') ||		//Key of Terror
+		(code[0] == 'p' && code[1] == 'k' && code[2] == '2') ||		//Key of Hate
+		(code[0] == 'p' && code[1] == 'k' && code[2] == '3') ||		//Key of Destruction
+		(code[0] == 't' && code[1] == 'e' && code[2] == 's') ||		//Twisted Essence
+		(code[0] == 'c' && code[1] == 'e' && code[2] == 'h') ||		//Charged Essence
+		(code[0] == 'b' && code[1] == 'e' && code[2] == 't') ||		//Burning Essence
+		(code[0] == 'f' && code[1] == 'e' && code[2] == 'd') ||		//Festering Essence
+		(code[0] == 't' && code[1] == 'o' && code[2] == 'a') ||		//Token
+		(code[0] == 'd' && code[1] == 'h' && code[2] == 'n') ||		//Diablo's Horn
+		(code[0] == 'b' && code[1] == 'e' && code[2] == 'y') ||		//Baal's Eye
+		(code[0] == 'm' && code[1] == 'b' && code[2] == 'r'))		//Mephisto's Brain
+	{
+		color = Orange;
+	}
+	
+	return color;
+}
+
 RECT Item::OrganizeBoxes(vector<RECT> iBoxes, RECT currBox, POINT bSize) {
 	BOOL moved = false;
 	RECT rRect;
@@ -1386,6 +1440,15 @@ void __declspec(naked) GetItemPropertyString_Interception()
 		add esp, 4 // clean nStatParam
 
 		ret
+	}
+}
+
+__declspec(naked) void __fastcall AltItemDisplay_Interception()
+{
+	__asm
+	{		
+		mov ecx, 256
+		ret 16
 	}
 }
 
