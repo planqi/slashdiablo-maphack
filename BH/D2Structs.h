@@ -187,24 +187,6 @@ struct Control {
    Control* pChildControl;			//0x90
 };
 
-struct Button : Control // (size 0x274)
-{
-	//	 Control Header;									//0x00
-	DWORD dwButtonFlags;								//0x40 0x00 - normal 0x01 - radio 0x02 - switch 0x04 - play sound 0x20 - sth with disabled/enabled 0x40 - multi line 
-	DWORD dwIsPushed;									//0x44
-	BOOL  dwIsSwitched;                                //0x48
-	BOOL _1;			                                //0x4C
-	DWORD dwHotKey;                             	    //0x50
-	DWORD dwButtonType;                           		//0x54 0x00 - Normal Button, 0x01 - Switch Button 0x02 - Long Button
-	DWORD _2;	                                        //0x58
-	DWORD dwCellFrame;                                 //0x5C
-	DWORD dwFont;										//0x60  hardcoded
-	wchar_t wText[256];                              	//0x64
-	DWORD dwColor;										//0x264 hardcoded
-	BOOL(__stdcall *OnHover)(Button*);				//0x268
-	BOOL bisHovered;									//0x26C
-	DWORD dwStrTbl2ndLine;								//0x270
-};
 #pragma pack(push)
 #pragma pack(1)
 

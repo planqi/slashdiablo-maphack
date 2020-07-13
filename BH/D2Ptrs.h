@@ -521,7 +521,6 @@ FUNCPTR(D2WIN, SetEditBoxCallback, VOID __fastcall, (Control* pControl, BOOL(__s
 FUNCPTR(D2WIN, SetEditBoxProc, void __fastcall, (Control* box, BOOL(__stdcall *FunCallBack)(Control*, DWORD, DWORD)), 0x13970, 0xF1D0)//Updated 1.13c
 FUNCPTR(D2WIN, SelectEditBoxText, void __fastcall, (Control* box), 0x7708, 0xEF80) //Updated 1.13c
 FUNCPTR(D2WIN, InitMPQ, DWORD __stdcall, (char *dll, const char *mpqfile, char *mpqname, int v4, int v5), 0x7E60, 0x7E50)
-FUNCPTR(D2WIN, CreateButton, Button* __fastcall, (int xPos, int yPos, int SizeX, int SizeY, CellFile *ptCellFile, BOOL(__stdcall *OnClick)(Control *), DWORD dwVKHotKey, DWORD CellFrame, DWORD ButtonFlags, DWORD TblTextNo, BOOL(__stdcall *OnHoverHandle)(Control *)), -10068, -10192)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 // D2Win Globals
