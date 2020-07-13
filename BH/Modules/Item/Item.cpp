@@ -67,7 +67,7 @@ vector<RECT> itemBoxes;
 Patch* itemNamePatch = new Patch(Call, D2CLIENT, { 0x92366, 0x96736 }, (int)ItemName_Interception, 6);
 Patch* itemPropertiesPatch = new Patch(Jump, D2CLIENT, { 0x5612C, 0x2E3FC }, (int)GetProperties_Interception, 6);
 Patch* itemPropertyStringDamagePatch = new Patch(Call, D2CLIENT, { 0x55D7B, 0x2E04B }, (int)GetItemPropertyStringDamage_Interception, 5);
-Patch* itemPropertyStringPatch = new Patch(Call, D2CLIENT, { 0x55D9D, 0x2E06D }, (int) GetItemPropertyString_Interception, 5);
+Patch* itemPropertyStringPatch = new Patch(Call, D2CLIENT, { 0x55D9D, 0x2E06D }, (int)GetItemPropertyString_Interception, 5);
 Patch* itemDisableAltPatch = new Patch(Call, D2CLIENT, { 0x5946E, 0x1D74E }, (int)AltItemDisplay_Interception, 5);
 Patch* itemGoldHoverDisplayPatch = new Patch(Call, D2CLIENT, { 0xC00B5, 0x19AB5 }, (int)HoveredItemDisplay_Interception, 5);
 Patch* itemHoverDisplayPatch = new Patch(Call, D2CLIENT, { 0xC0159, 0x19B59 }, (int)HoveredItemDisplay_Interception, 5);
@@ -92,7 +92,7 @@ void Item::OnLoad() {
 		itemDisableAltPatch->Install();
 		itemHoverDisplayPatch->Install();
 		itemGoldHoverDisplayPatch->Install();
-	}	
+	}
 
 	if (Toggles["Show Ethereal"].state || Toggles["Show Sockets"].state || Toggles["Show iLvl"].state || Toggles["Color Mod"].state ||
 		Toggles["Show Rune Numbers"].state || Toggles["Alt Item Style"].state || Toggles["Shorten Item Names"].state || Toggles["Advanced Item Display"].state)
@@ -131,8 +131,7 @@ void Item::LoadConfig() {
 	BH::config->ReadToggle("Allow Unknown Items", "None", false, Toggles["Allow Unknown Items"]);
 	BH::config->ReadToggle("Suppress Invalid Stats", "None", false, Toggles["Suppress Invalid Stats"]);
 	BH::config->ReadToggle("Always Show Item Stat Ranges", "None", true, Toggles["Always Show Item Stat Ranges"]);
-	BH::config->ReadToggle("Always Show Items On Ground", "None", false, Toggles["Always Show Items On Ground"]);
-	
+	BH::config->ReadToggle("Always Show Items On Ground", "None", false, Toggles["Always Show Items On Ground"]);	
 	BH::config->ReadInt("Filter Level", filterLevelSetting);
 	BH::config->ReadInt("Ping Level", pingLevelSetting);
 
@@ -258,8 +257,7 @@ void Item::ResetPatches(){
 		itemDisableAltPatch->Remove();
 		itemHoverDisplayPatch->Remove();
 		itemGoldHoverDisplayPatch->Remove();
-	}
-		
+	}		
 }
 
 void Item::OnLoop() {
@@ -328,7 +326,7 @@ void Item::OnDraw() {
 	for (unsigned int i = 0; i < itemsOnGround.size(); i++) {
 		string itemName = GetItemName(itemsOnGround[i]);
 		char *code = D2COMMON_GetItemText(itemsOnGround[i]->dwTxtFileNo)->szCode;
-		if (code[0] == 'g' && code[1] == 'l' && code[2] == 'd') {
+		if (code[0] == 'g' && code[1] == 'l' && code[2] == 'd') {						//Gold needs to be named differently to add gold quantity to it.
 			int goldQuantity = D2COMMON_GetUnitStat(itemsOnGround[i], STAT_GOLD, 0);
 			int startIndex = itemName.find("G");
 			itemName.insert(startIndex, ::to_string(goldQuantity) + " ");
@@ -348,26 +346,18 @@ void Item::OnDraw() {
 			string secondHalf = itemName.substr(delim + 1, itemName.length() - delim);
 			int firstWidth = Drawing::Texthook::GetTextSize(firstHalf, 1).x;
 			int secondWidth = Drawing::Texthook::GetTextSize(secondHalf, 1).x;
-			if (firstWidth < secondWidth) {
-				int spaces = (((secondWidth - firstWidth) / 2) / 10) + 1;
-				firstHalf.insert(0, spaces, ' ');
-				itemName.clear();
-				itemName = firstHalf + '\n' + secondHalf;
-			}
-			else if (secondWidth < firstWidth) {
-				int spaces = (((firstWidth - secondWidth) / 2) / 10) + 1;
-				secondHalf.insert(0, spaces, ' ');
-				itemName.clear();
-				itemName = firstHalf + '\n' + secondHalf;
-			}
+			int spaces = ((abs(firstWidth - secondWidth) / 2) / 10) + 1;		//On double line items, shorter line needs to be aligned to center of box.
+			(firstWidth < secondWidth) ? firstHalf.insert(0, spaces, ' '): secondHalf.insert(0, spaces, ' ');
+			itemName.clear();
+			itemName = firstHalf + '\n' + secondHalf;			
 			itemBox.top -= boxSize.y;
-			boxSize.y *= 2;		
-		}	
-		itemBoxes.push_back(itemBox);	
+			boxSize.y *= 2;
+		}
+		itemBoxes.push_back(itemBox);
 		itemBoxes.back() = OrganizeBoxes(itemBoxes, itemBoxes.back(), boxSize);
-		if (itemBoxes.back().left < viewRect.left + gameView->ViewRadius.left || itemBoxes.back().right > viewRect.right + gameView->ViewRadius.left || itemBoxes.back().top < viewRect.top || itemBoxes.back().bottom > viewRect.bottom)
-			continue;		
-			
+		if (itemBoxes.back().left < viewRect.left + gameView->ViewRadius.left || itemBoxes.back().right > viewRect.right + gameView->ViewRadius.left || itemBoxes.back().top < viewRect.top || itemBoxes.back().bottom > viewRect.bottom)	//Don't display boxes interfering with UI.
+			continue;
+
 		if (mouseX >= itemBoxes.back().left && mouseX <= itemBoxes.back().right + 8 && mouseY <= itemBoxes.back().bottom && mouseY >= itemBoxes.back().top) {
 			boxColor = 0x8C;
 			transp = BTWhite;
@@ -378,14 +368,14 @@ void Item::OnDraw() {
 		else {
 			boxColor = 0;
 			transp = BTOneHalf;
-		}	
+		}
 		int color = GetItemColor(itemsOnGround[i]);
 		Drawing::Boxhook::Draw(itemBoxes.back().left, itemBoxes.back().top, boxSize.x, boxSize.y, boxColor, transp);
 		Drawing::Texthook::Draw(itemBoxes.back().left + 4, itemBoxes.back().bottom - 2 - textSize.y, Drawing::None, 1, (TextColor)color, itemName);
 	}
 }
 
-void Item::OnKey(bool up, BYTE key, LPARAM lParam, bool* block) {	
+void Item::OnKey(bool up, BYTE key, LPARAM lParam, bool* block) {
 	if (key == showPlayer) {
 		*block = true;
 		if (up)
@@ -1275,7 +1265,7 @@ BOOL Item::IsInRange(UnitAny* pUnit, GameView* gameView, RECT viewRect) {
 	DWORD yOffset = D2COMMON_GetUnitYOffset(pUnit);
 	if ((xOffset - gameView->xOffset) > (unsigned int)viewRect.left && (xOffset - gameView->xOffset) < (unsigned int)viewRect.right && (yOffset - gameView->yOffset) > (unsigned int)viewRect.top && (yOffset - gameView->yOffset) < (unsigned int)viewRect.bottom)
 		return true;
-	
+
 	return false;
 }
 
@@ -1303,7 +1293,7 @@ int Item::GetItemColor(UnitAny* pItem) {
 		color = Orange;
 		break;
 
-	default:		
+	default:
 		break;
 	}
 
@@ -1328,7 +1318,7 @@ int Item::GetItemColor(UnitAny* pItem) {
 	{
 		color = Orange;
 	}
-	
+
 	return color;
 }
 
@@ -1446,16 +1436,16 @@ void __declspec(naked) GetItemPropertyString_Interception()
 __declspec(naked) void __fastcall AltItemDisplay_Interception()
 {
 	__asm
-	{		
+	{
 		mov ecx, 256
 		ret 16
 	}
 }
 
 __declspec(naked) void __fastcall HoveredItemDisplay_Interception()
-{	
+{
 	__asm
-	{	
+	{
 		mov eax, [esp + 0]
 		mov ecx, [esp + 4]
 		mov edx, [esp + 8]

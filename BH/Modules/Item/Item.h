@@ -62,7 +62,7 @@ class Item : public Module {
 	public:
 
 		Item() : Module("Item") {};
-		
+
 		void OnLoad();
 		void OnUnload();
 

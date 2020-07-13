@@ -550,4 +550,3 @@ FUNCPTR(D2MCPCLIENT, ParseGameListPacket, VOID __fastcall, (BYTE* pPacket), 0x6E
 #define D2CLIENT_ClickParty(RosterUnit, Mode)		(D2CLIENT_ClickParty_ASM(RosterUnit, Mode))
 #define D2CLIENT_xShake (*p_D2CLIENT_xShake)	//GameShake
 #define D2CLIENT_yShake (*p_D2CLIENT_yShake)	//GameShake
-//#define D2CLIENT_SetSelectedUnit(x) (D2CLIENT_SetSelectedUnit_STUB((DWORD)x))
