@@ -78,8 +78,8 @@ enum TextColor {
 ///////////////////////////////////////////////////
 
 #define COVER_NONE				0
-#define COVER_LEFT				1
-#define COVER_RIGHT				2
+#define COVER_RIGHT				1
+#define COVER_LEFT				2
 #define COVER_BOTH				3
 
 ///////////////////////////////////////////////////
