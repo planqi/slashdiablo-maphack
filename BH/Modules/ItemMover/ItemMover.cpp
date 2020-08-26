@@ -8,122 +8,83 @@
 // This module was inspired by the RedVex plugin "Item Mover", written by kaiks.
 // Thanks to kaiks for sharing his code.
 
-int INVENTORY_WIDTH = 10;
-int INVENTORY_HEIGHT = 4;
-int STASH_WIDTH = 6;
-int LOD_STASH_HEIGHT = 8;
-int CLASSIC_STASH_HEIGHT = 4;
-int CUBE_WIDTH = 3;
-int CUBE_HEIGHT = 4;
+#define INVENTORY_WIDTH  inventoryLayout->SlotWidth
+#define INVENTORY_HEIGHT inventoryLayout->SlotHeight
+#define INVENTORY_LEFT   inventoryLayout->Left
+#define INVENTORY_RIGHT  inventoryLayout->Right
+#define INVENTORY_TOP    inventoryLayout->Top
+#define INVENTORY_BOTTOM inventoryLayout->Bottom
 
-// These are pixel positions
-int INVENTORY_LEFT = 417;
-int INVENTORY_TOP = 315;
-int STASH_LEFT = 153;
-int LOD_STASH_TOP = 143;
-int CLASSIC_STASH_TOP = 334;
-int CUBE_LEFT = 197;
-int CUBE_TOP = 199;
-int CELL_SIZE = 29;
+#define STASH_WIDTH  stashLayout->SlotWidth
+#define STASH_HEIGHT stashLayout->SlotHeight
+#define STASH_LEFT   stashLayout->Left
+#define STASH_RIGHT  stashLayout->Right
+#define STASH_TOP    stashLayout->Top
+#define STASH_BOTTOM stashLayout->Bottom
+
+#define CUBE_WIDTH  cubeLayout->SlotWidth
+#define CUBE_HEIGHT cubeLayout->SlotHeight
+#define CUBE_LEFT   cubeLayout->Left
+#define CUBE_RIGHT  cubeLayout->Right
+#define CUBE_TOP    cubeLayout->Top
+#define CUBE_BOTTOM cubeLayout->Bottom
+
+#define CELL_SIZE inventoryLayout->SlotPixelHeight
 
 DWORD idBookId;
 DWORD unidItemId;
 
-void ItemMover::Init() {
-	// We should be able to get the layout from *p_D2CLIENT_StashLayout and friends,
-	// but doesn't seem to be working at the moment so use the mpq data.
+bool ItemMover::Init() {
+	BnetData* pData = (*p_D2LAUNCH_BnData);
+	if (!pData) { return false; }
+	int xpac = pData->nCharFlags & PLAYER_TYPE_EXPANSION;
 
-	InventoryLayout *classicStashLayout;
-	InventoryLayout *lodStashLayout;
-	InventoryLayout *inventoryLayout;
-	InventoryLayout *cubeLayout;
-
-	// Pull screen sizing info from the mpq data
-	int screenWidth = *p_D2CLIENT_ScreenSizeX;
-	int screenHeight = *p_D2CLIENT_ScreenSizeY;
-	//PrintText(1, "Got screensize %d, %d", screenWidth, screenHeight);
-
-	if (screenWidth != 800 || screenHeight != 600) {
-		classicStashLayout = InventoryLayoutMap["Bank Page 1"];
-		lodStashLayout = InventoryLayoutMap["Big Bank Page 1"];
-		inventoryLayout = InventoryLayoutMap["Amazon"];  // all character types have the same layout
-		cubeLayout = InventoryLayoutMap["Transmogrify Box Page 1"];
-
-		INVENTORY_LEFT = ((inventoryLayout->Left - 320) + (*p_D2CLIENT_ScreenSizeX / 2));
-		INVENTORY_TOP = ((*p_D2CLIENT_ScreenSizeY / 2) - 240) + inventoryLayout->Top;
-		STASH_LEFT = ((*p_D2CLIENT_ScreenSizeX / 2) - 320) + lodStashLayout->Left;
-		LOD_STASH_TOP = ((*p_D2CLIENT_ScreenSizeY / 2) - 240) + lodStashLayout->Top;
-		CLASSIC_STASH_TOP = ((*p_D2CLIENT_ScreenSizeY / 2) - 240) + classicStashLayout->Top;
-		CUBE_LEFT = ((*p_D2CLIENT_ScreenSizeX / 2) - 320) + cubeLayout->Left;
-		CUBE_TOP = ((*p_D2CLIENT_ScreenSizeY / 2) - 240) + cubeLayout->Top;
-	} else {
-		classicStashLayout = InventoryLayoutMap["Bank Page2"];
-		lodStashLayout = InventoryLayoutMap["Big Bank Page2"];
-		inventoryLayout = InventoryLayoutMap["Amazon2"];  // all character types have the same layout
-		cubeLayout = InventoryLayoutMap["Transmogrify Box2"];
-
-		INVENTORY_LEFT = inventoryLayout->Left;
-		INVENTORY_TOP = inventoryLayout->Top;
-		STASH_LEFT = lodStashLayout->Left;
-		LOD_STASH_TOP = lodStashLayout->Top;
-		CLASSIC_STASH_TOP = classicStashLayout->Top;
-		CUBE_LEFT = cubeLayout->Left;
-		CUBE_TOP = cubeLayout->Top;
+	if (xpac) {
+		stashLayout = p_D2CLIENT_StashLayout;
+		StashItemIds = LODStashItemIds;
 	}
-
-	CELL_SIZE = inventoryLayout->SlotPixelHeight;
-
-	INVENTORY_WIDTH = inventoryLayout->SlotWidth;
-	INVENTORY_HEIGHT = inventoryLayout->SlotHeight;
-	STASH_WIDTH = lodStashLayout->SlotWidth;
-	LOD_STASH_HEIGHT = lodStashLayout->SlotHeight;
-	CLASSIC_STASH_HEIGHT = classicStashLayout->SlotHeight;
-	CUBE_WIDTH = cubeLayout->SlotWidth;
-	CUBE_HEIGHT = cubeLayout->SlotHeight;
+	else {
+		stashLayout = p_D2CLIENT_ClassicStashLayout;
+		StashItemIds = ClassicStashItemIds;
+	}
+	inventoryLayout = p_D2CLIENT_InventoryLayout;
+	cubeLayout = p_D2CLIENT_CubeLayout;
 
 	if (!InventoryItemIds) {
 		InventoryItemIds = new int[INVENTORY_WIDTH * INVENTORY_HEIGHT];
 	}
 	if (!StashItemIds) {
-		StashItemIds = new int[STASH_WIDTH * LOD_STASH_HEIGHT];
+		StashItemIds = new int[STASH_WIDTH * STASH_HEIGHT];
 	}
 	if (!CubeItemIds) {
 		CubeItemIds = new int[CUBE_WIDTH * CUBE_HEIGHT];
 	}
 
-	//PrintText(1, "Got positions: %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d",
+	//PrintText(1, "Got positions: %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d",
 	//	INVENTORY_WIDTH,
 	//	INVENTORY_HEIGHT,
 	//	STASH_WIDTH,
-	//	LOD_STASH_HEIGHT,
-	//	CLASSIC_STASH_HEIGHT,
+	//	STASH_HEIGHT,
 	//	CUBE_WIDTH,
 	//	CUBE_HEIGHT,
 	//	INVENTORY_LEFT,
 	//	INVENTORY_TOP,
 	//	STASH_LEFT,
-	//	LOD_STASH_TOP,
-	//	CLASSIC_STASH_TOP,
+	//	STASH_TOP,
 	//	CUBE_LEFT,
 	//	CUBE_TOP,
 	//	CELL_SIZE
 	//);
+
+	return true;
 }
 
-bool ItemMover::LoadInventory(UnitAny *unit, int xpac, int source, int sourceX, int sourceY, bool shiftState, bool ctrlState, int stashUI, int invUI) {
+bool ItemMover::LoadInventory(UnitAny *unit, int source, int sourceX, int sourceY, bool shiftState, bool ctrlState, int stashUI, int invUI) {
 	bool returnValue = false;
 
 	memset(InventoryItemIds, 0, INVENTORY_WIDTH * INVENTORY_HEIGHT * sizeof(int));
-	memset(StashItemIds, 0, STASH_WIDTH * LOD_STASH_HEIGHT * sizeof(int));
+	memset(StashItemIds, 0, STASH_WIDTH * STASH_HEIGHT * sizeof(int));
 	memset(CubeItemIds, 0, CUBE_WIDTH * CUBE_HEIGHT * sizeof(int));
-
-	if (!xpac) {
-		for (int x = 0; x < STASH_WIDTH; x++) {
-			for (int y = CLASSIC_STASH_HEIGHT; y < LOD_STASH_HEIGHT; y++) {
-				StashItemIds[y*STASH_WIDTH + x] = -1;
-			}
-		}
-	}
 
 	unsigned int itemId = 0;
 	BYTE itemXSize, itemYSize;
@@ -195,14 +156,14 @@ bool ItemMover::LoadInventory(UnitAny *unit, int xpac, int source, int sourceX, 
 
 	// Find a spot for the item in the destination container
 	if (itemId > 0) {
-		returnValue = FindDestination(xpac, destination, itemId, itemXSize, itemYSize);
+		returnValue = FindDestination(destination, itemId, itemXSize, itemYSize);
 	}
 
 	FirstInit = true;
 	return returnValue;
 }
 
-bool ItemMover::FindDestination(int xpac, int destination, unsigned int itemId, BYTE xSize, BYTE ySize) {
+bool ItemMover::FindDestination(int destination, unsigned int itemId, BYTE xSize, BYTE ySize) {
 	int *p, width = 0, height = 0;
 	if (destination == STORAGE_INVENTORY) {
 		p = InventoryItemIds;
@@ -211,7 +172,7 @@ bool ItemMover::FindDestination(int xpac, int destination, unsigned int itemId, 
 	} else if (destination == STORAGE_STASH) {
 		p = StashItemIds;
 		width = STASH_WIDTH;
-		height = xpac ? LOD_STASH_HEIGHT : CLASSIC_STASH_HEIGHT;
+		height = STASH_HEIGHT;
 	} else if (destination == STORAGE_CUBE) {
 		p = CubeItemIds;
 		width = CUBE_WIDTH;
@@ -312,17 +273,16 @@ void ItemMover::OnLeftClick(bool up, unsigned int x, unsigned int y, bool* block
 	UnitAny *unit = D2CLIENT_GetPlayerUnit();
 	bool shiftState = ((GetKeyState(VK_LSHIFT) & 0x80) || (GetKeyState(VK_RSHIFT) & 0x80));
 	
-	if (up || !pData || !unit || !shiftState || D2CLIENT_GetCursorItem()>0 || (!D2CLIENT_GetUIState(UI_INVENTORY) && !D2CLIENT_GetUIState(UI_STASH) && !D2CLIENT_GetUIState(UI_CUBE) && !D2CLIENT_GetUIState(UI_NPCSHOP))) {
+	if (up || !unit || !shiftState || D2CLIENT_GetCursorItem()>0 ||
+		(!D2CLIENT_GetUIState(UI_INVENTORY) && !D2CLIENT_GetUIState(UI_STASH)
+			&& !D2CLIENT_GetUIState(UI_CUBE) && !D2CLIENT_GetUIState(UI_NPCSHOP)) ||
+		!Init()) {
 		return;
 	}
-	
-	Init();	
 
 	unidItemId = 0;
 	idBookId = 0;
 	
-	int xpac = pData->nCharFlags & PLAYER_TYPE_EXPANSION;
-
 	int mouseX,mouseY;	
 
 	for (UnitAny *pItem = unit->pInventory->pFirstItem; pItem; pItem = pItem->pItemData->pNextInvItem) {
@@ -337,11 +297,7 @@ void ItemMover::OnLeftClick(bool up, unsigned int x, unsigned int y, bool* block
 				mouseY = (*p_D2CLIENT_MouseY - INVENTORY_TOP) / CELL_SIZE;
 			} else if(pItem->pItemData->ItemLocation == STORAGE_STASH) {
 				mouseX = (*p_D2CLIENT_MouseX - STASH_LEFT) / CELL_SIZE;
-				if (xpac) {
-					mouseY = (*p_D2CLIENT_MouseY - LOD_STASH_TOP) / CELL_SIZE;
-				} else {
-					mouseY = (*p_D2CLIENT_MouseY - CLASSIC_STASH_TOP) / CELL_SIZE;
-				}
+				mouseY = (*p_D2CLIENT_MouseY - STASH_TOP) / CELL_SIZE;
 			} else if(pItem->pItemData->ItemLocation == STORAGE_CUBE) {
 				mouseX = (*p_D2CLIENT_MouseX - CUBE_LEFT) / CELL_SIZE;
 				mouseY = (*p_D2CLIENT_MouseY - CUBE_TOP) / CELL_SIZE;
@@ -376,36 +332,23 @@ void ItemMover::OnRightClick(bool up, unsigned int x, unsigned int y, bool* bloc
 	UnitAny *unit = D2CLIENT_GetPlayerUnit();
 	bool shiftState = ((GetKeyState(VK_LSHIFT) & 0x80) || (GetKeyState(VK_RSHIFT) & 0x80));
 	bool ctrlState = ((GetKeyState(VK_LCONTROL) & 0x80) || (GetKeyState(VK_RCONTROL) & 0x80));
-	if (up || !pData || !unit || !(shiftState || ctrlState)) {
+	if (up || !unit || !(shiftState || ctrlState) || !Init()) {
 		return;
 	}
-
-	Init();
-
-	int xpac = pData->nCharFlags & PLAYER_TYPE_EXPANSION;
-
-	int inventoryRight = INVENTORY_LEFT + (CELL_SIZE * INVENTORY_WIDTH);
-	int inventoryBottom = INVENTORY_TOP + (CELL_SIZE * INVENTORY_HEIGHT);
-	int stashRight = STASH_LEFT + (CELL_SIZE * STASH_WIDTH);
-	int stashTop = xpac ? LOD_STASH_TOP : CLASSIC_STASH_TOP;
-	int stashHeight = xpac ? LOD_STASH_HEIGHT : CLASSIC_STASH_HEIGHT;
-	int stashBottom = stashTop + (CELL_SIZE * stashHeight);
-	int cubeRight = CUBE_LEFT + (CELL_SIZE * CUBE_WIDTH);
-	int cubeBottom = CUBE_TOP + (CELL_SIZE * CUBE_HEIGHT);
 
 	int source, sourceX, sourceY;
 	int invUI = D2CLIENT_GetUIState(UI_INVENTORY);
 	int stashUI = D2CLIENT_GetUIState(UI_STASH);
 	int cubeUI = D2CLIENT_GetUIState(UI_CUBE);
-	if ((invUI || stashUI || cubeUI) && x >= INVENTORY_LEFT && x <= inventoryRight && y >= INVENTORY_TOP && y <= inventoryBottom) {
+	if ((invUI || stashUI || cubeUI) && x >= INVENTORY_LEFT && x <= INVENTORY_RIGHT && y >= INVENTORY_TOP && y <= INVENTORY_BOTTOM) {
 		source = STORAGE_INVENTORY;
 		sourceX = (x - INVENTORY_LEFT) / CELL_SIZE;
 		sourceY = (y - INVENTORY_TOP) / CELL_SIZE;
-	} else if (stashUI && x >= STASH_LEFT && x <= stashRight && y >= stashTop && y <= stashBottom) {
+	} else if (stashUI && x >= STASH_LEFT && x <= STASH_RIGHT && y >= STASH_TOP && y <= STASH_BOTTOM) {
 		source = STORAGE_STASH;
 		sourceX = (x - STASH_LEFT) / CELL_SIZE;
-		sourceY = (y - stashTop) / CELL_SIZE;
-	} else if (cubeUI && x >= CUBE_LEFT && x <= cubeRight && y >= CUBE_TOP && y <= cubeBottom) {
+		sourceY = (y - STASH_TOP) / CELL_SIZE;
+	} else if (cubeUI && x >= CUBE_LEFT && x <= CUBE_RIGHT && y >= CUBE_TOP && y <= CUBE_BOTTOM) {
 		source = STORAGE_CUBE;
 		sourceX = (x - CUBE_LEFT) / CELL_SIZE;
 		sourceY = (y - CUBE_TOP) / CELL_SIZE;
@@ -413,7 +356,7 @@ void ItemMover::OnRightClick(bool up, unsigned int x, unsigned int y, bool* bloc
 		return;
 	}
 
-	bool moveItem = LoadInventory(unit, xpac, source, sourceX, sourceY, shiftState, ctrlState, stashUI, invUI);
+	bool moveItem = LoadInventory(unit, source, sourceX, sourceY, shiftState, ctrlState, stashUI, invUI);
 	if (moveItem) {
 		PickUpItem();
 	}
