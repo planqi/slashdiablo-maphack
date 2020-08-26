@@ -39,8 +39,8 @@ class Module {
 		virtual void OnAutomapDraw() {};
 		virtual void OnOOGDraw() {};
 
-		virtual void OnLeftClick(bool up, int x, int y, bool* block) {};
-		virtual void OnRightClick(bool up, int x, int y, bool* block) {};
+		virtual void OnLeftClick(bool up, unsigned int x, unsigned int y, bool* block) {};
+		virtual void OnRightClick(bool up, unsigned int x, unsigned int y, bool* block) {};
 		virtual void OnKey(bool up, BYTE key, LPARAM lParam, bool* block) {};
 
 		virtual void OnChatPacketRecv(BYTE* packet, bool* block) {};

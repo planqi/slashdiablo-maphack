@@ -73,7 +73,7 @@ class Item : public Module {
 
 		void OnLoop();
 		void OnKey(bool up, BYTE key, LPARAM lParam, bool* block);
-		void OnLeftClick(bool up, int x, int y, bool* block);
+		void OnLeftClick(bool up, unsigned int x, unsigned int y, bool* block);
 		std::map<string, Toggle>* GetToggles() { return &Toggles; }
 
 		static void __fastcall ItemNamePatch(wchar_t *name, UnitAny *item);

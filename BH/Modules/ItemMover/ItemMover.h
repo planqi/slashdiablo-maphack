@@ -87,8 +87,8 @@ public:
 
 	void OnLoad();
 	void OnKey(bool up, BYTE key, LPARAM lParam, bool* block);
-	void OnLeftClick(bool up, int x, int y, bool* block);
-	void OnRightClick(bool up, int x, int y, bool* block);
+	void OnLeftClick(bool up, unsigned int x, unsigned int y, bool* block);
+	void OnRightClick(bool up, unsigned int x, unsigned int y, bool* block);
 	void OnGamePacketRecv(BYTE* packet, bool *block);
 	void OnGameExit();
 };

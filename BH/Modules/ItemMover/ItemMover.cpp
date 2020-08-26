@@ -308,8 +308,7 @@ void ItemMover::PutItemOnGround() {
 	D2NET_SendPacket(5, 1, PacketData);
 }
 
-void ItemMover::OnLeftClick(bool up, int x, int y, bool* block) {
-	BnetData* pData = (*p_D2LAUNCH_BnData);
+void ItemMover::OnLeftClick(bool up, unsigned int x, unsigned int y, bool* block) {
 	UnitAny *unit = D2CLIENT_GetPlayerUnit();
 	bool shiftState = ((GetKeyState(VK_LSHIFT) & 0x80) || (GetKeyState(VK_RSHIFT) & 0x80));
 	
@@ -373,8 +372,7 @@ void ItemMover::OnLeftClick(bool up, int x, int y, bool* block) {
 	}
 }
 
-void ItemMover::OnRightClick(bool up, int x, int y, bool* block) {
-	BnetData* pData = (*p_D2LAUNCH_BnData);
+void ItemMover::OnRightClick(bool up, unsigned int x, unsigned int y, bool* block) {
 	UnitAny *unit = D2CLIENT_GetPlayerUnit();
 	bool shiftState = ((GetKeyState(VK_LSHIFT) & 0x80) || (GetKeyState(VK_RSHIFT) & 0x80));
 	bool ctrlState = ((GetKeyState(VK_LCONTROL) & 0x80) || (GetKeyState(VK_RCONTROL) & 0x80));
