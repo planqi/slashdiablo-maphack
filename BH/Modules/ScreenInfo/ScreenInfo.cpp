@@ -7,6 +7,8 @@
 #include "../../D2Version.h"
 #include <time.h>
 
+#define VALIDPTR(x) ( (x) && (!IsBadReadPtr(x,sizeof(x))) )
+
 using namespace Drawing;
 
 map<std::string, Toggle> ScreenInfo::Toggles;
@@ -193,16 +195,15 @@ void ScreenInfo::OnDraw() {
 		int doneMephisto = D2COMMON_GetQuestFlag2(quests, THE_GUARDIAN, QFLAG_REWARD_GRANTED);
 		int doneDiablo = D2COMMON_GetQuestFlag2(quests, TERRORS_END, QFLAG_REWARD_GRANTED);
 		int doneBaal = D2COMMON_GetQuestFlag2(quests, EVE_OF_DESTRUCTION, QFLAG_REWARD_GRANTED);
-		int startedMephisto = D2COMMON_GetQuestFlag2(quests, THE_GUARDIAN, QFLAG_QUEST_STARTED);
-		int startedDiablo = D2COMMON_GetQuestFlag2(quests, TERRORS_END, QFLAG_QUEST_STARTED);
-		int startedBaal = D2COMMON_GetQuestFlag2(quests, EVE_OF_DESTRUCTION, QFLAG_QUEST_STARTED);
 
 		int warning = -1;
-		if (doneDuriel && startedMephisto && !doneMephisto && !MephistoBlocked) {
+		int area = GetPlayerArea();
+		bool inTown = (area == MAP_A1_ROGUE_ENCAMPMENT || area == MAP_A2_LUT_GHOLEIN || area == MAP_A3_KURAST_DOCKS || area == MAP_A4_THE_PANDEMONIUM_FORTRESS || area == MAP_A5_HARROGATH);
+		if (doneDuriel && !doneMephisto && !MephistoBlocked && (inTown || area == MAP_A3_DURANCE_OF_HATE_LEVEL_2 || area == MAP_A3_DURANCE_OF_HATE_LEVEL_3)) {
 			warning = 0;
-		} else if (doneMephisto && startedDiablo && !doneDiablo && !DiabloBlocked) {
+		} else if (doneMephisto && !doneDiablo && !DiabloBlocked && (inTown ||area == MAP_A4_RIVER_OF_FLAME || area == MAP_A4_THE_CHAOS_SANCTUARY)) {
 			warning = 1;
-		} else if (xpac && doneDiablo && startedBaal && !doneBaal && !BaalBlocked) {
+		} else if (xpac && doneDiablo && !doneBaal && !BaalBlocked && (inTown || area == MAP_A5_WORLDSTONE_KEEP_LEVEL_2 || area == MAP_A5_WORLDSTONE_KEEP_LEVEL_3 || area == MAP_A5_THRONE_OF_DESTRUCTION)) {
 			warning = 2;
 		}
 		if (warning >= 0) {
@@ -218,6 +219,17 @@ void ScreenInfo::OnDraw() {
 	if (Toggles["Experience Meter"].state) {
 		drawExperienceInfo();
 	}
+}
+
+DWORD ScreenInfo::GetPlayerArea() {
+	if (VALIDPTR(D2CLIENT_GetPlayerUnit())) {
+		if (VALIDPTR(D2CLIENT_GetPlayerUnit()->pPath))
+			if (VALIDPTR(D2CLIENT_GetPlayerUnit()->pPath->pRoom1))
+				if (VALIDPTR(D2CLIENT_GetPlayerUnit()->pPath->pRoom1->pRoom2))
+					if (VALIDPTR(D2CLIENT_GetPlayerUnit()->pPath->pRoom1->pRoom2->pLevel))
+						return D2CLIENT_GetPlayerUnit()->pPath->pRoom1->pRoom2->pLevel->dwLevelNo;
+	}
+	return 0;
 }
 
 void ScreenInfo::drawExperienceInfo(){
@@ -352,12 +364,12 @@ void ScreenInfo::OnGamePacketRecv(BYTE* packet, bool* block) {
 	case 0x52:
 		{
 			// We have one byte for each of the 41 quests: zero if the quest is blocked,
-			// and nonzero if we can complete it.
+			// and nonzero if we can't complete it.
 			// Packet received upon opening quest log, and after sending 0x40 to server.
 			int packetLen = 42;
-			MephistoBlocked = packet[1 + THE_GUARDIAN] == 0;
-			DiabloBlocked = packet[1 + TERRORS_END] == 0;
-			BaalBlocked = packet[1 + EVE_OF_DESTRUCTION] == 0;
+			MephistoBlocked = packet[1 + THE_GUARDIAN] == 1;
+			DiabloBlocked = packet[1 + TERRORS_END] == 1;
+			BaalBlocked = packet[1 + EVE_OF_DESTRUCTION] == 1;
 			ReceivedQuestPacket = true;
 			break;
 		}

@@ -44,6 +44,7 @@ class ScreenInfo : public Module {
 		int startLevel;
 
 		void ScreenInfo::drawExperienceInfo();
+		DWORD GetPlayerArea();
 	public:
 		static map<std::string, Toggle> Toggles;
 
