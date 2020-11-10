@@ -82,6 +82,10 @@ class Item : public Module {
 		static BOOL __stdcall OnDamagePropertyBuild(UnitAny* pItem, DamageStats* pDmgStats, int nStat, wchar_t* wOut);
 		static void __stdcall OnPropertyBuild(wchar_t* wOut, int nStat, UnitAny* pItem, int nStatParam);
 
+		static BOOL PermShowItemsPatch1();
+		static BOOL PermShowItemsPatch2();
+		static BOOL PermShowItemsPatch3();
+
 		static UnitAny* GetViewUnit();
 
 		static unsigned int GetFilterLevel() { return filterLevelSetting; }
@@ -96,6 +100,12 @@ void GetItemPropertyString_Interception();
 void ViewInventoryPatch1_ASM();
 void ViewInventoryPatch2_ASM();
 void ViewInventoryPatch3_ASM();
+
+void PermShowItemsPatch1_ASM();
+void PermShowItemsPatch2_ASM();
+void PermShowItemsPatch3_ASM();
+void PermShowItemsPatch4_ASM();
+
 struct UnitItemInfo;
 int CreateUnitItemInfo(UnitItemInfo *uInfo, UnitAny *item);
 
