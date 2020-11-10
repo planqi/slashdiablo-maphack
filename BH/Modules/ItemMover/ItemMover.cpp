@@ -19,6 +19,7 @@ int CUBE_HEIGHT = 4;
 // These are pixel positions
 int INVENTORY_LEFT = 417;
 int INVENTORY_TOP = 315;
+int CLASSIC_STASH_LEFT = 273;
 int STASH_LEFT = 153;
 int LOD_STASH_TOP = 143;
 int CLASSIC_STASH_TOP = 334;
@@ -51,6 +52,7 @@ void ItemMover::Init() {
 
 		INVENTORY_LEFT = ((inventoryLayout->Grid.dwLeft - 320) + (*p_D2CLIENT_ScreenSizeX / 2));
 		INVENTORY_TOP = ((*p_D2CLIENT_ScreenSizeY / 2) - 240) + inventoryLayout->Grid.dwTop;
+		CLASSIC_STASH_LEFT = ((*p_D2CLIENT_ScreenSizeX / 2) - 320) + classicStashLayout->Grid.dwLeft;
 		STASH_LEFT = ((*p_D2CLIENT_ScreenSizeX / 2) - 320) + lodStashLayout->Grid.dwLeft;
 		LOD_STASH_TOP = ((*p_D2CLIENT_ScreenSizeY / 2) - 240) + lodStashLayout->Grid.dwTop;
 		CLASSIC_STASH_TOP = ((*p_D2CLIENT_ScreenSizeY / 2) - 240) + classicStashLayout->Grid.dwTop;
@@ -64,6 +66,7 @@ void ItemMover::Init() {
 
 		INVENTORY_LEFT = inventoryLayout->Grid.dwLeft;
 		INVENTORY_TOP = inventoryLayout->Grid.dwTop;
+		CLASSIC_STASH_LEFT = classicStashLayout->Grid.dwLeft;
 		STASH_LEFT = lodStashLayout->Grid.dwLeft;
 		LOD_STASH_TOP = lodStashLayout->Grid.dwTop;
 		CLASSIC_STASH_TOP = classicStashLayout->Grid.dwTop;
@@ -76,8 +79,8 @@ void ItemMover::Init() {
 	INVENTORY_WIDTH = inventoryLayout->Inventory.nGridX;
 	INVENTORY_HEIGHT = inventoryLayout->Inventory.nGridY;
 	STASH_WIDTH = lodStashLayout->Inventory.nGridX;
-	LOD_STASH_HEIGHT = lodStashLayout->Inventory.nGridX;
-	CLASSIC_STASH_HEIGHT = classicStashLayout->Inventory.nGridX;
+	LOD_STASH_HEIGHT = lodStashLayout->Inventory.nGridY;
+	CLASSIC_STASH_HEIGHT = classicStashLayout->Inventory.nGridY;
 	CUBE_WIDTH = cubeLayout->Inventory.nGridX;
 	CUBE_HEIGHT = cubeLayout->Inventory.nGridY;
 
@@ -337,11 +340,12 @@ void ItemMover::OnLeftClick(bool up, int x, int y, bool* block) {
 				mouseX = (*p_D2CLIENT_MouseX - INVENTORY_LEFT) / CELL_SIZE;
 				mouseY = (*p_D2CLIENT_MouseY - INVENTORY_TOP) / CELL_SIZE;
 			} else if(pItem->pItemData->ItemLocation == STORAGE_STASH) {
-				mouseX = (*p_D2CLIENT_MouseX - STASH_LEFT) / CELL_SIZE;
 				if (xpac) {
 					mouseY = (*p_D2CLIENT_MouseY - LOD_STASH_TOP) / CELL_SIZE;
+					mouseX = (*p_D2CLIENT_MouseX - STASH_LEFT) / CELL_SIZE;
 				} else {
 					mouseY = (*p_D2CLIENT_MouseY - CLASSIC_STASH_TOP) / CELL_SIZE;
+					mouseX = (*p_D2CLIENT_MouseX - CLASSIC_STASH_LEFT) / CELL_SIZE;
 				}
 			} else if(pItem->pItemData->ItemLocation == STORAGE_CUBE) {
 				mouseX = (*p_D2CLIENT_MouseX - CUBE_LEFT) / CELL_SIZE;
@@ -388,7 +392,8 @@ void ItemMover::OnRightClick(bool up, int x, int y, bool* block) {
 
 	int inventoryRight = INVENTORY_LEFT + (CELL_SIZE * INVENTORY_WIDTH);
 	int inventoryBottom = INVENTORY_TOP + (CELL_SIZE * INVENTORY_HEIGHT);
-	int stashRight = STASH_LEFT + (CELL_SIZE * STASH_WIDTH);
+	int stashLeft = xpac ? STASH_LEFT : CLASSIC_STASH_LEFT;
+	int stashRight = stashLeft + (CELL_SIZE * STASH_WIDTH);
 	int stashTop = xpac ? LOD_STASH_TOP : CLASSIC_STASH_TOP;
 	int stashHeight = xpac ? LOD_STASH_HEIGHT : CLASSIC_STASH_HEIGHT;
 	int stashBottom = stashTop + (CELL_SIZE * stashHeight);
@@ -403,9 +408,9 @@ void ItemMover::OnRightClick(bool up, int x, int y, bool* block) {
 		source = STORAGE_INVENTORY;
 		sourceX = (x - INVENTORY_LEFT) / CELL_SIZE;
 		sourceY = (y - INVENTORY_TOP) / CELL_SIZE;
-	} else if (stashUI && x >= STASH_LEFT && x <= stashRight && y >= stashTop && y <= stashBottom) {
+	} else if (stashUI && x >= stashLeft && x <= stashRight && y >= stashTop && y <= stashBottom) {
 		source = STORAGE_STASH;
-		sourceX = (x - STASH_LEFT) / CELL_SIZE;
+		sourceX = (x - stashLeft) / CELL_SIZE;
 		sourceY = (y - stashTop) / CELL_SIZE;
 	} else if (cubeUI && x >= CUBE_LEFT && x <= cubeRight && y >= CUBE_TOP && y <= cubeBottom) {
 		source = STORAGE_CUBE;
