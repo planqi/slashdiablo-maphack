@@ -344,17 +344,17 @@ void __fastcall Item::ItemNamePatch(wchar_t *name, UnitAny *item)
 	}
 
 	// Some common color codes for text strings (see TextColor enum):
-	// ÿc; (purple)
-	// ÿc0 (white)
-	// ÿc1 (red)
-	// ÿc2 (green)
-	// ÿc3 (blue)
-	// ÿc4 (gold)
-	// ÿc5 (gray)
-	// ÿc6 (black)
-	// ÿc7 (tan)
-	// ÿc8 (orange)
-	// ÿc9 (yellow)
+	// \xFF" "c; (purple)
+	// \xFF" "c0 (white)
+	// \xFF" "c1 (red)
+	// \xFF" "c2 (green)
+	// \xFF" "c3 (blue)
+	// \xFF" "c4 (gold)
+	// \xFF" "c5 (gray)
+	// \xFF" "c6 (black)
+	// \xFF" "c7 (tan)
+	// \xFF" "c8 (orange)
+	// \xFF" "c9 (yellow)
 
 	/* Test code to display item codes */
 	//string test3 = test_code;
@@ -373,12 +373,12 @@ void Item::OrigGetItemName(UnitAny *item, string &itemName, char *code)
 		// We will also strip ilvls from these items
 		if (code[0] == 't' && code[1] == 's' && code[2] == 'c')  // town portal scroll
 		{
-			itemName = "ÿc2**ÿc0TP";
+			itemName = "\xFF" "c2**\xFF" "c0TP";
 			displayItemLevel = false;
 		}
 		else if (code[0] == 'i' && code[1] == 's' && code[2] == 'c')  // identify scroll
 		{
-			itemName = "ÿc2**ÿc0ID";
+			itemName = "\xFF" "c2**\xFF" "c0ID";
 			displayItemLevel = false;
 		}
 		else if (code[0] == 'v' && code[1] == 'p' && code[2] == 's')  // stamina potion
@@ -430,27 +430,27 @@ void Item::OrigGetItemName(UnitAny *item, string &itemName, char *code)
 		{
 			if (code[2] == '1')
 			{
-				itemName = "ÿc1**ÿc0Min Heal";
+				itemName = "\xFF" "c1**\xFF" "c0Min Heal";
 				displayItemLevel = false;
 			}
 			else if (code[2] == '2')
 			{
-				itemName = "ÿc1**ÿc0Lt Heal";
+				itemName = "\xFF" "c1**\xFF" "c0Lt Heal";
 				displayItemLevel = false;
 			}
 			else if (code[2] == '3')
 			{
-				itemName = "ÿc1**ÿc0Heal";
+				itemName = "\xFF" "c1**\xFF" "c0Heal";
 				displayItemLevel = false;
 			}
 			else if (code[2] == '4')
 			{
-				itemName = "ÿc1**ÿc0Gt Heal";
+				itemName = "\xFF" "c1**\xFF" "c0Gt Heal";
 				displayItemLevel = false;
 			}
 			else if (code[2] == '5')
 			{
-				itemName = "ÿc1**ÿc0Sup Heal";
+				itemName = "\xFF" "c1**\xFF" "c0Sup Heal";
 				displayItemLevel = false;
 			}
 		}
@@ -458,27 +458,27 @@ void Item::OrigGetItemName(UnitAny *item, string &itemName, char *code)
 		{
 			if (code[2] == '1')
 			{
-				itemName = "ÿc3**ÿc0Min Mana";
+				itemName = "\xFF" "c3**\xFF" "c0Min Mana";
 				displayItemLevel = false;
 			}
 			else if (code[2] == '2')
 			{
-				itemName = "ÿc3**ÿc0Lt Mana";
+				itemName = "\xFF" "c3**\xFF" "c0Lt Mana";
 				displayItemLevel = false;
 			}
 			else if (code[2] == '3')
 			{
-				itemName = "ÿc3**ÿc0Mana";
+				itemName = "\xFF" "c3**\xFF" "c0Mana";
 				displayItemLevel = false;
 			}
 			else if (code[2] == '4')
 			{
-				itemName = "ÿc3**ÿc0Gt Mana";
+				itemName = "\xFF" "c3**\xFF" "c0Gt Mana";
 				displayItemLevel = false;
 			}
 			else if (code[2] == '5')
 			{
-				itemName = "ÿc3**ÿc0Sup Mana";
+				itemName = "\xFF" "c3**\xFF" "c0Sup Mana";
 				displayItemLevel = false;
 			}
 		}
@@ -486,12 +486,12 @@ void Item::OrigGetItemName(UnitAny *item, string &itemName, char *code)
 		{
 			if (code[2] == 's')
 			{
-				itemName = "ÿc;**ÿc0Rejuv";
+				itemName = "\xFF" "c;**\xFF" "c0Rejuv";
 				displayItemLevel = false;
 			}
 			else if (code[2] == 'l')
 			{
-				itemName = "ÿc;**ÿc0Full";
+				itemName = "\xFF" "c;**\xFF" "c0Full";
 				displayItemLevel = false;
 			}
 		}
@@ -587,13 +587,13 @@ void Item::OrigGetItemName(UnitAny *item, string &itemName, char *code)
 		//if( (code[0] == 'g' && code[1] == 'l'					) ||
 		//	(code[0] == 's' && code[1] == 'k' && code[2] == 'l' ) )
 		//{
-		//	itemName = "ÿc:" + itemName;
+		//	itemName = "\xFF" "c:" + itemName;
 		//}
 		///*Perfect Gems*/
 		//if( (code[0] == 'g' && code[1] == 'p'                   ) ||
 		//	(code[0] == 's' && code[1] == 'k' && code[2] == 'p' ) )
 		//{
-		//	itemName = "ÿc<" + itemName;
+		//	itemName = "\xFF" "c<" + itemName;
 		//}
 		/*Ethereal*/
 		if( item->pItemData->dwFlags & 0x400000 )
@@ -602,7 +602,7 @@ void Item::OrigGetItemName(UnitAny *item, string &itemName, char *code)
 			if( (code[0] == 'u'                                    ) ||
 				(code[0] == 'p' && code[1] == 'a' && code[2] >= 'b') )
 			{
-				itemName = "ÿc;" + itemName;
+				itemName = "\xFF" "c;" + itemName;
 			}
 		}
 		/*Runes*/
@@ -610,33 +610,33 @@ void Item::OrigGetItemName(UnitAny *item, string &itemName, char *code)
 		{
 			if( code[1] == '0' )
 			{
-				itemName = "ÿc0" + itemName;
+				itemName = "\xFF" "c0" + itemName;
 			}
 			else if( code[1] == '1' )
 			{
 				if( code[2] <= '6')
 				{
-					itemName = "ÿc4" + itemName;
+					itemName = "\xFF" "c4" + itemName;
 				}
 				else
 				{
-					itemName = "ÿc8" + itemName;
+					itemName = "\xFF" "c8" + itemName;
 				}
 			}
 			else if( code[1] == '2' )
 			{
 				if( code[2] <= '2' )
 				{
-					itemName = "ÿc8" + itemName;
+					itemName = "\xFF" "c8" + itemName;
 				}
 				else
 				{
-					itemName = "ÿc1" + itemName;
+					itemName = "\xFF" "c1" + itemName;
 				}
 			}
 			else if( code[1] == '3' )
 			{
-				itemName = "ÿc1" + itemName;
+				itemName = "\xFF" "c1" + itemName;
 			}
 		}
 	}
