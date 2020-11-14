@@ -29,8 +29,8 @@ Patch* skipNpcMessages3 = new Patch(Call, D2CLIENT, { 0x4819F, 0x0 }, (int)NPCQu
 Patch* skipNpcMessages4 = new Patch(Call, D2CLIENT, { 0x7E9B7, 0x0 }, (int)NPCMessageLoopPatch_ASM, 6);
 
 static BOOL fSkipMessageReq = 0;
-static DWORD mSkipQuestMessage = 0;
 static DWORD mSkipMessageTimer = 0;
+static DWORD mSkipQuestMessage = 1;
 
 DrawDirective automapDraw(true, 5);
 
@@ -1114,10 +1114,10 @@ void  __declspec(naked) NPCMessageLoopPatch_ASM()
 		mov[mSkipMessageTimer], 0
 		mov eax, 1
 		ret
-		oldje :
+	oldje :
 		xor eax, eax
 		add dword ptr[esp], 0xB9  // 0F84B8000000
-		noje :
+	noje :
 		ret
 	}
 }
