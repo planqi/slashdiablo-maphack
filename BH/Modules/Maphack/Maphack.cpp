@@ -23,10 +23,10 @@ Patch* monsterNamePatch = new Patch(Call, D2WIN, { 0x13550, 0x140E0 }, (int)Hove
 Patch* cpuPatch = new Patch(NOP, D2CLIENT, { 0x3CB7C, 0x2770C }, 0, 9);
 Patch* fpsPatch = new Patch(NOP, D2CLIENT, { 0x44E51, 0x45EA1 }, 0, 8);
 
-Patch* skipNpcMessages1 = new Patch(Call, D2CLIENT, { 0x4BB07, 0x0 }, (int)NPCQuestMessageStartPatch_ASM, 6);
-Patch* skipNpcMessages2 = new Patch(Call, D2CLIENT, { 0x48BD6, 0x0 }, (int)NPCQuestMessageEndPatch1_ASM, 8);
-Patch* skipNpcMessages3 = new Patch(Call, D2CLIENT, { 0x4819F, 0x0 }, (int)NPCQuestMessageEndPatch2_ASM, 5);
-Patch* skipNpcMessages4 = new Patch(Call, D2CLIENT, { 0x7E9B7, 0x0 }, (int)NPCMessageLoopPatch_ASM, 6);
+Patch* skipNpcMessages1 = new Patch(Call, D2CLIENT, { 0x4BB07, 0x7EB87 }, (int)NPCQuestMessageStartPatch_ASM, 6);
+Patch* skipNpcMessages2 = new Patch(Call, D2CLIENT, { 0x48BD6, 0x7B4C6 }, (int)NPCQuestMessageEndPatch1_ASM, 8);
+Patch* skipNpcMessages3 = new Patch(Call, D2CLIENT, { 0x4819F, 0x7A9CF }, (int)NPCQuestMessageEndPatch2_ASM, 5);
+Patch* skipNpcMessages4 = new Patch(Call, D2CLIENT, { 0x7E9B7, 0x77737 }, (int)NPCMessageLoopPatch_ASM, 6);
 
 static BOOL fSkipMessageReq = 0;
 static DWORD mSkipMessageTimer = 0;
