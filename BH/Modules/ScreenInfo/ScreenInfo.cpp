@@ -7,6 +7,9 @@
 #include "../../D2Version.h"
 #include <time.h>
 
+#define _SILENCE_EXPERIMENTAL_FILESYSTEM_DEPRECATION_WARNING
+#include <experimental/filesystem>
+
 using namespace Drawing;
 
 map<std::string, Toggle> ScreenInfo::Toggles;
@@ -28,17 +31,30 @@ void ScreenInfo::OnLoad() {
 		cGuardText->SetAlignment(Right);
 	}
 	gameTimer = GetTickCount();
+	nTotalGames = 0;
 	szGamesToLevel = "N/A";
 	szTimeToLevel = "N/A";
 	szLastXpGainPer = "N/A";
-	szLastXpPerSec = "N/A";
+	szLastXpGainPer = "N/A";
 	szLastGameTime = "N/A";
+	automap["GAMESTOLVL"] = szGamesToLevel;
+	automap["TIMETOLVL"] = szTimeToLevel;
+	automap["LASTXPPERCENT"] = szLastXpGainPer;
+	automap["LASTXPPERSEC"] = szLastXpPerSec;
+	automap["LASTGAMETIME"] = szLastGameTime;
+	automap["SESSIONGAMECOUNT"] = to_string(nTotalGames);
 }
 
 void ScreenInfo::LoadConfig() {
 	BH::config->ReadToggle("Experience Meter", "VK_NUMPAD7", false, Toggles["Experience Meter"]);
 
 	BH::config->ReadArray("AutomapInfo", automapInfo);
+	
+	BH::config->ReadToggle("Run Tracker", "None", true, Toggles["Run Tracker"]);
+	//BH::config->ReadString("Run Tracker Save Location", szSavePath);
+	szSavePath = "../data/%CHARNAME%.csv";
+	szColumnHeader = "Count,Date,Game Name,Difficulty,Last Area,Time,Time,XP % Gained,XP/s,Game To Level,Drops";
+	szColumnData = "%SESSIONGAMECOUNT%,%REALTIME%,%GAMENAME%,%GAMEDIFF%,%LEVEL%,%GAMETIME%,%LASTGAMETIME%,%LASTXPPERCENT%,%LASTXPPERSEC%,%GAMESTOLVL%,%DROPS%";
 
 	BH::config->ReadAssoc("Skill Warning", SkillWarnings);
 	SkillWarningMap.clear();
@@ -250,6 +266,45 @@ void ScreenInfo::OnDraw() {
 		sprintf_s(sExp, "%00.2f%% (%s%00.2f%%) [%s]", pExp, currentExpGainPct >= 0 ? "+" : "", currentExpGainPct, xpPerSec);
 		Texthook::Draw((*p_D2CLIENT_ScreenSizeX / 2) - 100, *p_D2CLIENT_ScreenSizeY - 60, Center, 6, White, "%s", sExp);
 	}
+
+	
+	GameStructInfo* pInfo = (*p_D2CLIENT_GameInfo);
+	char* szDiff[3] = { "Normal", "Nightmare", "Hell" };
+	char gameTime[20];
+	sprintf_s(gameTime, 20, "%.2d:%.2d:%.2d", nTime / 3600, (nTime / 60) % 60, nTime % 60);
+
+	time_t tTime;
+	time(&tTime);
+	CHAR szTime[128] = "";
+	struct tm time;
+	localtime_s(&time, &tTime);
+	strftime(szTime, sizeof(szTime), "%I:%M:%S %p", &time);
+
+	// The call to GetLevelName somehow invalidates pUnit. This is only observable in O2 builds. The game
+	// will crash when you attempt to open the map (which calls OnAutomapDraw function). We need to get the player unit
+	// again after calling this function. It may be a good idea in general not to store the return value of
+	// GetPlayerUnit.
+	char* level = UnicodeToAnsi(D2CLIENT_GetLevelName(pUnit->pPath->pRoom1->pRoom2->pLevel->dwLevelNo));
+	pUnit = D2CLIENT_GetPlayerUnit();
+	if (!pUnit) return;
+
+	CHAR szPing[10] = "";
+	sprintf_s(szPing, sizeof(szPing), "%d", *p_D2CLIENT_Ping);
+
+	automap["GAMENAME"] = pData->szGameName;
+	automap["GAMEPASS"] = pData->szGamePass;
+	automap["GAMEIP"] = pData->szGameIP;
+	automap["GAMEDIFF"] = szDiff[D2CLIENT_GetDifficulty()];
+	automap["ACCOUNTNAME"] = pData->szAccountName;
+	automap["CHARNAME"] = pUnit->pPlayerData->szName;
+	automap["LEVEL"] = level;
+	automap["PING"] = szPing;
+	automap["GAMETIME"] = gameTime;
+	automap["REALTIME"] = szTime;
+
+
+	delete [] level;
+	
 }
 
 void ScreenInfo::FormattedXPPerSec(char* buffer, double xpPerSec) {
@@ -269,73 +324,31 @@ void ScreenInfo::FormattedXPPerSec(char* buffer, double xpPerSec) {
 	sprintf(buffer, "%s%.2f%s/s", xpPerSec >= 0 ? "+" : "", xpPerSec, unit);
 }
 
+std::string ScreenInfo::ReplaceAutomapTokens(std::string& v) {
+	std:string result;
+	result.assign(v.c_str());
+
+	for (auto const& am : automap) {
+		if (result.find("%" + am.first + "%") == string::npos)
+			continue;
+		if (am.second.length() == 0)
+			result.replace(result.find("%" + am.first + "%"), am.first.length() + 2, "");
+		else
+			result.replace(result.find("%" + am.first + "%"), am.first.length() + 2, am.second);
+	}
+	return result;
+}
+
 void ScreenInfo::OnAutomapDraw() {
-	GameStructInfo* pInfo = (*p_D2CLIENT_GameInfo);
-	BnetData* pData = (*p_D2LAUNCH_BnData);
-	UnitAny* pUnit = D2CLIENT_GetPlayerUnit();
-	char* szDiff[3] = {"Normal", "Nightmare", "Hell"};
-	if (!pInfo || !pData || !pUnit)
-		return;
 	int y = 6+(BH::cGuardLoaded?16:0);
 
-	char gameTime[20];
-	int nTime = ((GetTickCount() - gameTimer) / 1000);
-	sprintf_s(gameTime, 20, "%.2d:%.2d:%.2d", nTime/3600, (nTime/60)%60, nTime%60);
-
-	time_t tTime;
-	time(&tTime);
-	CHAR szTime[128] = "";
-	struct tm time;
-	localtime_s(&time, &tTime);
-	strftime(szTime, sizeof(szTime), "%I:%M:%S %p", &time);
-
-	// The call to GetLevelName somehow invalidates pUnit. This is only observable in O2 builds. The game
-	// will crash when you attempt to open the map (which calls OnAutomapDraw function). We need to get the player unit
-	// again after calling this function. It may be a good idea in general not to store the return value of
-	// GetPlayerUnit.
-	char *level = UnicodeToAnsi(D2CLIENT_GetLevelName(pUnit->pPath->pRoom1->pRoom2->pLevel->dwLevelNo));
-	pUnit = D2CLIENT_GetPlayerUnit();
-	if (!pUnit) return;
-
-	CHAR szPing[10] = "";
-	sprintf_s(szPing, sizeof(szPing), "%d", *p_D2CLIENT_Ping);
-
-	AutomapReplace automap[] = {
-		{"GAMENAME", pData->szGameName},
-		{"GAMEPASS", pData->szGamePass},
-		{"GAMEIP", pData->szGameIP},
-		{"GAMEDIFF", szDiff[D2CLIENT_GetDifficulty()]},
-		{"ACCOUNTNAME", pData->szAccountName},
-		{"CHARNAME", pUnit->pPlayerData->szName},
-		{"LEVEL", level},
-		{"PING", szPing},
-		{"GAMETIME", gameTime},
-		{"REALTIME", szTime},
-		{"GAMESTOLVL", szGamesToLevel},
-		{"TIMETOLVL", szTimeToLevel},
-		{"LASTXPPERCENT", szLastXpGainPer},
-		{"LASTXPPERSEC", szLastXpPerSec},
-		{"LASTGAMETIME", szLastGameTime}
-	};
-
 	for (vector<string>::iterator it = automapInfo.begin(); it < automapInfo.end(); it++) {
-		string key;
-		key.assign(*it);
-		for (int n = 0; n < sizeof(automap) / sizeof(automap[0]); n++) {
-			if (key.find("%" + automap[n].key + "%") == string::npos)
-				continue;
-			if (automap[n].value.length() == 0)
-				key = "";
-			else
-				key.replace(key.find("%" + automap[n].key + "%"), automap[n].key.length() + 2, automap[n].value);
-		}
+		string key = ReplaceAutomapTokens(*it);
 		if (key.length() > 0) {
 			Texthook::Draw(*p_D2CLIENT_ScreenSizeX - 10, y, Right,0,Gold,"%s", key.c_str());
 			y += 16;
 		}
 	}
-
-	delete [] level;
 }
 
 void ScreenInfo::OnGamePacketRecv(BYTE* packet, bool* block) {
@@ -434,10 +447,40 @@ void ScreenInfo::OnGameExit() {
 	sprintf_s(buffer, sizeof(buffer), "%.2d:%.2d:%.2d", lastGameLength / 3600, (lastGameLength / 60) % 60, lastGameLength % 60);
 	szLastGameTime = string(buffer);
 
+	automap["GAMESTOLVL"] = szGamesToLevel;
+	automap["TIMETOLVL"] = szTimeToLevel;
+	automap["LASTXPPERCENT"] = szLastXpGainPer;
+	automap["LASTXPPERSEC"] = szLastXpPerSec;
+	automap["LASTGAMETIME"] = szLastGameTime;
+	automap["SESSIONGAMECOUNT"] = to_string(++nTotalGames);
+
 	MephistoBlocked = false;
 	DiabloBlocked = false;
 	BaalBlocked = false;
 	ReceivedQuestPacket = false;
+
+	WriteRunTrackerData();
+}
+
+void ScreenInfo::WriteRunTrackerData() {
+	string path = ReplaceAutomapTokens(szSavePath);
+	namespace fs = std::experimental::filesystem;
+	bool exist = fs::exists(path);
+
+	string directory;
+	const size_t last_slash_idx = path.rfind('\\');
+	if (std::string::npos != last_slash_idx)
+	{
+		directory = path.substr(0, last_slash_idx);
+		fs::create_directories(directory);
+	}
+
+	std::ofstream os;
+	os.open(path, std::ios_base::app);
+	if (!exist) {
+		os << ReplaceAutomapTokens(szColumnHeader) << endl; 
+	}
+	os << ReplaceAutomapTokens(szColumnData) << endl;
 }
 
 

@@ -6,11 +6,6 @@
 #include <deque>
 
 
-struct AutomapReplace {
-	std::string key;
-	std::string value;
-};
-
 struct StateCode {
 	std::string name;
 	unsigned int value;
@@ -48,11 +43,20 @@ class ScreenInfo : public Module {
 		double currentExpGainPct;
 		double currentExpPerSecond;
 		char* currentExpPerSecondUnit;
+
+		int nTotalGames;
 		string szGamesToLevel;
 		string szTimeToLevel;
 		string szLastXpGainPer;
 		string szLastXpPerSec;
 		string szLastGameTime;
+
+		string szSavePath;
+		string szColumnHeader;
+		string szColumnData;
+
+		map<string, string> automap;
+
 
 		void ScreenInfo::FormattedXPPerSec(char* buffer, double xpPerSec);
 	public:
@@ -74,6 +78,9 @@ class ScreenInfo : public Module {
 		void OnDraw();
 		void OnAutomapDraw();
 		void OnGamePacketRecv(BYTE* packet, bool *block);
+
+		std::string ReplaceAutomapTokens(std::string& v);
+		void WriteRunTrackerData();
 };
 
 StateCode GetStateCode(unsigned int nKey);
