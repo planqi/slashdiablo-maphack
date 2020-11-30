@@ -28,6 +28,11 @@ void ScreenInfo::OnLoad() {
 		cGuardText->SetAlignment(Right);
 	}
 	gameTimer = GetTickCount();
+	szGamesToLevel = "N/A";
+	szTimeToLevel = "N/A";
+	szLastXpGainPer = "N/A";
+	szLastXpPerSec = "N/A";
+	szLastGameTime = "N/A";
 }
 
 void ScreenInfo::LoadConfig() {
@@ -71,6 +76,14 @@ void ScreenInfo::OnGameJoin() {
 	gameTimer = GetTickCount();
 	UnitAny* pUnit = D2CLIENT_GetPlayerUnit();
 	startExperience = (int)D2COMMON_GetUnitStat(pUnit, STAT_EXP, 0);
+	if (currentPlayer.compare(0, 16, pUnit->pPlayerData->szName) != 0) {
+		szGamesToLevel = "N/A";
+		szTimeToLevel = "N/A";
+		szLastXpGainPer = "N/A";
+		szLastXpPerSec = "N/A";
+		szLastGameTime = "N/A";
+	}
+	currentPlayer = string(pUnit->pPlayerData->szName);
 	startLevel = (int)D2COMMON_GetUnitStat(pUnit, STAT_LEVEL, 0);
 }
 
@@ -215,44 +228,45 @@ void ScreenInfo::OnDraw() {
 		}
 	}
 
-	if (Toggles["Experience Meter"].state) {
-		drawExperienceInfo();
-	}
-}
-
-void ScreenInfo::drawExperienceInfo(){
 	UnitAny* pUnit = D2CLIENT_GetPlayerUnit();
-	int nTime = ((GetTickCount() - gameTimer) / 1000);
-	DWORD cExp = (DWORD)D2COMMON_GetUnitStat(pUnit, STAT_EXP, 0);
-	if (startExperience == 0){ startExperience = cExp; }
+	currentExperience = (int)D2COMMON_GetUnitStat(pUnit, STAT_EXP, 0);
+	currentLevel = (int)D2COMMON_GetUnitStat(pUnit, STAT_LEVEL, 0);
 
-	int cLevel = (int)D2COMMON_GetUnitStat(pUnit, STAT_LEVEL, 0);
-	if (startLevel == 0) { startLevel = cLevel; }
+	int nTime = ((GetTickCount() - gameTimer) / 1000);
+	if (startLevel == 0) { startLevel = currentLevel; }
 
 	char sExp[255] = { 0 };
 	double oldPctExp = ((double)startExperience - ExpByLevel[startLevel - 1]) / (ExpByLevel[startLevel] - ExpByLevel[startLevel - 1]) * 100.0;
-	double pExp = ((double)cExp - ExpByLevel[cLevel - 1]) / (ExpByLevel[cLevel] - ExpByLevel[cLevel - 1]) * 100.0;
-	double expGainPct = pExp - oldPctExp;
-	if (cLevel > startLevel){
-		expGainPct = (100 - oldPctExp) + pExp + ((cLevel - startLevel) - 1) * 100;
+	double pExp = ((double)currentExperience - ExpByLevel[currentLevel - 1]) / (ExpByLevel[currentLevel] - ExpByLevel[currentLevel - 1]) * 100.0;
+	currentExpGainPct = pExp - oldPctExp;
+	if (currentLevel > startLevel) {
+		currentExpGainPct = (100 - oldPctExp) + pExp + ((currentLevel - startLevel) - 1) * 100;
 	}
-	double expPerSecond = nTime > 0 ? (cExp - startExperience) / (double)nTime : 0;
+	currentExpPerSecond = nTime > 0 ? (currentExperience - startExperience) / (double)nTime : 0;
+	char xpPerSec[32];
+	FormattedXPPerSec(xpPerSec, currentExpPerSecond);
+
+	if (Toggles["Experience Meter"].state) {
+		sprintf_s(sExp, "%00.2f%% (%s%00.2f%%) [%s]", pExp, currentExpGainPct >= 0 ? "+" : "", currentExpGainPct, xpPerSec);
+		Texthook::Draw((*p_D2CLIENT_ScreenSizeX / 2) - 100, *p_D2CLIENT_ScreenSizeY - 60, Center, 6, White, "%s", sExp);
+	}
+}
+
+void ScreenInfo::FormattedXPPerSec(char* buffer, double xpPerSec) {
 	char* unit = "";
-	if (expPerSecond > 1E9){
-		expPerSecond /= 1E9;
+	if (xpPerSec > 1E9) {
+		xpPerSec /= 1E9;
 		unit = "B";
 	}
-	else if (expPerSecond > 1E6){
-		expPerSecond /= 1E6;
+	else if (xpPerSec > 1E6) {
+		xpPerSec /= 1E6;
 		unit = "M";
 	}
-	else if (expPerSecond > 1E3){
-		expPerSecond /= 1E3;
+	else if (xpPerSec > 1E3) {
+		xpPerSec /= 1E3;
 		unit = "K";
 	}
-	sprintf_s(sExp, "%00.2f%% (%s%00.2f%%) [%s%.2f%s/s]", pExp, expGainPct >= 0 ? "+" : "", expGainPct, expPerSecond >= 0 ? "+" : "", expPerSecond, unit);
-
-	Texthook::Draw((*p_D2CLIENT_ScreenSizeX / 2) - 100, *p_D2CLIENT_ScreenSizeY - 60, Center, 6, White, "%s", sExp);
+	sprintf(buffer, "%s%.2f%s/s", xpPerSec >= 0 ? "+" : "", xpPerSec, unit);
 }
 
 void ScreenInfo::OnAutomapDraw() {
@@ -296,7 +310,12 @@ void ScreenInfo::OnAutomapDraw() {
 		{"LEVEL", level},
 		{"PING", szPing},
 		{"GAMETIME", gameTime},
-		{"REALTIME", szTime}
+		{"REALTIME", szTime},
+		{"GAMESTOLVL", szGamesToLevel},
+		{"TIMETOLVL", szTimeToLevel},
+		{"LASTXPPERCENT", szLastXpGainPer},
+		{"LASTXPPERSEC", szLastXpPerSec},
+		{"LASTGAMETIME", szLastGameTime}
 	};
 
 	for (vector<string>::iterator it = automapInfo.begin(); it < automapInfo.end(); it++) {
@@ -392,6 +411,29 @@ void ScreenInfo::OnGamePacketRecv(BYTE* packet, bool* block) {
 }
 
 void ScreenInfo::OnGameExit() {
+	DWORD xpGained = (currentExperience - startExperience);
+	double gamesToLevel = (ExpByLevel[currentLevel] - currentExperience) / (1.0 * xpGained);
+	double lastExpGainPct = currentExpGainPct;
+	double lastExpPerSecond = currentExpPerSecond;
+	int lastGameLength = ((GetTickCount() - gameTimer) / 1000);
+	int timeToLevel = gamesToLevel * lastGameLength;
+
+	char buffer[128];
+	sprintf_s(buffer, sizeof(buffer), "%.2f", gamesToLevel);
+	szGamesToLevel = string(buffer);
+
+	sprintf_s(buffer, sizeof(buffer), "%d:%.2d:%.2d", timeToLevel / 3600, (timeToLevel / 60) % 60, timeToLevel % 60);
+	szTimeToLevel = string(buffer);
+
+	sprintf_s(buffer, sizeof(buffer), "%s%00.2f%%", lastExpGainPct >= 0 ? "+" : "", lastExpGainPct);
+	szLastXpGainPer = string(buffer);
+
+	FormattedXPPerSec(buffer, lastExpPerSecond);
+	szLastXpPerSec = string(buffer);
+
+	sprintf_s(buffer, sizeof(buffer), "%.2d:%.2d:%.2d", lastGameLength / 3600, (lastGameLength / 60) % 60, lastGameLength % 60);
+	szLastGameTime = string(buffer);
+
 	MephistoBlocked = false;
 	DiabloBlocked = false;
 	BaalBlocked = false;
