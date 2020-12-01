@@ -25,6 +25,7 @@ map<string, Toggle>* BH::MiscToggles;
 map<string, Toggle>* BH::MiscToggles2;
 map<string, bool>* BH::BnetBools;
 map<string, bool>* BH::GamefilterBools;
+map<size_t, string> BH::drops;
 
 Patch* patches[] = {
 	new Patch(Call, D2CLIENT, { 0x44230, 0x45280 }, (int)GameLoop_Interception, 7),

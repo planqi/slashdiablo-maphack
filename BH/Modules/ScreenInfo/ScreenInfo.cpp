@@ -5,7 +5,9 @@
 #include "../Item/ItemDisplay.h"
 #include "../../MPQReader.h"
 #include "../../D2Version.h"
+#include "../../D2Helpers.h"
 #include <time.h>
+#include <numeric>
 
 #define _SILENCE_EXPERIMENTAL_FILESYSTEM_DEPRECATION_WARNING
 #include <experimental/filesystem>
@@ -101,6 +103,9 @@ void ScreenInfo::OnGameJoin() {
 	}
 	currentPlayer = string(pUnit->pPlayerData->szName);
 	startLevel = (int)D2COMMON_GetUnitStat(pUnit, STAT_LEVEL, 0);
+
+	automap["STARTLEVEL"] = to_string(startLevel);
+	automap["STARTXP"] = to_string(startExperience);
 }
 
 void ScreenInfo::OnKey(bool up, BYTE key, LPARAM lParam, bool* block) {
@@ -291,6 +296,8 @@ void ScreenInfo::OnDraw() {
 	CHAR szPing[10] = "";
 	sprintf_s(szPing, sizeof(szPing), "%d", *p_D2CLIENT_Ping);
 
+	automap["LEVEL"] = currentLevel;
+	automap["LEVELXP"] = to_string(pExp);
 	automap["GAMENAME"] = pData->szGameName;
 	automap["GAMEPASS"] = pData->szGamePass;
 	automap["GAMEIP"] = pData->szGameIP;
@@ -349,6 +356,17 @@ void ScreenInfo::OnAutomapDraw() {
 			y += 16;
 		}
 	}
+}
+
+void ScreenInfo::AddDrop(UnitAny* pItem) {
+	ScreenInfo::AddDrop(GetItemName(pItem), pItem->pPath->xPos, pItem->pPath->yPos);
+}
+
+void ScreenInfo::AddDrop(const string& name, int x, int y) {
+	size_t h = 0;
+	hash_combine(h, hash<string>{}(name));
+	hash_combine(h, hash<int>{}(x << 8 | y));
+	BH::drops[h] = name;
 }
 
 void ScreenInfo::OnGamePacketRecv(BYTE* packet, bool* block) {
@@ -447,12 +465,24 @@ void ScreenInfo::OnGameExit() {
 	sprintf_s(buffer, sizeof(buffer), "%.2d:%.2d:%.2d", lastGameLength / 3600, (lastGameLength / 60) % 60, lastGameLength % 60);
 	szLastGameTime = string(buffer);
 
+	const string delimiter = ", ";
+	string drops = accumulate(BH::drops.begin(), BH::drops.end(), string(),
+	[delimiter](const string& s, const pair<const size_t, string>& p) {
+		return s + (s.empty() ? string() : delimiter) + p.second;
+	});
+	BH::drops.clear();
+
+	drops = regex_replace(drops, regex("\xFF" "c."), "");
+	drops = regex_replace(drops, regex("\n"), " ");
+	drops = regex_replace(drops, regex("\\b\\d\\b\\s+"), "");
+
 	automap["GAMESTOLVL"] = szGamesToLevel;
 	automap["TIMETOLVL"] = szTimeToLevel;
 	automap["LASTXPPERCENT"] = szLastXpGainPer;
 	automap["LASTXPPERSEC"] = szLastXpPerSec;
 	automap["LASTGAMETIME"] = szLastGameTime;
 	automap["SESSIONGAMECOUNT"] = to_string(++nTotalGames);
+	automap["DROPS"] = regex_replace(drops, regex("\xFF" "c."), "");
 
 	MephistoBlocked = false;
 	DiabloBlocked = false;

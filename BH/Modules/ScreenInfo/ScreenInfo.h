@@ -81,6 +81,9 @@ class ScreenInfo : public Module {
 
 		std::string ReplaceAutomapTokens(std::string& v);
 		void WriteRunTrackerData();
+
+		static void AddDrop(UnitAny* item);
+		static void AddDrop(const string& name, int x, int y);
 };
 
 StateCode GetStateCode(unsigned int nKey);

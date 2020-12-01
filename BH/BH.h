@@ -10,6 +10,15 @@
 
 using namespace std;
 
+//boosts  hash_combine
+//https://stackoverflow.com/a/19195373/597419
+template <class T>
+inline void hash_combine(std::size_t& s, const T& v)
+{
+	std::hash<T> h;
+	s ^= h(v) + 0x9e3779b9 + (s << 6) + (s >> 2);
+}
+
 struct cGuardModule
 {	
 	union {
@@ -33,6 +42,7 @@ namespace BH {
 	extern map<string, Toggle>* MiscToggles2;
 	extern map<string, bool>* BnetBools;
 	extern map<string, bool>* GamefilterBools;
+	extern map<size_t, string> drops;
 	extern bool cGuardLoaded;
 	extern bool initialized;
 	extern Patch* oogDraw;

@@ -4,6 +4,7 @@
 #include "../../D2Ptrs.h"
 #include "../../D2Stubs.h"
 #include "../../D2Helpers.h"
+#include "../ScreenInfo/ScreenInfo.h"
 
 // This module was inspired by the RedVex plugin "Item Mover", written by kaiks.
 // Thanks to kaiks for sharing his code.
@@ -609,6 +610,7 @@ void ItemMover::OnGamePacketRecv(BYTE* packet, bool* block) {
 					}
 					//PrintText(1, "Item on ground: %s, %s, %s, %X", item.name.c_str(), item.code, item.attrs->category.c_str(), item.attrs->flags);
 					if(showOnMap && !(*BH::MiscToggles2)["Item Detailed Notifications"].state) {
+						ScreenInfo::AddDrop(item.name, item.x, item.y);
 						if (color == UNDEFINED_COLOR) {
 							color = ItemColorFromQuality(item.quality);
 						}
