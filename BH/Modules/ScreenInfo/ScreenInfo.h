@@ -58,7 +58,8 @@ class ScreenInfo : public Module {
 		map<string, string> automap;
 
 
-		void ScreenInfo::FormattedXPPerSec(char* buffer, double xpPerSec);
+		void FormattedXPPerSec(char* buffer, double xpPerSec);
+		string FormatTime(time_t t, const char* format);
 	public:
 		static map<std::string, Toggle> Toggles;
 

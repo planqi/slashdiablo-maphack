@@ -7,6 +7,7 @@
 #include "../../D2Version.h"
 #include "../../D2Helpers.h"
 #include <time.h>
+#include <iomanip>
 #include <numeric>
 
 #define _SILENCE_EXPERIMENTAL_FILESYSTEM_DEPRECATION_WARNING
@@ -55,8 +56,8 @@ void ScreenInfo::LoadConfig() {
 	BH::config->ReadToggle("Run Tracker", "None", true, Toggles["Run Tracker"]);
 	//BH::config->ReadString("Run Tracker Save Location", szSavePath);
 	szSavePath = "../data/%CHARNAME%.csv";
-	szColumnHeader = "Count,Date,Game Name,Difficulty,Last Area,Time,Time,XP % Gained,XP/s,Game To Level,Drops";
-	szColumnData = "%SESSIONGAMECOUNT%,%REALTIME%,%GAMENAME%,%GAMEDIFF%,%LEVEL%,%GAMETIME%,%LASTGAMETIME%,%LASTXPPERCENT%,%LASTXPPERSEC%,%GAMESTOLVL%,%DROPS%";
+	szColumnHeader = "\"Count\",\"Date\",\"Time\",\"Game Name\",\"Difficulty\",\"Start Level\",\"Run Length\",\"XP Gained\",\"XP/s\",\"Drops\"";
+	szColumnData = "\"%SESSIONGAMECOUNT%\",\"%JOINDATE%\",\"%JOINTIME%\",\"%GAMENAME%\",\"%GAMEDIFF%\",\"%CHARLEVELPERCENT%\",\"%LASTGAMETIME%\",\"%LASTXPPERCENTGAINED%\",=\"%LASTXPPERSEC%\",\"%DROPS%\"";
 
 	BH::config->ReadAssoc("Skill Warning", SkillWarnings);
 	SkillWarningMap.clear();
@@ -101,11 +102,36 @@ void ScreenInfo::OnGameJoin() {
 		szLastXpPerSec = "N/A";
 		szLastGameTime = "N/A";
 	}
+
+	BnetData* pData = (*p_D2LAUNCH_BnData);
+
+	char* szDiff[3] = { "Normal", "Nightmare", "Hell" };
 	currentPlayer = string(pUnit->pPlayerData->szName);
 	startLevel = (int)D2COMMON_GetUnitStat(pUnit, STAT_LEVEL, 0);
+	double startPctExp = ((double)startExperience - ExpByLevel[startLevel - 1]) / (ExpByLevel[startLevel] - ExpByLevel[startLevel - 1]) * 100.0;
 
-	automap["STARTLEVEL"] = to_string(startLevel);
-	automap["STARTXP"] = to_string(startExperience);
+	time_t t
+		= chrono::system_clock::to_time_t(chrono::system_clock::now());
+	
+	automap["JOINDATE"] = FormatTime(t, "%F");
+	automap["JOINTIME"] = FormatTime(t, "%T%z");
+	automap["CHARLEVEL"] = to_string(startLevel);
+	automap["CHARLEVELPERCENT"] = to_string(static_cast<double>(startLevel) + (startPctExp / 100.0));
+	automap["CHARXPPERCENT"] = to_string(startPctExp);
+	automap["CHARXP"] = to_string(startExperience);
+	automap["GAMENAME"] = pData->szGameName;
+	automap["GAMEPASS"] = pData->szGamePass;
+	automap["GAMEDESC"] = pData->szGameDesc;
+	automap["GAMEIP"] = pData->szGameIP;
+	automap["GAMEDIFF"] = szDiff[D2CLIENT_GetDifficulty()];
+	automap["ACCOUNTNAME"] = pData->szAccountName;
+	automap["CHARNAME"] = pUnit->pPlayerData->szName;
+}
+
+string ScreenInfo::FormatTime(time_t t, const char* format) {
+	stringstream ss;
+	ss << put_time(std::localtime(&t), format);
+	return ss.str();
 }
 
 void ScreenInfo::OnKey(bool up, BYTE key, LPARAM lParam, bool* block) {
@@ -273,8 +299,6 @@ void ScreenInfo::OnDraw() {
 	}
 
 	
-	GameStructInfo* pInfo = (*p_D2CLIENT_GameInfo);
-	char* szDiff[3] = { "Normal", "Nightmare", "Hell" };
 	char gameTime[20];
 	sprintf_s(gameTime, 20, "%.2d:%.2d:%.2d", nTime / 3600, (nTime / 60) % 60, nTime % 60);
 
@@ -296,14 +320,10 @@ void ScreenInfo::OnDraw() {
 	CHAR szPing[10] = "";
 	sprintf_s(szPing, sizeof(szPing), "%d", *p_D2CLIENT_Ping);
 
-	automap["LEVEL"] = currentLevel;
-	automap["LEVELXP"] = to_string(pExp);
-	automap["GAMENAME"] = pData->szGameName;
-	automap["GAMEPASS"] = pData->szGamePass;
-	automap["GAMEIP"] = pData->szGameIP;
-	automap["GAMEDIFF"] = szDiff[D2CLIENT_GetDifficulty()];
-	automap["ACCOUNTNAME"] = pData->szAccountName;
-	automap["CHARNAME"] = pUnit->pPlayerData->szName;
+	automap["CURRENTCHARLEVEL"] = to_string(currentLevel);
+	automap["CURRENTCHARLEVELPERCENT"] = to_string(static_cast<double>(currentLevel) + (pExp / 100.0));
+	automap["CURRENTCHARXPPERCENT"] = to_string(pExp);
+	automap["CURRENTCHARXP"] = to_string(currentExperience);
 	automap["LEVEL"] = level;
 	automap["PING"] = szPing;
 	automap["GAMETIME"] = gameTime;
@@ -478,7 +498,7 @@ void ScreenInfo::OnGameExit() {
 
 	automap["GAMESTOLVL"] = szGamesToLevel;
 	automap["TIMETOLVL"] = szTimeToLevel;
-	automap["LASTXPPERCENT"] = szLastXpGainPer;
+	automap["LASTXPPERCENTGAINED"] = szLastXpGainPer;
 	automap["LASTXPPERSEC"] = szLastXpPerSec;
 	automap["LASTGAMETIME"] = szLastGameTime;
 	automap["SESSIONGAMECOUNT"] = to_string(++nTotalGames);
