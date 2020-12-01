@@ -55,7 +55,7 @@ void ScreenInfo::LoadConfig() {
 	
 	BH::config->ReadToggle("Run Tracker", "None", true, Toggles["Run Tracker"]);
 	//BH::config->ReadString("Run Tracker Save Location", szSavePath);
-	szSavePath = "../data/%CHARNAME%.csv";
+	szSavePath = "./data/%CHARNAME%.csv";
 	szColumnHeader = "\"Count\",\"Date\",\"Time\",\"Game Name\",\"Difficulty\",\"Start Level\",\"Run Length\",\"XP Gained\",\"XP/s\",\"Drops\"";
 	szColumnData = "\"%SESSIONGAMECOUNT%\",\"%JOINDATE%\",\"%JOINTIME%\",\"%GAMENAME%\",\"%GAMEDIFF%\",\"%CHARLEVELPERCENT%\",\"%LASTGAMETIME%\",\"%LASTXPPERCENTGAINED%\",=\"%LASTXPPERSEC%\",\"%DROPS%\"";
 
@@ -518,7 +518,7 @@ void ScreenInfo::WriteRunTrackerData() {
 	bool exist = fs::exists(path);
 
 	string directory;
-	const size_t last_slash_idx = path.rfind('\\');
+	const size_t last_slash_idx = path.rfind('\/');
 	if (std::string::npos != last_slash_idx)
 	{
 		directory = path.substr(0, last_slash_idx);
