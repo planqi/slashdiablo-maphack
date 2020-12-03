@@ -586,6 +586,12 @@ void BuildAction(string *str, Action *act) {
 	act->pingLevel = ParsePingLevel(act, "TIER");
 	act->description = ParseDescription(act);
 
+	size_t noTracking = act->name.find("%NOTRACK%");
+	if (noTracking != string::npos) {
+		act->name.replace(noTracking, 9, "");
+		act->noTracking = true;
+	}
+
 	// legacy support:
 	size_t map = act->name.find("%MAP%");
 	if (map != string::npos) {

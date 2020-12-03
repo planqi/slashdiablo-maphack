@@ -392,7 +392,9 @@ void Maphack::OnDraw() {
 									start_pos += 3;
 								}
 								PrintText(ItemColorFromQuality(unit->pItemData->dwQuality), "%s", itemName.c_str());
-								ScreenInfo::AddDrop(unit);
+								if (!action.noTracking && !IsTown(GetPlayerArea())) {
+									ScreenInfo::AddDrop(unit);
+								}
 								//PrintText(ItemColorFromQuality(unit->pItemData->dwQuality), "%s %x", itemName.c_str(), dwFlags);
 								break;
 							}

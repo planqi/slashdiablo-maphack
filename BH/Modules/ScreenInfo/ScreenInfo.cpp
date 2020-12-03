@@ -385,7 +385,7 @@ void ScreenInfo::AddDrop(UnitAny* pItem) {
 void ScreenInfo::AddDrop(const string& name, int x, int y) {
 	size_t h = 0;
 	hash_combine(h, hash<string>{}(name));
-	hash_combine(h, hash<int>{}(x << 8 | y));
+	hash_combine(h, hash<long>{}(x << 8 | y));
 	BH::drops[h] = name;
 }
 
