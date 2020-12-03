@@ -53,11 +53,19 @@ void ScreenInfo::LoadConfig() {
 
 	BH::config->ReadArray("AutomapInfo", automapInfo);
 	
-	BH::config->ReadToggle("Run Tracker", "None", true, Toggles["Run Tracker"]);
-	//BH::config->ReadString("Run Tracker Save Location", szSavePath);
-	szSavePath = "./data/%CHARNAME%.csv";
-	szColumnHeader = "\"Count\",\"Date\",\"Time\",\"Game Name\",\"Difficulty\",\"Start Level\",\"Run Length\",\"XP Gained\",\"XP/s\",\"Drops\"";
-	szColumnData = "\"%SESSIONGAMECOUNT%\",\"%JOINDATE%\",\"%JOINTIME%\",\"%GAMENAME%\",\"%GAMEDIFF%\",\"%CHARLEVELPERCENT%\",\"%LASTGAMETIME%\",\"%LASTXPPERCENTGAINED%\",=\"%LASTXPPERSEC%\",\"%DROPS%\"";
+	BH::config->ReadToggle("Save Run Details", "None", true, Toggles["Save Run Details"]);
+	BH::config->ReadString("Save Run Details Location", szSavePath);
+	BH::config->ReadMapList("Run Details", runDetailsColumns);
+
+	const string delimiter = ",";
+	szColumnHeader = accumulate(runDetailsColumns.begin(), runDetailsColumns.end(), string(),
+		[delimiter](const string& s, const pair<const string, const string>& p) {
+		return s + (s.empty() ? string() : delimiter) + p.first;
+	});
+	szColumnData = accumulate(runDetailsColumns.begin(), runDetailsColumns.end(), string(),
+		[delimiter](const string& s, const pair<const string, const string>& p) {
+		return s + (s.empty() ? string() : delimiter) + p.second;
+	});
 
 	BH::config->ReadAssoc("Skill Warning", SkillWarnings);
 	SkillWarningMap.clear();
@@ -509,7 +517,9 @@ void ScreenInfo::OnGameExit() {
 	BaalBlocked = false;
 	ReceivedQuestPacket = false;
 
-	WriteRunTrackerData();
+	if (Toggles["Save Run Details"].state) {
+		WriteRunTrackerData();
+	}
 }
 
 void ScreenInfo::WriteRunTrackerData() {

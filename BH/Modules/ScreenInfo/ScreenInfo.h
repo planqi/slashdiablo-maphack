@@ -56,6 +56,7 @@ class ScreenInfo : public Module {
 		string szColumnData;
 
 		map<string, string> automap;
+		vector<pair<string, string>> runDetailsColumns;
 
 
 		void FormattedXPPerSec(char* buffer, double xpPerSec);
