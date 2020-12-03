@@ -53,7 +53,7 @@ void ScreenInfo::LoadConfig() {
 
 	BH::config->ReadArray("AutomapInfo", automapInfo);
 	
-	BH::config->ReadToggle("Save Run Details", "None", true, Toggles["Save Run Details"]);
+	BH::config->ReadToggle("Save Run Details", "None", false, Toggles["Save Run Details"]);
 	BH::config->ReadString("Save Run Details Location", szSavePath);
 	BH::config->ReadMapList("Run Details", runDetailsColumns);
 
