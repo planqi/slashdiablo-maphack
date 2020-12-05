@@ -59,6 +59,8 @@ class Item : public Module {
 		Drawing::UITab* settingsTab;
 		static unsigned int filterLevelSetting;
 		static unsigned int pingLevelSetting;
+
+		void ResetPatches();
 	public:
 
 		Item() : Module("Item") {};

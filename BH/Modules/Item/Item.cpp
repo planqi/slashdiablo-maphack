@@ -143,6 +143,25 @@ void Item::LoadConfig() {
 	BH::config->ReadKey("Show Players Gear", "VK_0", showPlayer);
 }
 
+void Item::ResetPatches() {
+	//todo figure out a way to not have to install/remove the patches onloop
+	//we only remove it because one of them will break being able to not
+	//target monsters with your normal show items key.
+	if (Toggles["Always Show Items"].state) {
+		permShowItems1->Install();
+		permShowItems2->Install();
+		permShowItems3->Install();
+		permShowItems4->Install();
+		permShowItems5->Install();
+	} else {
+		permShowItems1->Remove();
+		permShowItems2->Remove();
+		permShowItems3->Remove();
+		permShowItems4->Remove();
+		permShowItems5->Remove();
+	}
+}
+
 void Item::DrawSettings() {
 	settingsTab = new UITab("Item", BH::settingsUI);
 	int y = 10;
@@ -250,6 +269,7 @@ void Item::OnUnload() {
 }
 
 void Item::OnLoop() {
+	ResetPatches();
 	static unsigned int localFilterLevel = 0;
 	static unsigned int localPingLevel = 0;
 	// This is a bit of a hack to reset the cache when the user changes the item filter level
@@ -1308,6 +1328,10 @@ BOOL Item::PermShowItemsPatch1()
 }
 
 //these two seem to deal w/ fixing the inv/waypoints when alt is down
+//one of them breaks being able to not hover monsters when holding alt
+//e.g. if ur wwing as a barb and dont want to lock a monster u usually hold
+//alt (or space or whatever u have show items bound to). this is broken with
+//these patches.
 BOOL Item::PermShowItemsPatch2() {
 	return Toggles["Always Show Items"].state || D2CLIENT_GetUIState(UI_GROUND_ITEMS);
 }
