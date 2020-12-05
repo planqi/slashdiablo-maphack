@@ -55,6 +55,8 @@ void ScreenInfo::LoadConfig() {
 	
 	BH::config->ReadToggle("Save Run Details", "None", false, Toggles["Save Run Details"]);
 	BH::config->ReadString("Save Run Details Location", szSavePath);
+
+	runDetailsColumns.clear();
 	BH::config->ReadMapList("Run Details", runDetailsColumns);
 
 	const string delimiter = ",";
@@ -502,13 +504,15 @@ void ScreenInfo::OnGameExit() {
 
 	drops = regex_replace(drops, regex("\xFF" "c."), "");
 	drops = regex_replace(drops, regex("\n"), " ");
-	drops = regex_replace(drops, regex("\\b\\d\\b\\s+"), "");
 
 	automap["GAMESTOLVL"] = szGamesToLevel;
 	automap["TIMETOLVL"] = szTimeToLevel;
+	automap["LASTXPGAINED"] = to_string(xpGained);
 	automap["LASTXPPERCENTGAINED"] = szLastXpGainPer;
 	automap["LASTXPPERSEC"] = szLastXpPerSec;
+	automap["LASTXPPERSECLONG"] = to_string(lastExpPerSecond);
 	automap["LASTGAMETIME"] = szLastGameTime;
+	automap["LASTGAMETIMESEC"] = to_string(lastGameLength);
 	automap["SESSIONGAMECOUNT"] = to_string(++nTotalGames);
 	automap["DROPS"] = regex_replace(drops, regex("\xFF" "c."), "");
 

@@ -586,6 +586,7 @@ void ItemMover::OnGamePacketRecv(BYTE* packet, bool* block) {
 					bool showOnMap = false;
 					bool nameWhitelisted = false;
 					bool noTracking = false;
+					auto pingLevel = -1;
 					auto color = UNDEFINED_COLOR;
 
 					for (vector<Rule*>::iterator it = MapRuleList.begin(); it != MapRuleList.end(); it++) {
@@ -599,6 +600,7 @@ void ItemMover::OnGamePacketRecv(BYTE* packet, bool* block) {
 								color = action_color;
 							showOnMap = true;
 							noTracking = (*it)->action.noTracking;
+							pingLevel = (*it)->action.pingLevel;
 							// break unless %CONTINUE% is used
 							if ((*it)->action.stopProcessing) break;
 						}
@@ -612,7 +614,7 @@ void ItemMover::OnGamePacketRecv(BYTE* packet, bool* block) {
 					}
 					//PrintText(1, "Item on ground: %s, %s, %s, %X", item.name.c_str(), item.code, item.attrs->category.c_str(), item.attrs->flags);
 					if(showOnMap && !(*BH::MiscToggles2)["Item Detailed Notifications"].state) {
-						if (!noTracking && !IsTown(GetPlayerArea())) {
+						if (!noTracking && !IsTown(GetPlayerArea()) && pingLevel <= Item::GetTrackerPingLevel()) {
 							ScreenInfo::AddDrop(item.name, item.x, item.y);
 						}
 						if (color == UNDEFINED_COLOR) {
