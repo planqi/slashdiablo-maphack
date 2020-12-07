@@ -615,7 +615,7 @@ void ItemMover::OnGamePacketRecv(BYTE* packet, bool* block) {
 					//PrintText(1, "Item on ground: %s, %s, %s, %X", item.name.c_str(), item.code, item.attrs->category.c_str(), item.attrs->flags);
 					if(showOnMap && !(*BH::MiscToggles2)["Item Detailed Notifications"].state) {
 						if (!noTracking && !IsTown(GetPlayerArea()) && pingLevel <= Item::GetTrackerPingLevel()) {
-							ScreenInfo::AddDrop(item.name, item.x, item.y);
+							ScreenInfo::AddDrop(item.name.c_str(), item.x, item.y);
 						}
 						if (color == UNDEFINED_COLOR) {
 							color = ItemColorFromQuality(item.quality);

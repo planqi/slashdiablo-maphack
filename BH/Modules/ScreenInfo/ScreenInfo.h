@@ -44,6 +44,7 @@ class ScreenInfo : public Module {
 		double currentExpPerSecond;
 		char* currentExpPerSecondUnit;
 
+		bool bFailedToWrite = false;
 		int nTotalGames;
 		string szGamesToLevel;
 		string szTimeToLevel;
@@ -85,7 +86,7 @@ class ScreenInfo : public Module {
 		void WriteRunTrackerData();
 
 		static void AddDrop(UnitAny* item);
-		static void AddDrop(const string& name, int x, int y);
+		static void AddDrop(const string& name, unsigned int x, unsigned int y);
 };
 
 StateCode GetStateCode(unsigned int nKey);

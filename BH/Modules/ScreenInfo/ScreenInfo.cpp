@@ -30,7 +30,7 @@ void ScreenInfo::OnLoad() {
 	d2VersionText->SetFont(1);
 
 	if (BH::cGuardLoaded) {
-		Texthook* cGuardText = new Texthook(Perm, 790, 23, "ÿc4cGuard Loaded");
+		Texthook* cGuardText = new Texthook(Perm, 790, 23, "ï¿½c4cGuard Loaded");
 		cGuardText->SetAlignment(Right);
 	}
 	gameTimer = GetTickCount();
@@ -99,6 +99,14 @@ void ScreenInfo::OnGameJoin() {
 		title += unit->pPlayerData->szName;
 		if (!SetWindowText(D2GFX_GetHwnd(), title.c_str())) {
 			printf("Failed setting window text, error: %d\n\n", GetLastError());
+		}
+	}
+
+	if (bFailedToWrite) {
+		bFailedToWrite = false;
+		string path = ReplaceAutomapTokens(szSavePath);
+		for(int i = 0; i < 5; i++) {
+			PrintText(Red, "FILE \"%s\" IS LOCKED BY ANOTHER PROCESS! LAST RUN DATA WAS NOT SAVED!", ReplaceAutomapTokens(szSavePath));
 		}
 	}
 
@@ -389,10 +397,10 @@ void ScreenInfo::OnAutomapDraw() {
 }
 
 void ScreenInfo::AddDrop(UnitAny* pItem) {
-	ScreenInfo::AddDrop(GetItemName(pItem), pItem->pPath->xPos, pItem->pPath->yPos);
+	ScreenInfo::AddDrop(GetItemName(pItem), pItem->pItemPath->dwPosX, pItem->pItemPath->dwPosY);
 }
 
-void ScreenInfo::AddDrop(const string& name, int x, int y) {
+void ScreenInfo::AddDrop(const string& name, unsigned int x, unsigned int y) {
 	size_t h = 0;
 	hash_combine(h, hash<string>{}(name));
 	hash_combine(h, hash<long>{}(x << 8 | y));
@@ -541,6 +549,10 @@ void ScreenInfo::WriteRunTrackerData() {
 
 	std::ofstream os;
 	os.open(path, std::ios_base::app);
+	if (os.fail()) {
+		bFailedToWrite = true;
+		return;
+	}
 	if (!exist) {
 		os << ReplaceAutomapTokens(szColumnHeader) << endl; 
 	}
