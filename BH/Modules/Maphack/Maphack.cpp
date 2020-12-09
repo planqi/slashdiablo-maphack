@@ -147,6 +147,7 @@ void Maphack::ReadConfig() {
 	BH::config->ReadToggle("Monster Enchantments", "None", true, Toggles["Monster Enchantments"]);
 	BH::config->ReadToggle("Apply CPU Patch", "None", true, Toggles["Apply CPU Patch"]);
 	BH::config->ReadToggle("Apply FPS Patch", "None", true, Toggles["Apply FPS Patch"]);
+	BH::config->ReadToggle("Show Automap On Join", "None", false, Toggles["Show Automap On Join"]);
 
 	BH::config->ReadInt("Minimap Max Ghost", automapDraw.maxGhost);
 }
@@ -249,6 +250,9 @@ void Maphack::OnLoad() {
 
 	new Checkhook(settingsTab, 4, (Y += 15), &Toggles["Apply FPS Patch"].state, "FPS Patch (SP Only)");
 	new Keyhook(settingsTab, keyhook_x, (Y + 2), &Toggles["Apply FPS Patch"].toggle, "");
+
+	new Checkhook(settingsTab, 4, (Y += 15), &Toggles["Show Automap On Join"].state, "Show Automap On Join");
+	new Keyhook(settingsTab, keyhook_x, (Y + 2), &Toggles["Show Automap On Join"].toggle, "");
 
 	new Texthook(settingsTab, col2_x + 5, 3, "Missile Colors");
 
@@ -646,6 +650,7 @@ void Maphack::OnAutomapDraw() {
 void Maphack::OnGameJoin() {
 	ResetRevealed();
 	automapLevels.clear();
+	*p_D2CLIENT_AutomapOn = Toggles["Show Automap On Join"].state;
 }
 
 void Squelch(DWORD Id, BYTE button) {
