@@ -5,7 +5,6 @@
 #include "../../Drawing.h"
 #include <deque>
 
-
 struct StateCode {
 	std::string name;
 	unsigned int value;
@@ -52,6 +51,7 @@ class ScreenInfo : public Module {
 		string szLastXpGainPer;
 		string szLastXpPerSec;
 		string szLastGameTime;
+		int aPlayerCountAverage[8];
 
 		string szSavePath;
 		string szColumnHeader;
@@ -62,6 +62,7 @@ class ScreenInfo : public Module {
 		vector<pair<string, string>> runDetailsColumns;
 
 		string SimpleGameName(const string& gameName);
+		int	GetPlayerCount();
 		void FormattedXPPerSec(char* buffer, double xpPerSec);
 		string FormatTime(time_t t, const char* format);
 	public:

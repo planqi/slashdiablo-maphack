@@ -121,6 +121,7 @@ void ScreenInfo::OnGameJoin() {
 		szLastXpPerSec = "N/A";
 		szLastGameTime = "N/A";
 	}
+	fill_n(aPlayerCountAverage, 8, 0);
 
 	BnetData* pData = (*p_D2LAUNCH_BnData);
 
@@ -157,8 +158,15 @@ void ScreenInfo::OnGameJoin() {
 	}
 	PrintText(Orange, "%d games played this session.", nTotalGames);
 	if (runname.length() > 0) {
-		PrintText(Orange, "%d \"%s\" runs this session.", runcounter[runname], runname.c_str());
+		PrintText(Orange, "%d \"%s\" games played this session.", runcounter[runname], runname.c_str());
 	}
+}
+
+int	ScreenInfo::GetPlayerCount() {
+	int i = 0;
+	for (RosterUnit* pRoster = *p_D2CLIENT_PlayerUnitList; pRoster; pRoster = pRoster->pNext)
+		++i;
+	return i;
 }
 
 string ScreenInfo::SimpleGameName(const string& gameName) {
@@ -369,7 +377,7 @@ void ScreenInfo::OnDraw() {
 	automap["PING"] = szPing;
 	automap["GAMETIME"] = gameTime;
 	automap["REALTIME"] = szTime;
-
+	aPlayerCountAverage[GetPlayerCount() - 1]++;
 
 	delete [] level;
 	
@@ -545,6 +553,14 @@ void ScreenInfo::OnGameExit() {
 	automap["LASTGAMETIME"] = szLastGameTime;
 	automap["LASTGAMETIMESEC"] = to_string(lastGameLength);
 	automap["DROPS"] = regex_replace(drops, regex("\xFF" "c."), "");
+
+	int idx = 0;
+	for (int i = 0; i < 8; i++) {
+		if (aPlayerCountAverage[i] > aPlayerCountAverage[idx]) {
+			idx = i;
+		}
+	}
+	automap["AVGPLAYERCOUNT"] = to_string(idx + 1);
 
 	MephistoBlocked = false;
 	DiabloBlocked = false;
