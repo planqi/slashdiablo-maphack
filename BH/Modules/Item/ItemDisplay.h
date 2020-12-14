@@ -258,6 +258,17 @@ private:
 	bool EvaluateInternalFromPacket(ItemInfo *info, Condition *arg1, Condition *arg2);
 };
 
+class QualityIdCondition : public Condition
+{
+public:
+	QualityIdCondition(unsigned int quality, unsigned int id) : quality(quality), id(id){ conditionType = CT_Operand; };
+private:
+	unsigned int quality;
+	unsigned int id;
+	bool EvaluateInternal(UnitItemInfo* uInfo, Condition* arg1, Condition* arg2);
+	bool EvaluateInternalFromPacket(ItemInfo* info, Condition* arg1, Condition* arg2);
+};
+
 class GemLevelCondition : public Condition
 {
 public:
