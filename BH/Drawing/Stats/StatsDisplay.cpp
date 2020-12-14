@@ -344,10 +344,10 @@ void StatsDisplay::OnDraw() {
 				L"Cow King:" "\xFF" "c0 %s", D2COMMON_GetQuestFlag(quests, THE_SEARCH_FOR_CAIN, QFLAG_CUSTOM_6) ? L"killed" : L"alive");
 
 		Texthook::Draw(column1, (y += 16), None, 6, Gold,
-			L"Andy Bugged:" "\xFF" "c0 %s", D2COMMON_GetQuestFlag(D2CLIENT_GetQuestInfo(), SISTERS_TO_THE_SLAUGHTER, QFLAG_UPDATE_QUEST_LOG) ? L"no" : L"yes");
+			L"Andy Bugged:" "\xFF" "c0 %s", D2COMMON_GetQuestFlag(D2CLIENT_GetQuestInfo(), SISTERS_TO_THE_SLAUGHTER, QFLAG_QUEST_COMPLETED_BEFORE) ? L"no" : L"yes");
 
 		Texthook::Draw(column2, y, None, 6, Gold,
-			L"Dury Bugged:" "\xFF" "c0 %s", D2COMMON_GetQuestFlag(D2CLIENT_GetQuestInfo(), THE_SEVEN_TOMBS, QFLAG_UPDATE_QUEST_LOG) ? L"no" : L"yes");
+			L"Dury Bugged:" "\xFF" "c0 %s", D2COMMON_GetQuestFlag(D2CLIENT_GetQuestInfo(), THE_SEVEN_TOMBS, QFLAG_CUSTOM_1) ? L"no" : L"yes");
 
 		if (customStats.size() > 0) {
 			y += 8;
