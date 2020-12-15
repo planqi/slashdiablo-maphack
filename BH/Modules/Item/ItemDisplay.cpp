@@ -309,8 +309,12 @@ void SubstituteNameVariables(UnitItemInfo *uInfo, string &name, const string &ac
 		sprintf_s(gemlevel, "%s", GetGemLevelString(GetGemLevel(uInfo->attrs)));
 		sprintf_s(gemtype, "%s", GetGemTypeString(GetGemType(uInfo->attrs)));
 	}
+
+	string baseName = UnicodeToAnsi(D2LANG_GetLocaleText(txt->nLocaleTxtNo));
+
 	ActionReplace replacements[] = {
 		{"NAME", origName},
+		{"BASENAME", baseName},
 		{"SOCKETS", sockets},
 		{"RUNENUM", runenum},
 		{"RUNENAME", runename},
