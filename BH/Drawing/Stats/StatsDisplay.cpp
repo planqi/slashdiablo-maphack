@@ -343,11 +343,16 @@ void StatsDisplay::OnDraw() {
 		Texthook::Draw(column2, y, None, 6, Gold,
 				L"Cow King:" "\xFF" "c0 %s", D2COMMON_GetQuestFlag(quests, THE_SEARCH_FOR_CAIN, QFLAG_CUSTOM_6) ? L"killed" : L"alive");
 
+		bool hasAndyQuest = D2COMMON_GetQuestFlag(quests, SISTERS_TO_THE_SLAUGHTER, QFLAG_UPDATE_QUEST_LOG)
+			| D2COMMON_GetQuestFlag(quests, SISTERS_TO_THE_SLAUGHTER, QFLAG_QUEST_COMPLETED_BEFORE);
+		bool hasDuryQuest = D2COMMON_GetQuestFlag(quests, THE_SEVEN_TOMBS, QFLAG_UPDATE_QUEST_LOG)
+			| D2COMMON_GetQuestFlag(quests, THE_SEVEN_TOMBS, QFLAG_QUEST_COMPLETED_BEFORE);
+
 		Texthook::Draw(column1, (y += 16), None, 6, Gold,
-			L"Andy Bugged:" "\xFF" "c0 %s", D2COMMON_GetQuestFlag(D2CLIENT_GetQuestInfo(), SISTERS_TO_THE_SLAUGHTER, QFLAG_QUEST_COMPLETED_BEFORE) ? L"no" : L"yes");
+			L"Andy Bugged:" "\xFF" "c0 %s", !hasAndyQuest ? L"n/a" : (D2COMMON_GetQuestFlag(quests, SISTERS_TO_THE_SLAUGHTER, QFLAG_QUEST_COMPLETED_BEFORE) ? L"no" : L"yes"));
 
 		Texthook::Draw(column2, y, None, 6, Gold,
-			L"Dury Bugged:" "\xFF" "c0 %s", D2COMMON_GetQuestFlag(D2CLIENT_GetQuestInfo(), THE_SEVEN_TOMBS, QFLAG_CUSTOM_1) ? L"no" : L"yes");
+			L"Dury Bugged:" "\xFF" "c0 %s", !hasDuryQuest ? L"n/a" : (D2COMMON_GetQuestFlag(quests, THE_SEVEN_TOMBS, QFLAG_CUSTOM_1) ? L"no" : L"yes"));
 
 		if (customStats.size() > 0) {
 			y += 8;
