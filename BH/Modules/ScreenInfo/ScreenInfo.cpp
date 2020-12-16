@@ -49,15 +49,6 @@ void ScreenInfo::OnLoad() {
 }
 
 void ScreenInfo::LoadConfig() {
-	cRunData = new Config("Run.dat");
-	if (!cRunData->Parse()) {
-		cRunData->SetConfigName("Run.dat");
-		std::ofstream os;
-		os.open(cRunData->GetConfigName(), std::ios_base::out);
-		os << endl;
-		os.close();
-	}
-
 	BH::config->ReadToggle("Experience Meter", "VK_NUMPAD7", false, Toggles["Experience Meter"]);
 
 	BH::config->ReadArray("AutomapInfo", automapInfo);
@@ -156,16 +147,6 @@ void ScreenInfo::OnGameJoin() {
 	if (runcounter.find(runname) == runcounter.end()) {
 		runcounter[runname] = 0;
 	}
-	cRunData->ReadAssoc(pUnit->pPlayerData->szName, runs);
-	if (runs.find(runname) == runs.end()) {
-		runs[runname] = 0;
-		std::ofstream os;
-		os.open(cRunData->GetConfigName(), std::ios_base::app);
-		os << pUnit->pPlayerData->szName << "[" << runname << "]: 0" << endl;
-		os.close();
-		cRunData->Parse();
-	}
-	runcounter[runname]++, runs[runname]++;
 	automap["GAMEPASS"] = pData->szGamePass;
 	automap["GAMEDESC"] = pData->szGameDesc;
 	automap["GAMEIP"] = pData->szGameIP;
@@ -174,13 +155,43 @@ void ScreenInfo::OnGameJoin() {
 	automap["CHARNAME"] = pUnit->pPlayerData->szName;
 	automap["SESSIONGAMECOUNT"] = to_string(++nTotalGames);
 
+	/*
+	string p = ReplaceAutomapTokens(szSavePath);
+	cRunData = new Config(p + ".dat");
+	if (!cRunData->Parse()) {
+		cRunData->SetConfigName(p + ".dat");
+		std::ofstream os;
+		os.open(cRunData->GetConfigName(), std::ios_base::out);
+		os << endl;
+		os.close();
+	}
+	cRunData->ReadAssoc(pUnit->pPlayerData->szName, runs);
+	if (runs.find(runname) == runs.end()) {
+		runs[runname] = 0;
+		std::ofstream os;
+		os.open(cRunData->GetConfigName(), std::ios_base::app);
+		os << pUnit->pPlayerData->szName << "[" << runname << "]: 0" << endl;
+		os.close();
+		cRunData->Parse();
+		cRunData->ReadAssoc(pUnit->pPlayerData->szName, runs);
+	}
+	runs[runname]++;
+	*/
+	runcounter[runname]++;
+
 	if (!Toggles["Run Details On Join"].state) {
 		return;
 	}
-	PrintText(Orange, "%d games played this session.", nTotalGames);
 	if (runname.length() > 0) {
+		//mp
+		PrintText(Orange, "%d games played this session.", nTotalGames);
 		PrintText(Orange, "%d \"%s\" games played this session.", runcounter[runname], runname.c_str());
-		PrintText(Orange, "%d \"%s\" games played total.", runs[runname], runname.c_str());
+		//PrintText(Orange, "%d \"%s\" games played total.", runs[runname], runname.c_str());
+	} else {
+		//sp
+		PrintText(Orange, "%d games played this session.", nTotalGames);
+		PrintText(Orange, "%d single player games played this session.", runcounter[runname]);
+		//PrintText(Orange, "%d single player games played on this character.", runs[runname], runname.c_str());
 	}
 }
 
@@ -592,7 +603,10 @@ void ScreenInfo::OnGameExit() {
 	if (Toggles["Save Run Details"].state) {
 		WriteRunTrackerData();
 	}
+	/*
 	cRunData->Write();
+	delete cRunData;
+	*/
 }
 
 void ScreenInfo::WriteRunTrackerData() {

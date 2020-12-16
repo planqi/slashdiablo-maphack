@@ -44,8 +44,13 @@ class ScreenInfo : public Module {
 		double currentExpPerSecond;
 		char* currentExpPerSecondUnit;
 
-
-		Config* cRunData;
+		// used to keep track of runs over the course of a season. example cfg would look like:
+		/*
+		BoBarb[quickcs]: 250
+		BoBarb[quickbaal]: 170
+		BoBarb[mf]: 500
+		*/
+		//Config* cRunData;
 		bool bFailedToWrite = false;
 		int nTotalGames;
 		string szGamesToLevel;
