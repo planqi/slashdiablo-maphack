@@ -44,6 +44,8 @@ class ScreenInfo : public Module {
 		double currentExpPerSecond;
 		char* currentExpPerSecondUnit;
 
+
+		Config* cRunData;
 		bool bFailedToWrite = false;
 		int nTotalGames;
 		string szGamesToLevel;
@@ -60,6 +62,7 @@ class ScreenInfo : public Module {
 		map<string, string> automap;
 		map<string, int> runcounter;
 		vector<pair<string, string>> runDetailsColumns;
+		map<string, unsigned int> runs;
 
 		string SimpleGameName(const string& gameName);
 		int	GetPlayerCount();
