@@ -1137,6 +1137,7 @@ void InitializeMPQData() {
 			computeTypes(type->wEquiv[1]);
 		};
 		computeTypes(d->wtype);
+		computeTypes(d->wtype2);
 
 		if (allTypeCodes.find("weap") != allTypeCodes.end()) {
 			flags |= ITEM_GROUP_ALLWEAPON;
@@ -1276,11 +1277,12 @@ void InitializeMPQData() {
 		} else {
 			flags |= ITEM_GROUP_NORMAL;
 		}
+		ItemTypesTxt* mainType = &(*p_D2COMMON_sgptDataTable)->pItemsTypeTxt[d->wtype];
 
 		ItemAttributes* attrs = new ItemAttributes();
 		//attrs->name = ;
 		std::strncpy(attrs->code, d->szcode, 4);
-		attrs->category = to_string(d->wtype);
+		attrs->category = std::string(reinterpret_cast<char*>(mainType->szCode), 4);
 		attrs->width = d->binvwidth;
 		attrs->height = d->binvheight;
 		attrs->stackable = d->bstackable;
