@@ -4,7 +4,6 @@
 #include "../../D2Stubs.h"
 #include "../Item/ItemDisplay.h"
 #include "../Item/Item.h"
-#include "../../TableReader.h"
 #include "../../MPQInit.h"
 #include "../../Constants.h"
 #include <algorithm>
@@ -90,7 +89,7 @@ JSONObject* StashExport::getStatEntry(WORD statId, WORD statId2, DWORD statVal, 
 	switch (statId) {
 	case STAT_SINGLESKILL:
 	case STAT_NONCLASSSKILL:{
-			auto sk = Tables::Skills.binarySearch("Id", statId2);
+			JSONObject* sk = nullptr;//Tables::Skills.binarySearch("Id", statId2);
 			if (sk){
 				entry->set("name", NAMEOF(statId));
 				entry->set("skill", sk->getString("skill"));
@@ -120,7 +119,7 @@ JSONObject* StashExport::getStatEntry(WORD statId, WORD statId2, DWORD statVal, 
 	case STAT_CHARGED:{
 			int level = statId2 & 0x3F;
 			statId2 >>= 6;	// skill Id needs to be bit-shifted
-			auto sk = Tables::Skills.binarySearch("Id", statId2);
+			JSONObject* sk = nullptr;//Tables::Skills.binarySearch("Id", statId2);
 			if (sk){
 				entry->set("name", NAMEOF(statId));
 				entry->set("skill", sk->getString("skill"));
@@ -138,7 +137,7 @@ JSONObject* StashExport::getStatEntry(WORD statId, WORD statId2, DWORD statVal, 
 	case STAT_SKILLWHENSTRUCK:{
 			int level = statId2 & 0x3F;
 			statId2 >>= 6;	// skill Id needs to be bit-shifted
-			auto sk = Tables::Skills.binarySearch("Id", statId2);
+			JSONObject* sk = nullptr;//Tables::Skills.binarySearch("Id", statId2);
 			if (sk){
 				entry->set("name", NAMEOF(statId));
 				entry->set("skill", sk->getString("skill"));
@@ -175,13 +174,13 @@ void StashExport::fillStats(JSONArray* statsArray, JSONObject *itemDef, UnitAny 
 		std::string par = string_format(paramKey, rs);
 		std::string min = string_format(minKey, rs);
 		std::string max = string_format(maxKey, rs);
-		auto skProps = Tables::Properties.findEntry("code", itemDef->getString(code));
+		JSONObject* skProps = nullptr;//Tables::Properties.findEntry("code", itemDef->getString(code));
 		if (!skProps) { break; }
 		for (int sk = 1; sk < 8; sk++){
 			char buf[6];
 			sprintf_s(buf, "stat%d", sk);
 			std::string funcKey = string_format("func%d", sk);
-			auto skDef = Tables::ItemStatCost.findEntry("Stat", skProps->getString(buf));
+			JSONObject* skDef = nullptr;//Tables::ItemStatCost.findEntry("Stat", skProps->getString(buf));
 			if (!skDef) { break; }
 			int func = (int)skProps->getNumber(funcKey);
 
@@ -256,7 +255,7 @@ void StashExport::GetItemInfo(UnitAny* pItem, JSONObject* pBuffer){
 			}
 			break;
 		case ITEM_QUALITY_UNIQUE:{
-				JSONObject *unDef = Tables::UniqueItems.entryAt(pItem->pItemData->dwFileIndex);
+				JSONObject *unDef = nullptr;//Tables::UniqueItems.entryAt(pItem->pItemData->dwFileIndex);
 				if (unDef){
 					pBuffer->set("name", unDef->getString("index"));
 					fillStats(statsObject, unDef, pItem, "prop%d", "par%d", "min%d", "max%d", 13);
@@ -264,7 +263,7 @@ void StashExport::GetItemInfo(UnitAny* pItem, JSONObject* pBuffer){
 			}
 			break;
 		case ITEM_QUALITY_SET:{
-			JSONObject *setDef = Tables::SetItems.entryAt(pItem->pItemData->dwFileIndex);
+			JSONObject *setDef = nullptr;//Tables::SetItems.entryAt(pItem->pItemData->dwFileIndex);
 			if (setDef){
 				pBuffer->set("set", setDef->getString("set"));
 				pBuffer->set("name", setDef->getString("index"));
@@ -275,9 +274,9 @@ void StashExport::GetItemInfo(UnitAny* pItem, JSONObject* pBuffer){
 		case ITEM_QUALITY_CRAFT:
 		case ITEM_QUALITY_RARE:{
 			// -155 because that is how big the suffix table is? ... also -1 from that
-			JSONObject *rarePrefix = Tables::RarePrefix.entryAt(pItem->pItemData->wRarePrefix - 156);
+			JSONObject *rarePrefix = nullptr;//Tables::RarePrefix.entryAt(pItem->pItemData->wRarePrefix - 156);
 			// zero based vs 1 based?; or the table just doesn't have the header row
-			JSONObject *rareSuffix = Tables::RareSuffix.entryAt(pItem->pItemData->wRareSuffix - 1);
+			JSONObject *rareSuffix = nullptr;//Tables::RareSuffix.entryAt(pItem->pItemData->wRareSuffix - 1);
 
 			if (rarePrefix && rareSuffix){
 				pBuffer->set("name", rarePrefix->getString("name") + " " + rareSuffix->getString("name"));
@@ -293,7 +292,7 @@ void StashExport::GetItemInfo(UnitAny* pItem, JSONObject* pBuffer){
 			std::string rwName = UnicodeToAnsi(D2LANG_GetLocaleText(pItem->pItemData->wPrefix[0]));
 			pBuffer->set("runeword", rwName);
 
-			JSONObject *rwDef = Tables::Runewords.findEntry("Rune Name", rwName);
+			JSONObject *rwDef = nullptr;//Tables::Runewords.findEntry("Rune Name", rwName);
 			if (rwDef){
 				fillStats(statsObject, rwDef, pItem, "T1Code%d", "T1Param%d", "T1Min%d", "T1Max%d", 8);
 			}
@@ -332,11 +331,6 @@ void StashExport::GetItemInfo(UnitAny* pItem, JSONObject* pBuffer){
 
 void StashExport::WriteStash() {
 		BnetData* pInfo = (*p_D2LAUNCH_BnData);
-
-		if (!Tables::isInitialized()){
-			PrintText(1, "Waiting for MPQ Data to finish loading...");
-			return;
-		}
 
 		UnitAny *unit = D2CLIENT_GetPlayerUnit();
 		if (!unit) return;
@@ -471,7 +465,7 @@ static JSONObject* SKILL_ON_X_FUNCTION(UnitAny *pItem, JSONObject* skProp, JSONO
 		std::string skill;
 		auto id = param ? param->toInt() : 0;
 		if (id){
-			auto sk = Tables::Skills.binarySearch("Id", id);
+			JSONObject* sk = nullptr;//Tables::Skills.binarySearch("Id", id);
 			if (sk){
 				skill = sk->getString("skill");
 			}
@@ -503,7 +497,7 @@ static JSONObject* SKILL_TAB_FUNCTION(UnitAny *pItem, JSONObject* skProp, JSONOb
 static JSONObject* SKILL_FUNCTION(UnitAny *pItem, JSONObject* skProp, JSONObject* skDef, JSONElement* param, int min, int max){
 	auto id = param ? param->toInt() : 0;
 	if (!id){
-		auto sk = Tables::Skills.findEntry("skill", param->toString());
+		JSONObject* sk = nullptr;//Tables::Skills.findEntry("skill", param->toString());
 		if (sk) id = (int)sk->getNumber("Id");
 	}
 
@@ -517,7 +511,7 @@ static JSONObject* CHARGED_FUNCTION(UnitAny *pItem, JSONObject* skProp, JSONObje
 		std::string skill;
 		auto id = param ? param->toInt() : 0;
 		if (id){
-			auto sk = Tables::Skills.binarySearch("Id", id);
+			JSONObject* sk = nullptr;//Tables::Skills.binarySearch("Id", id);
 			if (sk){
 				skill = sk->getString("skill");
 			}

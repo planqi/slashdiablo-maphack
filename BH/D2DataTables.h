@@ -526,6 +526,20 @@ struct ItemStatCostTxt  //size 0x144
 	BYTE 	_Stuff[230];		//0x5E
 };
 
+
+struct ItemTypesTxt { //size 0xE4
+	CHAR szCode[0x4];				//0x00
+	WORD wEquiv[0x2];				//0x04
+	BYTE bRepair;					//0x08
+	BYTE bBody;						//0x09
+	BYTE bBodyLoc[0x2];				//0x10
+	WORD wShoots;					//0x12
+	WORD wQuiver;					//0x14
+	BYTE bThrowable;				//0x16
+	//can mostly be inferred from txt file, we dont use any of the other fields though
+	BYTE _Unk[0xD3];				//0x17
+};
+
 struct MissilesTxt
 {
 	DWORD dwId;                     //0x00
@@ -1361,7 +1375,7 @@ struct ItemsTxt //size = 0x1A8, Valid for Weapons, Armors, Misc.txts
 	DWORD	dwnormcode;				//0x84
 	DWORD	dwubercode;				//0x88
 	DWORD	dwultracode;			//0x8C
-	DWORD	dwalternategfx;			//0x90
+	char	szalternategfx[4];			//0x90
 	DWORD	dwpSpell;				//0x94
 	WORD	wstate;					//0x98
 	WORD	wcstate1;				//0x9A
@@ -1376,10 +1390,10 @@ struct ItemsTxt //size = 0x1A8, Valid for Weapons, Armors, Misc.txts
 	WORD	bspelldesc;				//0xB4
 	WORD	wspelldescstr;			//0xB6
 	DWORD	dwspelldesccalc;		//0xB8
-	DWORD	dwBetterGem;			//0xBC
+	char	szBetterGem[4];			//0xBC
 	DWORD	dwwclass;				//0xC0
 	DWORD	dw2handedwclass;		//0xC4
-	DWORD	dwTMogType;				//0xC8
+	char	szTMogType[4];			//0xC8
 	DWORD	dwminac;				//0xCC
 	DWORD	dwmaxac;				//0xD0
 	DWORD	dwgamblecost;			//0xD4
@@ -1684,7 +1698,7 @@ struct sgptDataTable {
 	BYTE*	pPetTypes;				//0xBEC
 	DWORD	dwPetTypesRecs;			//0xBF0
 	BYTE*	pItemsType;				//0xBF4
-	BYTE*	pItemsTypeTxt;			//0xBF8
+	ItemTypesTxt*	pItemsTypeTxt;			//0xBF8
 	DWORD	dwItemsTypeRecs;		//0xBFC
 	DWORD	dwItemsTypeNesting;		//0xC00
 	BYTE*	pItemsTypeNesting;		//0xC04

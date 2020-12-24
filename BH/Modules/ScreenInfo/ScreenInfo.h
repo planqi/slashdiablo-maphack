@@ -29,7 +29,6 @@ class ScreenInfo : public Module {
 		std::map<DWORD, string> SkillWarningMap;
 		std::deque<StateWarning*> CurrentWarnings;
 		Drawing::Texthook* bhText;
-		Drawing::Texthook* mpqVersionText;
 		Drawing::Texthook* d2VersionText;
 		DWORD gameTimer;
 
@@ -54,7 +53,6 @@ class ScreenInfo : public Module {
 
 		void OnLoad();
 		void LoadConfig();
-		void MpqLoaded();
 		void OnKey(bool up, BYTE key, LPARAM lParam, bool* block);
 		void OnGameJoin();
 		void OnGameExit();

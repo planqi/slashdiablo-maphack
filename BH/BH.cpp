@@ -6,9 +6,7 @@
 #include "D2Intercepts.h"
 #include "D2Handlers.h"
 #include "Modules.h"
-#include "MPQReader.h"
 #include "MPQInit.h"
-#include "TableReader.h"
 #include "Task.h"
 
 string BH::path;
@@ -83,9 +81,7 @@ DWORD WINAPI LoadMPQData(VOID* lpvoid){
 		}
 	}
 
-	ReadMPQFiles(patchPath);
 	InitializeMPQData();
-	Tables::initTables();
 
 	return 0;
 }
