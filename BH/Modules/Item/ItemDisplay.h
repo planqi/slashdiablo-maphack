@@ -54,7 +54,7 @@ struct ItemInfo {
 	ItemAttributes *attrs;
 	char code[4];
 	//std::string packet;
-	std::string name;
+	std::wstring name;
 	std::string earName;
 	std::string personalizedName;
 	unsigned int id;

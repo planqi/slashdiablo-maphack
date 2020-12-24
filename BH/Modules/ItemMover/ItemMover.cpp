@@ -622,7 +622,7 @@ void ItemMover::OnGamePacketRecv(BYTE* packet, bool* block) {
 								color != DEAD_COLOR
 							 ) {
 							PrintText(color, "%s%s",
-									item.name.c_str(),
+									UnicodeToAnsi(item.name.c_str()),
 									(*BH::MiscToggles2)["Verbose Notifications"].state ? " \377c5drop" : ""
 									);
 						}
@@ -631,7 +631,7 @@ void ItemMover::OnGamePacketRecv(BYTE* packet, bool* block) {
 								color != DEAD_COLOR
 							 ) {
 							PrintText(color, "%s%s",
-									item.name.c_str(),
+									UnicodeToAnsi(item.name.c_str()),
 									(*BH::MiscToggles2)["Verbose Notifications"].state ? " \377c5close" : ""
 									);
 						}
