@@ -70,7 +70,7 @@ extern unsigned int SKILL_MAX;
 
 // Item attributes from ItemTypes.txt and Weapon/Armor/Misc.txt
 struct ItemAttributes {
-	std::wstring name;
+	std::string name;
 	char code[4];
 	std::string category;
 	BYTE width;

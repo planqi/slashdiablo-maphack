@@ -1372,9 +1372,9 @@ struct ItemsTxt //size = 0x1A8, Valid for Weapons, Armors, Misc.txts
 		DWORD	dwcode;					//0x80
 		char	szcode[4];				//0x80
 	};
-	DWORD	dwnormcode;				//0x84
-	DWORD	dwubercode;				//0x88
-	DWORD	dwultracode;			//0x8C
+	char	sznormcode[4];				//0x84
+	char	szubercode[4];				//0x88
+	char	szultracode[4];			//0x8C
 	char	szalternategfx[4];			//0x90
 	DWORD	dwpSpell;				//0x94
 	WORD	wstate;					//0x98
