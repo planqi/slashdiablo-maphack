@@ -38,6 +38,7 @@ Patch* patches[] = {
 	new Patch(Call, D2MULTI, { 0x10781, 0x14A9A }, (int)ChannelWhisper_Interception, 5),
 	new Patch(Jump, D2MULTI, { 0x108A0, 0x14BE0 }, (int)ChannelChat_Interception, 6),
 	new Patch(Jump, D2MULTI, { 0x107A0, 0x14850 }, (int)ChannelEmote_Interception, 6),
+	new Patch(Call, D2COMMON, { 0x66340, 0x0 }, (int)MPQDataLoaded_Interception, 6),
 };
 
 Patch* BH::oogDraw = new Patch(Call, D2WIN, { 0x18911, 0xEC61 }, (int)OOGDraw_Interception, 5);
@@ -118,12 +119,7 @@ void BH::Initialize()
 	Task::InitializeThreadPool(2);
 
 	// Read the MPQ Data asynchronously
-	//CreateThread(0, 0, LoadMPQData, 0, 0, 0);
-	Task::Enqueue([]() -> void {
-		LoadMPQData(NULL);
-		moduleManager->MpqLoaded();
-	});
-
+	
 	
 	new ScreenInfo();
 	new Gamefilter();

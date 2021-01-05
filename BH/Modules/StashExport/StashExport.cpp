@@ -89,6 +89,7 @@ JSONObject* StashExport::getStatEntry(WORD statId, WORD statId2, DWORD statVal, 
 	switch (statId) {
 	case STAT_SINGLESKILL:
 	case STAT_NONCLASSSKILL:{
+			//SkillsTxt* sk = &(*p_D2COMMON_sgptDataTable)->pSkillsTxt[statId2];
 			JSONObject* sk = nullptr;//Tables::Skills.binarySearch("Id", statId2);
 			if (sk){
 				entry->set("name", NAMEOF(statId));
@@ -119,6 +120,7 @@ JSONObject* StashExport::getStatEntry(WORD statId, WORD statId2, DWORD statVal, 
 	case STAT_CHARGED:{
 			int level = statId2 & 0x3F;
 			statId2 >>= 6;	// skill Id needs to be bit-shifted
+			//SkillsTxt* sk = &(*p_D2COMMON_sgptDataTable)->pSkillsTxt[statId2];
 			JSONObject* sk = nullptr;//Tables::Skills.binarySearch("Id", statId2);
 			if (sk){
 				entry->set("name", NAMEOF(statId));
@@ -137,6 +139,7 @@ JSONObject* StashExport::getStatEntry(WORD statId, WORD statId2, DWORD statVal, 
 	case STAT_SKILLWHENSTRUCK:{
 			int level = statId2 & 0x3F;
 			statId2 >>= 6;	// skill Id needs to be bit-shifted
+			//SkillsTxt* sk = &(*p_D2COMMON_sgptDataTable)->pSkillsTxt[statId2];
 			JSONObject* sk = nullptr;//Tables::Skills.binarySearch("Id", statId2);
 			if (sk){
 				entry->set("name", NAMEOF(statId));
@@ -174,6 +177,7 @@ void StashExport::fillStats(JSONArray* statsArray, JSONObject *itemDef, UnitAny 
 		std::string par = string_format(paramKey, rs);
 		std::string min = string_format(minKey, rs);
 		std::string max = string_format(maxKey, rs);
+		//
 		JSONObject* skProps = nullptr;//Tables::Properties.findEntry("code", itemDef->getString(code));
 		if (!skProps) { break; }
 		for (int sk = 1; sk < 8; sk++){
@@ -255,6 +259,8 @@ void StashExport::GetItemInfo(UnitAny* pItem, JSONObject* pBuffer){
 			}
 			break;
 		case ITEM_QUALITY_UNIQUE:{
+				//UniqueItemsTxt *unDef = &(*p_D2COMMON_sgptDataTable)->pUniqueItemsTxt[pItem->pItemData->dwFileIndex];
+				//std::wstring s = D2LANG_GetLocaleText(unDef->wTblIndex);
 				JSONObject *unDef = nullptr;//Tables::UniqueItems.entryAt(pItem->pItemData->dwFileIndex);
 				if (unDef){
 					pBuffer->set("name", unDef->getString("index"));
@@ -263,6 +269,8 @@ void StashExport::GetItemInfo(UnitAny* pItem, JSONObject* pBuffer){
 			}
 			break;
 		case ITEM_QUALITY_SET:{
+			//SetItemsTxt* setDef = &(*p_D2COMMON_sgptDataTable)->pSetItemsTxt[pItem->pItemData->dwFileIndex];
+			//std::wstring s = D2LANG_GetLocaleText(setDef->wTblIndex);
 			JSONObject *setDef = nullptr;//Tables::SetItems.entryAt(pItem->pItemData->dwFileIndex);
 			if (setDef){
 				pBuffer->set("set", setDef->getString("set"));
@@ -274,13 +282,20 @@ void StashExport::GetItemInfo(UnitAny* pItem, JSONObject* pBuffer){
 		case ITEM_QUALITY_CRAFT:
 		case ITEM_QUALITY_RARE:{
 			// -155 because that is how big the suffix table is? ... also -1 from that
-			JSONObject *rarePrefix = nullptr;//Tables::RarePrefix.entryAt(pItem->pItemData->wRarePrefix - 156);
-			// zero based vs 1 based?; or the table just doesn't have the header row
-			JSONObject *rareSuffix = nullptr;//Tables::RareSuffix.entryAt(pItem->pItemData->wRareSuffix - 1);
 
+			//RareAffixTxt* rarePrefix = &(*p_D2COMMON_sgptDataTable)->pSetItemsTxt[pItem->pItemData->dwFileIndex];
+			//JSONObject *rarePrefix = nullptr;//Tables::RarePrefix.entryAt(pItem->pItemData->wRarePrefix - 156);
+			// zero based vs 1 based?; or the table just doesn't have the header row
+			//JSONObject *rareSuffix = nullptr;//Tables::RareSuffix.entryAt(pItem->pItemData->wRareSuffix - 1);
+
+			std::string rarePrefix = UnicodeToAnsi(D2LANG_GetLocaleText(pItem->pItemData->wPrefix[0]));
+			std::string rareSuffix = UnicodeToAnsi(D2LANG_GetLocaleText(pItem->pItemData->wSuffix[0]));
+
+			/*
 			if (rarePrefix && rareSuffix){
-				pBuffer->set("name", rarePrefix->getString("name") + " " + rareSuffix->getString("name"));
+				pBuffer->set("name", rarePrefix + " " + rareSuffix);
 			}
+			*/
 		}
 			break;
 		default:
@@ -292,6 +307,7 @@ void StashExport::GetItemInfo(UnitAny* pItem, JSONObject* pBuffer){
 			std::string rwName = UnicodeToAnsi(D2LANG_GetLocaleText(pItem->pItemData->wPrefix[0]));
 			pBuffer->set("runeword", rwName);
 
+			//RunewordTxt* rwDef = &(*p_D2COMMON_sgptDataTable)->pSetItemsTxt[pItem->pItemData->dwFileIndex];
 			JSONObject *rwDef = nullptr;//Tables::Runewords.findEntry("Rune Name", rwName);
 			if (rwDef){
 				fillStats(statsObject, rwDef, pItem, "T1Code%d", "T1Param%d", "T1Min%d", "T1Max%d", 8);
@@ -465,6 +481,7 @@ static JSONObject* SKILL_ON_X_FUNCTION(UnitAny *pItem, JSONObject* skProp, JSONO
 		std::string skill;
 		auto id = param ? param->toInt() : 0;
 		if (id){
+			//SkillsTxt* sk = &(*p_D2COMMON_sgptDataTable)->pSkillsTxt[id];
 			JSONObject* sk = nullptr;//Tables::Skills.binarySearch("Id", id);
 			if (sk){
 				skill = sk->getString("skill");
@@ -497,6 +514,7 @@ static JSONObject* SKILL_TAB_FUNCTION(UnitAny *pItem, JSONObject* skProp, JSONOb
 static JSONObject* SKILL_FUNCTION(UnitAny *pItem, JSONObject* skProp, JSONObject* skDef, JSONElement* param, int min, int max){
 	auto id = param ? param->toInt() : 0;
 	if (!id){
+		//SkillsTxt* sk = &(*p_D2COMMON_sgptDataTable)->pSkillsTxt[id];
 		JSONObject* sk = nullptr;//Tables::Skills.findEntry("skill", param->toString());
 		if (sk) id = (int)sk->getNumber("Id");
 	}
@@ -511,6 +529,7 @@ static JSONObject* CHARGED_FUNCTION(UnitAny *pItem, JSONObject* skProp, JSONObje
 		std::string skill;
 		auto id = param ? param->toInt() : 0;
 		if (id){
+			//SkillsTxt* sk = &(*p_D2COMMON_sgptDataTable)->pSkillsTxt[id];
 			JSONObject* sk = nullptr;//Tables::Skills.binarySearch("Id", id);
 			if (sk){
 				skill = sk->getString("skill");

@@ -1,4 +1,5 @@
 #include "MPQInit.h"
+#include "BH.h"
 #include <functional>
 #include <set>
 
@@ -1045,17 +1046,16 @@ bool IsInitialized() {
 	return initialized;
 }
 
+//D2Common.#10943(guessed Arg1, Arg2, Arg3)
+//$ + 66346   \.C2 0C00       RETN 0C
+
+
 // If we find the temp file with MPQ info, use it; otherwise, fall back on the hardcoded lists.
 void InitializeMPQData() {
 	if (initialized) return;
 	
 	char* end;
 	short lastID = -1;
-
-	//cannot read sgptDataTable data until in game.
-	while (!D2CLIENT_GetPlayerUnit()) {
-		Sleep(100);
-	}
 
 
 	//pretty sure this can just be (*p_D2COMMON_sgptDataTable)->dwSkillsRecs
@@ -1300,4 +1300,5 @@ void InitializeMPQData() {
 	}
 
 	initialized = true;
+	BH::moduleManager->MpqLoaded();
 }
