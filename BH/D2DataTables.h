@@ -192,6 +192,22 @@ struct SetItemsTxt
 	ItemsTxtStat hGreenStats[10];   //0x118
 };
 
+struct SetsTxt
+{
+	WORD wSetId;						//0x00
+	WORD wStringId;						//0x02
+	WORD wVersion;						//0x04
+	WORD pad0x06;						//0x06
+	DWORD unk0x08;						//0x08
+	DWORD nSetItems;						//0x0C
+	ItemsTxtStat pBoni2[2];				//0x10
+	ItemsTxtStat pBoni3[2];				//0x30
+	ItemsTxtStat pBoni4[2];				//0x50
+	ItemsTxtStat pBoni5[2];				//0x70
+	ItemsTxtStat pFBoni[8];				//0x90
+	SetItemsTxt* pSetItem[6];				//0x110
+};
+
 struct RunesTxt
 {
 	char szName[64];					 //0x00
@@ -1731,7 +1747,7 @@ struct sgptDataTable {
 	DWORD	dwItemsTypeNesting;		//0xC00
 	BYTE*	pItemsTypeNesting;		//0xC04
 	BYTE*	pSets;					//0xC08
-	BYTE*	pSetsTxt;				//0xC0C
+	SetsTxt*	pSetsTxt;				//0xC0C
 	DWORD	dwSetsRecs;				//0xC10
 	BYTE*	pSetItems;				//0xC14
 	SetItemsTxt* pSetItemsTxt;		//0xC18
