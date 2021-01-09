@@ -1271,10 +1271,10 @@ void InitializeMPQData() {
 			flags2 |= ITEM_GROUP_SKULL;
 		}
 
-		if (strncmp(d->szultracode, d->szcode, 4)) {
+		if (strncmp(d->szultracode, d->szcode, 4) == 0) {
 			flags |= ITEM_GROUP_ELITE;
-		} else if(strncmp(d->szubercode, d->szcode, 4)) {
-			flags |= ITEM_GROUP_ELITE;
+		} else if(strncmp(d->szubercode, d->szcode, 4) == 0) {
+			flags |= ITEM_GROUP_EXCEPTIONAL;
 		} else {
 			flags |= ITEM_GROUP_NORMAL;
 		}
