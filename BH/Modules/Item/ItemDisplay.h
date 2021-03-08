@@ -15,6 +15,9 @@
 #define EXCEPTION_INVALID_ITEM_TYPE		5
 #define EXCEPTION_INVALID_GOLD_TYPE		6
 
+#define PLAYER_CLASSIC 0
+#define PLAYER_XP 1
+
 #define DEAD_COLOR        0xdead
 #define UNDEFINED_COLOR   0xbeef
 
@@ -237,6 +240,16 @@ private:
 	unsigned int flag;
 	bool EvaluateInternal(UnitItemInfo *uInfo, Condition *arg1, Condition *arg2);
 	bool EvaluateInternalFromPacket(ItemInfo *info, Condition *arg1, Condition *arg2);
+};
+
+class PlayerTypeCondition : public Condition
+{
+public:
+	PlayerTypeCondition(unsigned int m) : mode(m) { conditionType = CT_Operand; };
+private:
+	unsigned int mode;
+	bool EvaluateInternal(UnitItemInfo* uInfo, Condition* arg1, Condition* arg2);
+	bool EvaluateInternalFromPacket(ItemInfo* info, Condition* arg1, Condition* arg2);
 };
 
 class QualityCondition : public Condition

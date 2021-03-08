@@ -1093,6 +1093,10 @@ void Condition::BuildConditions(vector<Condition*> &conditions, string token) {
 
 	} else if (key.compare(0, 5, "PRICE") == 0) {
 		Condition::AddOperand(conditions, new ItemPriceCondition(operation, value));
+	} else if (key.compare(0, 2, "XP") == 0) {
+		Condition::AddOperand(conditions, new PlayerTypeCondition(PLAYER_XP));
+	} else if (key.compare(0, 7, "CLASSIC") == 0) {
+	Condition::AddOperand(conditions, new PlayerTypeCondition(PLAYER_CLASSIC));
 	}
 
 	for (vector<Condition*>::iterator it = endConditions.begin(); it != endConditions.end(); it++) {
@@ -1198,6 +1202,13 @@ bool FlagsCondition::EvaluateInternalFromPacket(ItemInfo *info, Condition *arg1,
 		return info->runeword;
 	}
 	return false;
+}
+
+bool PlayerTypeCondition::EvaluateInternal(UnitItemInfo* uInfo, Condition* arg1, Condition* arg2) {
+	return ((*p_D2LAUNCH_BnData)->nCharFlags >> 5) == mode;
+}
+bool PlayerTypeCondition::EvaluateInternalFromPacket(ItemInfo* info, Condition* arg1, Condition* arg2) {
+	return ((*p_D2LAUNCH_BnData)->nCharFlags >> 5) == mode;
 }
 
 bool QualityCondition::EvaluateInternal(UnitItemInfo *uInfo, Condition *arg1, Condition *arg2) {
