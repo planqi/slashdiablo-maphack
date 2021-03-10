@@ -117,7 +117,7 @@ void Item::OnGameJoin() {
 	ResetCaches();
 	OnLoop();
 	if (ItemDisplay::UntestedSettingsUsed()) {
-		PrintText(2, "Warning - using experimental config settings");
+		PrintText(10, "Warning - using experimental config settings");
 	}
 }
 
