@@ -3,11 +3,13 @@
 #include "../Module.h"
 #include "../../Config.h"
 #include "../../Common.h"
+#include <atomic>
 
 class ChatColor : public Module {
 private:
-	bool inGame;
+	std::atomic<bool> inGame;
 	std::map<string, unsigned int> whisperColors;
+	void UpdateInGame();
 public:
 	ChatColor() : Module("Chat Color") {};
 
