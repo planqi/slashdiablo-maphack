@@ -182,7 +182,7 @@ void ScreenInfo::OnDraw() {
 
 	for (std::deque<StateWarning*>::iterator it = CurrentWarnings.begin(); it != CurrentWarnings.end(); ++it) {
 		unsigned int posX = *p_D2CLIENT_ScreenSizeX / 2;
-		unsigned int posY = *p_D2CLIENT_ScreenSizeY / 2;;
+		unsigned int posY = *p_D2CLIENT_ScreenSizeY / 2 + 34 * yOffset++;
 		Texthook::Draw(posX, posY, Center, 3, Red, "%s has expired!", (*it)->name.c_str());
 	}
 
@@ -212,7 +212,8 @@ void ScreenInfo::OnDraw() {
 			if (ms > 2000) {
 				warningTicks = ticks;
 			} else if (ms > 500) {
-				Texthook::Draw(400, 30 * (yOffset++), Center, 3, Red, "%s Quest Active", bossNames[warning]);
+				Texthook::Draw(*p_D2CLIENT_ScreenSizeX / 2, 30,
+						Center, 3, Red, "%s Quest Active", bossNames[warning]);
 			}
 		}
 	}
