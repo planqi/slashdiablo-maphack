@@ -483,6 +483,28 @@ private:
 	bool EvaluateInternalFromPacket(ItemInfo *info, Condition *arg1, Condition *arg2);
 };
 
+class PartialCondition : public Condition
+{
+public:
+	PartialCondition(BYTE op, int target_count, vector<string> tokens)
+		: operation(op), target_count(target_count) {
+		for (auto token : tokens) {
+			make_count_subrule(token);	
+		}
+		conditionType = CT_Operand;
+	};
+	
+	// make_count_subrule calls BuildConditon, which creates new Conditions. We free these here.
+	~PartialCondition();
+private:
+	BYTE operation;
+	const int target_count;
+	vector<Rule> rules; // TODO: should be const, but Rule::Evalate needs to be modified
+	void make_count_subrule(string token);
+	bool EvaluateInternal(UnitItemInfo *uInfo, Condition *arg1, Condition *arg2);
+	bool EvaluateInternalFromPacket(ItemInfo *info, Condition *arg1, Condition *arg2);
+};
+
 class ItemPriceCondition : public Condition
 {
 public:

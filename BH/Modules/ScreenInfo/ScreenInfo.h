@@ -42,8 +42,19 @@ class ScreenInfo : public Module {
 		bool ReceivedQuestPacket;
 		DWORD startExperience;
 		int startLevel;
+		string currentPlayer;
+		DWORD currentExperience;
+		int currentLevel;
+		double currentExpGainPct;
+		double currentExpPerSecond;
+		char* currentExpPerSecondUnit;
+		string szGamesToLevel;
+		string szTimeToLevel;
+		string szLastXpGainPer;
+		string szLastXpPerSec;
+		string szLastGameTime;
 
-		void ScreenInfo::drawExperienceInfo();
+		void ScreenInfo::FormattedXPPerSec(char* buffer, double xpPerSec);
 	public:
 		static map<std::string, Toggle> Toggles;
 

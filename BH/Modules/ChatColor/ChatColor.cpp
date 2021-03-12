@@ -41,7 +41,14 @@ void ChatColor::LoadConfig() {
 	BH::config->ReadAssoc("Whisper Color", whisperColors);
 }
 
+void ChatColor::UpdateInGame() {
+	if ((*p_D2WIN_FirstControl) && inGame) inGame = false;
+	else if (D2CLIENT_GetPlayerUnit() && !inGame) inGame = true;
+}
+
 void ChatColor::OnChatPacketRecv(BYTE* packet, bool* block) {
+	// the game thread only checks if we've left the game every 10ms, so we update inGame here.
+	UpdateInGame();	
 	if (packet[1] == 0x0F && inGame) {
 		unsigned int event_id = *(unsigned short int*)&packet[4];
 
@@ -58,8 +65,8 @@ void ChatColor::OnChatPacketRecv(BYTE* packet, bool* block) {
 				replace = true;
 				color = whisperColors[from];
 			}
-
-			if (replace) {
+			UpdateInGame();
+			if (replace && inGame) {
 				*block = true;
 
 				Print(color, "%s | %s", from, message);
