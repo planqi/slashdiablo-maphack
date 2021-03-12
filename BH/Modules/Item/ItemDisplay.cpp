@@ -309,8 +309,12 @@ void SubstituteNameVariables(UnitItemInfo *uInfo, string &name, const string &ac
 		sprintf_s(gemlevel, "%s", GetGemLevelString(GetGemLevel(uInfo->attrs)));
 		sprintf_s(gemtype, "%s", GetGemTypeString(GetGemType(uInfo->attrs)));
 	}
+
+	string baseName = UnicodeToAnsi(D2LANG_GetLocaleText(txt->nLocaleTxtNo));
+
 	ActionReplace replacements[] = {
 		{"NAME", origName},
+		{"BASENAME", baseName},
 		{"SOCKETS", sockets},
 		{"RUNENUM", runenum},
 		{"RUNENAME", runename},
@@ -821,13 +825,25 @@ void Condition::BuildConditions(vector<Condition*> &conditions, string token) {
 	} else if (key.compare(0, 4, "SOCK") == 0) {
 		Condition::AddOperand(conditions, new ItemStatCondition(STAT_SOCKETS, 0, operation, value));
 	} else if (key.compare(0, 3, "SET") == 0) {
-		Condition::AddOperand(conditions, new QualityCondition(ITEM_QUALITY_SET));
+		std::smatch match;
+		if (regex_search(key, match, regex("^SET([0-9]{1,3})$")) && match.size() == 2) {
+			int id = stoi(match[1], nullptr, 10);
+			Condition::AddOperand(conditions, new QualityIdCondition(ITEM_QUALITY_SET, id));
+		} else {
+			Condition::AddOperand(conditions, new QualityCondition(ITEM_QUALITY_SET));
+		}
 	} else if (key.compare(0, 3, "MAG") == 0) {
 		Condition::AddOperand(conditions, new QualityCondition(ITEM_QUALITY_MAGIC));
 	} else if (key.compare(0, 4, "RARE") == 0) {
 		Condition::AddOperand(conditions, new QualityCondition(ITEM_QUALITY_RARE));
 	} else if (key.compare(0, 3, "UNI") == 0) {
-		Condition::AddOperand(conditions, new QualityCondition(ITEM_QUALITY_UNIQUE));
+		std::smatch match;
+		if (regex_search(key, match, regex("^UNI([0-9]{1,3})$")) && match.size() == 2) {
+			int id = stoi(match[1], nullptr, 10);
+			Condition::AddOperand(conditions, new QualityIdCondition(ITEM_QUALITY_UNIQUE, id));
+		} else {
+			Condition::AddOperand(conditions, new QualityCondition(ITEM_QUALITY_UNIQUE));
+		}
 	} else if (key.compare(0, 9, "CRAFTALVL") == 0) {
 		Condition::AddOperand(conditions, new CraftAffixLevelCondition(operation, value));
 	} else if (key.compare(0, 5, "CRAFT") == 0) {
@@ -1255,6 +1271,19 @@ bool ItemCodeCondition::EvaluateInternal(UnitItemInfo *uInfo, Condition *arg1, C
 bool ItemCodeCondition::EvaluateInternalFromPacket(ItemInfo *info, Condition *arg1, Condition *arg2) {
 	return (targetCode[0] == info->code[0] && targetCode[1] == info->code[1] && targetCode[2] == info->code[2]);
 }
+bool QualityIdCondition::EvaluateInternal(UnitItemInfo* uInfo, Condition* arg1, Condition* arg2) {
+	return uInfo->item->pItemData->dwFileIndex == id && uInfo->item->pItemData->dwQuality == quality;
+}
+bool QualityIdCondition::EvaluateInternalFromPacket(ItemInfo* info, Condition* arg1, Condition* arg2) {
+	switch (quality) {
+	case ITEM_QUALITY_UNIQUE:
+		return info->uniqueCode == id;
+	case ITEM_QUALITY_SET:
+		return info->setCode == id;
+	default:
+		return false;
+	}
+}
 
 bool FlagsCondition::EvaluateInternal(UnitItemInfo *uInfo, Condition *arg1, Condition *arg2) {
 	return ((uInfo->item->pItemData->dwFlags & flag) > 0);
@@ -1308,7 +1337,6 @@ bool GemLevelCondition::EvaluateInternalFromPacket(ItemInfo *info, Condition *ar
 	}
 	return false;
 }
-
 bool GemTypeCondition::EvaluateInternal(UnitItemInfo *uInfo, Condition *arg1, Condition *arg2) {
 	if (IsGem(uInfo->attrs)) {
 		return IntegerCompare(GetGemType(uInfo->attrs), operation, gemType);
