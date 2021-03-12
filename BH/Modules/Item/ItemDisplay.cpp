@@ -16,18 +16,18 @@
 
 // All colors here must also be defined in MAP_COLOR_REPLACEMENTS
 #define COLOR_REPLACEMENTS	\
-	{"WHITE", "ÿc0"},		\
-	{"RED", "ÿc1"},			\
-	{"GREEN", "ÿc2"},		\
-	{"BLUE", "ÿc3"},		\
-	{"GOLD", "ÿc4"},		\
-	{"GRAY", "ÿc5"},		\
-	{"BLACK", "ÿc6"},		\
-	{"TAN", "ÿc7"},			\
-	{"ORANGE", "ÿc8"},		\
-	{"YELLOW", "ÿc9"},		\
-	{"PURPLE", "ÿc;"},		\
-	{"DARK_GREEN", "ÿc:"},	\
+	{"WHITE", "Ã¿c0"},		\
+	{"RED", "Ã¿c1"},			\
+	{"GREEN", "Ã¿c2"},		\
+	{"BLUE", "Ã¿c3"},		\
+	{"GOLD", "Ã¿c4"},		\
+	{"GRAY", "Ã¿c5"},		\
+	{"BLACK", "Ã¿c6"},		\
+	{"TAN", "Ã¿c7"},			\
+	{"ORANGE", "Ã¿c8"},		\
+	{"YELLOW", "Ã¿c9"},		\
+	{"PURPLE", "Ã¿c;"},		\
+	{"DARK_GREEN", "Ã¿c:"},	\
 	{"CORAL", "\xFF" "c\x06"},		\
 	{"SAGE", "\xFF" "c\x07"},		\
 	{"TEAL", "\xFF" "c\x09"},		\
@@ -1129,6 +1129,10 @@ void Condition::BuildConditions(vector<Condition*> &conditions, string token) {
 
 	} else if (key.compare(0, 5, "PRICE") == 0) {
 		Condition::AddOperand(conditions, new ItemPriceCondition(operation, value));
+	} else if (key.compare(0, 2, "XP") == 0) {
+		Condition::AddOperand(conditions, new PlayerTypeCondition(PLAYER_XP));
+	} else if (key.compare(0, 7, "CLASSIC") == 0) {
+	Condition::AddOperand(conditions, new PlayerTypeCondition(PLAYER_CLASSIC));
 	} else if (key.compare(0, 5, "COUNT") == 0) {
 		// backup the last condition type
 		//PrintText(1, "COUNT match with valueStr=%s", valueStr.c_str());
@@ -1265,6 +1269,13 @@ bool FlagsCondition::EvaluateInternalFromPacket(ItemInfo *info, Condition *arg1,
 		return info->runeword;
 	}
 	return false;
+}
+
+bool PlayerTypeCondition::EvaluateInternal(UnitItemInfo* uInfo, Condition* arg1, Condition* arg2) {
+	return ((*p_D2LAUNCH_BnData)->nCharFlags >> 5) == mode;
+}
+bool PlayerTypeCondition::EvaluateInternalFromPacket(ItemInfo* info, Condition* arg1, Condition* arg2) {
+	return ((*p_D2LAUNCH_BnData)->nCharFlags >> 5) == mode;
 }
 
 bool QualityCondition::EvaluateInternal(UnitItemInfo *uInfo, Condition *arg1, Condition *arg2) {
