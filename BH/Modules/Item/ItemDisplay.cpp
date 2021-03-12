@@ -16,21 +16,21 @@
 
 // All colors here must also be defined in MAP_COLOR_REPLACEMENTS
 #define COLOR_REPLACEMENTS	\
-	{"WHITE", "ÿc0"},		\
-	{"RED", "ÿc1"},			\
-	{"GREEN", "ÿc2"},		\
-	{"BLUE", "ÿc3"},		\
-	{"GOLD", "ÿc4"},		\
-	{"GRAY", "ÿc5"},		\
-	{"BLACK", "ÿc6"},		\
-	{"TAN", "ÿc7"},			\
-	{"ORANGE", "ÿc8"},		\
-	{"YELLOW", "ÿc9"},		\
-	{"PURPLE", "ÿc;"},		\
-	{"DARK_GREEN", "ÿc:"},	\
-	{"CORAL", "\xFF" "c\x06"},		\
-	{"SAGE", "\xFF" "c\x07"},		\
-	{"TEAL", "\xFF" "c\x09"},		\
+	{"WHITE", "\377c0"},		\
+	{"RED", "\377c1"},			\
+	{"GREEN", "\377c2"},		\
+	{"BLUE", "\377c3"},		\
+	{"GOLD", "\377c4"},		\
+	{"GRAY", "\377c5"},		\
+	{"BLACK", "\377c6"},		\
+	{"TAN", "\377c7"},			\
+	{"ORANGE", "\377c8"},		\
+	{"YELLOW", "\377c9"},		\
+	{"PURPLE", "\377c;"},		\
+	{"DARK_GREEN", "\377c:"},	\
+	{"CORAL", "\377c\x06"},		\
+	{"SAGE", "\377c\x07"},		\
+	{"TEAL", "\377c\x09"},		\
 	{"LIGHT_GRAY", "\xFF" "c\x0C"}
 
 #define MAP_COLOR_WHITE     0x20
