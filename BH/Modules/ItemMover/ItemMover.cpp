@@ -26,6 +26,8 @@ int CUBE_LEFT = 197;
 int CUBE_TOP = 199;
 int CELL_SIZE = 29;
 
+std::string POTIONS[] = { "hp", "mp", "rv" };
+
 DWORD idBookId;
 DWORD unidItemId;
 
@@ -426,6 +428,7 @@ void ItemMover::LoadConfig() {
 	BH::config->ReadKey("Use TP Tome", "VK_NUMPADADD", TpKey);
 	BH::config->ReadKey("Use Healing Potion", "VK_NUMPADMULTIPLY", HealKey);
 	BH::config->ReadKey("Use Mana Potion", "VK_NUMPADSUBTRACT", ManaKey);
+	BH::config->ReadKey("Use Rejuv Potion", "VK_NUMPADDIVIDE", JuvKey);
 
 	BH::config->ReadInt("Low TP Warning", tp_warn_quantity);
 }
@@ -442,6 +445,7 @@ void ItemMover::OnLoad() {
 	new Drawing::Keyhook(settingsTab, x, (y += 15), &TpKey ,  "Quick Town Portal:     ");
 	new Drawing::Keyhook(settingsTab, x, (y += 15), &HealKey, "Use Healing Potion:    ");
 	new Drawing::Keyhook(settingsTab, x, (y += 15), &ManaKey, "Use Mana Potion:       ");
+	new Drawing::Keyhook(settingsTab, x, (y += 15), &JuvKey,  "Use Rejuv Potion:      ");
 
 	y += 7;
 
@@ -470,8 +474,9 @@ void ItemMover::OnKey(bool up, BYTE key, LPARAM lParam, bool* block)  {
 	if (!unit)
 		return;
 
-	if (!up && (key == HealKey || key == ManaKey)) {
-		char firstChar = key == HealKey ? 'h' : 'm';
+	if (!up && (key == HealKey || key == ManaKey || key == JuvKey)) {
+		int idx = key == JuvKey ? 2 : key == ManaKey ? 1 : 0;
+		std::string startChars = POTIONS[idx];
 		char minPotion = 127;
 		DWORD minItemId = 0;
 		bool isBelt = false;
@@ -479,7 +484,7 @@ void ItemMover::OnKey(bool up, BYTE key, LPARAM lParam, bool* block)  {
 			if (pItem->pItemData->ItemLocation == STORAGE_INVENTORY ||
 				pItem->pItemData->ItemLocation == STORAGE_NULL && pItem->pItemData->NodePage == NODEPAGE_BELTSLOTS) {
 				char* code = D2COMMON_GetItemText(pItem->dwTxtFileNo)->szCode;
-				if (code[0] == firstChar && code[1] == 'p' && code[2] < minPotion) {
+				if (code[0] == startChars[0] && code[1] == startChars[1] && code[2] < minPotion) {
 					minPotion = code[2];
 					minItemId = pItem->dwUnitId;
 					isBelt = pItem->pItemData->NodePage == NODEPAGE_BELTSLOTS;

@@ -44,6 +44,7 @@ private:
 	unsigned int TpKey;
 	unsigned int HealKey;
 	unsigned int ManaKey;
+	unsigned int JuvKey;
 	ItemPacketData ActivePacket;
 	CRITICAL_SECTION crit;
 	Drawing::UITab* settingsTab;
