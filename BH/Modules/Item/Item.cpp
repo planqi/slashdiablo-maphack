@@ -329,7 +329,7 @@ void Item::OnKey(bool up, BYTE key, LPARAM lParam, bool* block) {
 	}
 }
 
-void Item::OnLeftClick(bool up, int x, int y, bool* block) {
+void Item::OnLeftClick(bool up, unsigned int x, unsigned int y, bool* block) {
 	if (up)
 		return;
 	if (D2CLIENT_GetUIState(0x01) && viewingUnit != NULL && x >= 400)

@@ -39,8 +39,13 @@ private:
 	bool FirstInit;
 	int *InventoryItemIds;
 	int *StashItemIds;
+	int *LODStashItemIds;
+	int *ClassicStashItemIds;
 	int *CubeItemIds;
 	int tp_warn_quantity;
+	InventoryLayout *stashLayout;
+	InventoryLayout *inventoryLayout;
+	InventoryLayout *cubeLayout;
 	unsigned int TpKey;
 	unsigned int HealKey;
 	unsigned int ManaKey;
@@ -54,7 +59,12 @@ public:
 		FirstInit(false),
 		InventoryItemIds(NULL),
 		StashItemIds(NULL),
+		LODStashItemIds(NULL),
+		ClassicStashItemIds(NULL),
 		CubeItemIds(NULL),
+		stashLayout(NULL),
+		inventoryLayout(NULL),
+		cubeLayout(NULL),
 	  tp_warn_quantity(3){
 
 		InitializeCriticalSection(&crit);
@@ -67,19 +77,25 @@ public:
 		if (StashItemIds) {
 			delete [] StashItemIds;
 		}
+		if (LODStashItemIds) {
+			delete [] LODStashItemIds;
+		}
+		if (ClassicStashItemIds) {
+			delete [] ClassicStashItemIds;
+		}
 		if (CubeItemIds) {
 			delete [] CubeItemIds;
 		}
 		DeleteCriticalSection(&crit);
 	};
 
-	void Init();
+	bool Init();
 
 	void Lock() { EnterCriticalSection(&crit); };
 	void Unlock() { LeaveCriticalSection(&crit); };
 
-	bool LoadInventory(UnitAny *unit, int xpac, int source, int sourceX, int sourceY, bool shiftState, bool ctrlState, int stashUI, int invUI);
-	bool FindDestination(int xpac, int destination, unsigned int itemId, BYTE xSize, BYTE ySize);
+	bool LoadInventory(UnitAny *unit, int source, int sourceX, int sourceY, bool shiftState, bool ctrlState, int stashUI, int invUI);
+	bool FindDestination(int destination, unsigned int itemId, BYTE xSize, BYTE ySize);
 	void PickUpItem();
 	void PutItemInContainer();
 	void PutItemOnGround();
@@ -88,8 +104,8 @@ public:
 
 	void OnLoad();
 	void OnKey(bool up, BYTE key, LPARAM lParam, bool* block);
-	void OnLeftClick(bool up, int x, int y, bool* block);
-	void OnRightClick(bool up, int x, int y, bool* block);
+	void OnLeftClick(bool up, unsigned int x, unsigned int y, bool* block);
+	void OnRightClick(bool up, unsigned int x, unsigned int y, bool* block);
 	void OnGamePacketRecv(BYTE* packet, bool *block);
 	void OnGameExit();
 };

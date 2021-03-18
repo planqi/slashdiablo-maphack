@@ -37,8 +37,8 @@ class ModuleManager {
 		__event void OnAutomapDraw();
 		__event void OnOOGDraw();
 
-		__event void OnLeftClick(bool up, int x, int y, bool* block);
-		__event void OnRightClick(bool up, int x, int y, bool* block);
+		__event void OnLeftClick(bool up, unsigned int x, unsigned int y, bool* block);
+		__event void OnRightClick(bool up, unsigned int x, unsigned int y, bool* block);
 		__event void OnKey(bool up, BYTE key, LPARAM lParam, bool* block);
 
 		__event void OnChatPacketRecv(BYTE* packet, bool* block);
