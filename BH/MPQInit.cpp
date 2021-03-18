@@ -1097,19 +1097,6 @@ void InitializeMPQData() {
 		}
 	}
 
-	for (auto d = MpqDataMap["inventory"]->data.begin(); d < MpqDataMap["inventory"]->data.end(); d++) {
-		InventoryLayout *layout = new InventoryLayout();
-		layout->SlotWidth = (BYTE)std::strtoul((*d)["gridX"].c_str(), &end, 10);
-		layout->SlotHeight = (BYTE)std::strtoul((*d)["gridY"].c_str(), &end, 10);
-		layout->Left = (unsigned short)std::strtoul((*d)["gridLeft"].c_str(), &end, 10);
-		layout->Right = (unsigned short)std::strtoul((*d)["gridRight"].c_str(), &end, 10);
-		layout->Top = (unsigned short)std::strtoul((*d)["gridTop"].c_str(), &end, 10);
-		layout->Bottom = (unsigned short)std::strtoul((*d)["gridBottom"].c_str(), &end, 10);
-		layout->SlotPixelWidth = (BYTE)std::strtoul((*d)["gridBoxWidth"].c_str(), &end, 10);
-		layout->SlotPixelHeight = (BYTE)std::strtoul((*d)["gridBoxHeight"].c_str(), &end, 10);
-		InventoryLayoutMap[(*d)["class"]] = layout;
-	}
-
 	std::map<std::string, std::string> throwableMap;
 	std::map<std::string, std::string> bodyLocMap;
 	std::map<std::string, std::string> parentMap1;

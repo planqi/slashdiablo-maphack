@@ -237,20 +237,7 @@ http://d2mods.info/forum/viewtopic.php?f=8&t=61189
 Isn't simpler now?
 */
 
-struct InventoryLayout {
-	BYTE SlotWidth;
-	BYTE SlotHeight;
-	BYTE unk1;
-	BYTE unk2;
-	DWORD Left;
-	DWORD Right;
-	DWORD Top;
-	DWORD Bottom;
-	BYTE SlotPixelWidth;
-	BYTE SlotPixelHeight;
-};
-/*
-	 struct InventoryLayout //sizeof 0x14
+ struct InventoryLayout //sizeof 0x14
 	 {
 	 DWORD dwLeft;		//0x00
 	 DWORD dwRight;		//0x04
@@ -272,7 +259,7 @@ struct InventoryLayout {
 	 WORD _align;		//0x12
 	 };
 
-	 struct InventoryTxt //sizeof 0xF0
+struct InventoryTxt //sizeof 0xF0
 	 {
 	 InventoryLayout Inventory;		//0x00
 	 InventoryLayout Grid;			//0x14
@@ -293,7 +280,7 @@ struct InventoryLayout {
 	 };
 	 InventoryLayout hItem[9];
 	 };
-	 };*/
+};
 
 struct BeltBox
 {

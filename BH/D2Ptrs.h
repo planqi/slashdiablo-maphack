@@ -381,6 +381,8 @@ VARPTR(D2COMMON, AutoMagicTxt, AutoMagicTxt*, 0x9FBC8, 0xA4CE4)
 VARPTR(D2COMMON, ArmorTxt, ItemsTxt*, 0x9FBA4, 0xA4CC0)
 VARPTR(D2COMMON, ArmorTxtRecords, DWORD, 0x9FBA8, 0xA4CC4)
 
+VARPTR(D2COMMON, InventoryTxt, InventoryTxt*, 0x9FA5C, 0xA4CAC)
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 // D2Common Stubs
