@@ -437,7 +437,7 @@ void ScreenInfo::FormattedXPPerSec(char* buffer, double xpPerSec) {
 }
 
 std::string ScreenInfo::ReplaceAutomapTokens(std::string& v) {
-	std:string result;
+	std::string result;
 	result.assign(v.c_str());
 
 	for (auto const& am : automap) {
