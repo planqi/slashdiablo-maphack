@@ -108,7 +108,7 @@ bool ReadMPQFiles(std::string fileName) {
 		if (SFileOpenArchive && SFileCloseArchive && SFileOpenFileEx && SFileCloseFile && SFileGetFileSize && SFileReadFile) {
 			MPQArchive archive(fileName.c_str());
 
-			const int NUM_MPQS = 16;
+			const int NUM_MPQS = 15;
 			std::string mpqFiles[NUM_MPQS] = {
 				"UniqueItems",
 				"Armor",
@@ -116,7 +116,6 @@ bool ReadMPQFiles(std::string fileName) {
 				"Misc",
 				"ItemTypes",
 				"ItemStatCost",
-				"Inventory",
 				"Properties",
 				"Runes",
 				"SetItems",
