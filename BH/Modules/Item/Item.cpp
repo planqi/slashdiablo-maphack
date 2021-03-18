@@ -59,6 +59,7 @@ RunesTxt* GetRunewordTxtById(int rwId);
 map<std::string, Toggle> Item::Toggles;
 unsigned int Item::filterLevelSetting = 0;
 unsigned int Item::pingLevelSetting = 0;
+unsigned int Item::trackerPingLevelSetting = -1;
 UnitAny* Item::viewingUnit;
 
 Patch* itemNamePatch = new Patch(Call, D2CLIENT, { 0x92366, 0x96736 }, (int)ItemName_Interception, 6);
@@ -135,6 +136,7 @@ void Item::LoadConfig() {
 	BH::config->ReadToggle("Always Show Item Stat Ranges", "None", true, Toggles["Always Show Item Stat Ranges"]);
 	BH::config->ReadInt("Filter Level", filterLevelSetting);
 	BH::config->ReadInt("Ping Level", pingLevelSetting);
+	BH::config->ReadInt("Run Details Ping Level", trackerPingLevelSetting);
 
 	ItemDisplay::UninitializeItemRules();
 

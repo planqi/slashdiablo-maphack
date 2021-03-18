@@ -5,12 +5,6 @@
 #include "../../Drawing.h"
 #include <deque>
 
-
-struct AutomapReplace {
-	std::string key;
-	std::string value;
-};
-
 struct StateCode {
 	std::string name;
 	unsigned int value;
@@ -32,6 +26,7 @@ class ScreenInfo : public Module {
 		Drawing::Texthook* mpqVersionText;
 		Drawing::Texthook* d2VersionText;
 		DWORD gameTimer;
+		DWORD endTimer;
 
 		int packetRequests;
 		ULONGLONG warningTicks;
@@ -48,13 +43,36 @@ class ScreenInfo : public Module {
 		double currentExpGainPct;
 		double currentExpPerSecond;
 		char* currentExpPerSecondUnit;
+
+		// used to keep track of runs over the course of a season. example cfg would look like:
+		/*
+		BoBarb[quickcs]: 250
+		BoBarb[quickbaal]: 170
+		BoBarb[mf]: 500
+		*/
+		//Config* cRunData;
+		bool bFailedToWrite = false;
+		int nTotalGames;
 		string szGamesToLevel;
 		string szTimeToLevel;
 		string szLastXpGainPer;
 		string szLastXpPerSec;
 		string szLastGameTime;
+		int aPlayerCountAverage[8];
 
-		void ScreenInfo::FormattedXPPerSec(char* buffer, double xpPerSec);
+		string szSavePath;
+		string szColumnHeader;
+		string szColumnData;
+
+		map<string, string> automap;
+		map<string, int> runcounter;
+		vector<pair<string, string>> runDetailsColumns;
+		map<string, unsigned int> runs;
+
+		string SimpleGameName(const string& gameName);
+		int	GetPlayerCount();
+		void FormattedXPPerSec(char* buffer, double xpPerSec);
+		string FormatTime(time_t t, const char* format);
 	public:
 		static map<std::string, Toggle> Toggles;
 
@@ -74,6 +92,12 @@ class ScreenInfo : public Module {
 		void OnDraw();
 		void OnAutomapDraw();
 		void OnGamePacketRecv(BYTE* packet, bool *block);
+
+		std::string ReplaceAutomapTokens(std::string& v);
+		void WriteRunTrackerData();
+
+		static void AddDrop(UnitAny* item);
+		static void AddDrop(const string& name, unsigned int x, unsigned int y);
 };
 
 StateCode GetStateCode(unsigned int nKey);
