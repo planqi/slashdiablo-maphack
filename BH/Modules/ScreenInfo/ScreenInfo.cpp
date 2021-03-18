@@ -3,7 +3,6 @@
 #include "../../D2Ptrs.h"
 #include "../../D2Stubs.h"
 #include "../Item/ItemDisplay.h"
-#include "../../MPQReader.h"
 #include "../../D2Version.h"
 #include "../../D2Helpers.h"
 #include <time.h>
@@ -80,11 +79,6 @@ void ScreenInfo::LoadConfig() {
 			}
 		}
 	}
-}
-
-void ScreenInfo::MpqLoaded() {
-	mpqVersionText = new Texthook(Perm, 5, 589, MpqVersion);
-	mpqVersionText->SetColor(Gold);
 }
 
 void ScreenInfo::OnGameJoin() {

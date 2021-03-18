@@ -1,5 +1,7 @@
 #include "MPQInit.h"
-#include "MPQReader.h"
+#include "BH.h"
+#include <functional>
+#include <set>
 
 unsigned int STAT_MAX;
 unsigned int SKILL_MAX;
@@ -1036,11 +1038,17 @@ StatProperties StatPropertiesList[] = {
 	{"Passive Magical Damage Mastery", 9, 0, 50},
 	{"Passive Magical Resistance Reduction", 8, 0, 0}
 };
+
+
 #pragma endregion
 
 bool IsInitialized() {
 	return initialized;
 }
+
+//D2Common.#10943(guessed Arg1, Arg2, Arg3)
+//$ + 66346   \.C2 0C00       RETN 0C
+
 
 // If we find the temp file with MPQ info, use it; otherwise, fall back on the hardcoded lists.
 void InitializeMPQData() {
@@ -1049,302 +1057,248 @@ void InitializeMPQData() {
 	char* end;
 	short lastID = -1;
 
-	for (auto d = MpqDataMap["skills"]->data.begin(); d < MpqDataMap["skills"]->data.end(); d++) {
-		if ((*d)["Id"].length() > 0) {
-			unsigned short id = (unsigned short)std::strtoul((*d)["Id"].c_str(), &end, 10);
-			if (id > SKILL_MAX) {
-				SKILL_MAX = id;
-			}
-    }
-  }
 
-	for (auto d = MpqDataMap["charstats"]->data.begin(); d < MpqDataMap["charstats"]->data.end(); d++) {
-		if ((*d)["ToHitFactor"].length() > 0) {
-			CharStats *bits = new CharStats();
-			bits->toHitFactor = std::stoi((*d)["ToHitFactor"].c_str(), nullptr, 10);
-			CharList.push_back(bits);
+	//pretty sure this can just be (*p_D2COMMON_sgptDataTable)->dwSkillsRecs
+	//but ill leave it doing the same thing the mpq parser was
+	for (auto i = 0; i < (*p_D2COMMON_sgptDataTable)->dwSkillsRecs; i++) {
+		SkillsTxt* d = &(*p_D2COMMON_sgptDataTable)->pSkillsTxt[i];
+		if (!d) {
+			continue;
+		}
+		unsigned short id = d->wSkillId;
+		if (id > SKILL_MAX) {
+			SKILL_MAX = id;
 		}
 	}
 
-	for (auto d = MpqDataMap["itemstatcost"]->data.begin(); d < MpqDataMap["itemstatcost"]->data.end(); d++) {
-		if ((*d)["ID"].length() > 0) {
-			unsigned short id = (unsigned short)std::strtoul((*d)["ID"].c_str(), &end, 10);
-			if (id > STAT_MAX) {
-				STAT_MAX = id;
-			}
-
-			for (int missing = lastID + 1; missing < id; missing++) {
-				StatProperties *mbits = new StatProperties();
-				mbits->name.assign("missing_id");
-				mbits->ID = missing;
-				mbits->sendParamBits = mbits->saveBits = mbits->saveAdd = mbits->saveParamBits = mbits->op = 0;
-				AllStatList.push_back(mbits);
-				StatMap[mbits->name] = mbits;
-			}
-
-			StatProperties *bits = new StatProperties();
-			bits->name = (*d)["Stat"];
-			std::transform(bits->name.begin(), bits->name.end(), bits->name.begin(), tolower);
-			bits->ID = id;
-			bits->sendParamBits = (BYTE)std::strtoul((*d)["Send Param Bits"].c_str(), &end, 10);
-			bits->saveBits = (BYTE)std::strtoul((*d)["Save Bits"].c_str(), &end, 10);
-			bits->saveAdd = (BYTE)std::strtoul((*d)["Save Add"].c_str(), &end, 10);
-			bits->saveParamBits = (BYTE)std::strtoul((*d)["Save Param Bits"].c_str(), &end, 10);
-			bits->op = (BYTE)std::strtoul((*d)["op"].c_str(), &end, 10);
-			AllStatList.push_back(bits);
-			StatMap[bits->name] = bits;
-			lastID = (short)id;
+	for (auto i = 0; i < (*p_D2COMMON_sgptDataTable)->dwCharsStatsRecs; i++) {
+		CharStatsTxt* d = &(*p_D2COMMON_sgptDataTable)->pCharStatsTxt[i];
+		if (!d) {
+			continue;
 		}
+		CharStats* bits = new CharStats();
+		bits->toHitFactor = d->dwToHitFactor;
+		CharList.push_back(bits);
 	}
 
-	for (auto d = MpqDataMap["inventory"]->data.begin(); d < MpqDataMap["inventory"]->data.end(); d++) {
-		InventoryLayout *layout = new InventoryLayout();
-		layout->SlotWidth = (BYTE)std::strtoul((*d)["gridX"].c_str(), &end, 10);
-		layout->SlotHeight = (BYTE)std::strtoul((*d)["gridY"].c_str(), &end, 10);
-		layout->Left = (unsigned short)std::strtoul((*d)["gridLeft"].c_str(), &end, 10);
-		layout->Right = (unsigned short)std::strtoul((*d)["gridRight"].c_str(), &end, 10);
-		layout->Top = (unsigned short)std::strtoul((*d)["gridTop"].c_str(), &end, 10);
-		layout->Bottom = (unsigned short)std::strtoul((*d)["gridBottom"].c_str(), &end, 10);
-		layout->SlotPixelWidth = (BYTE)std::strtoul((*d)["gridBoxWidth"].c_str(), &end, 10);
-		layout->SlotPixelHeight = (BYTE)std::strtoul((*d)["gridBoxHeight"].c_str(), &end, 10);
-		InventoryLayoutMap[(*d)["class"]] = layout;
+	for (auto i = 0; i < (*p_D2COMMON_sgptDataTable)->dwItemStatCostRecs; i++) {
+		ItemStatCostTxt* d = &(*p_D2COMMON_sgptDataTable)->pItemStatCostTxt[i];
+		if (!d) {
+			continue;
+		}
+		unsigned short id = d->wStat;
+		if (id > STAT_MAX) {
+			STAT_MAX = id;
+		}
+
+		for (int missing = lastID + 1; missing < id; missing++) {
+			StatProperties* mbits = new StatProperties();
+			mbits->name.assign("missing_id");
+			mbits->ID = missing;
+			mbits->sendParamBits = mbits->saveBits = mbits->saveAdd = mbits->saveParamBits = mbits->op = 0;
+			AllStatList.push_back(mbits);
+			StatMap[mbits->name] = mbits;
+		}
+
+		StatProperties* bits = new StatProperties();
+		//MOV R32,DWORD [R32+0xBCC]
+		bits->name = to_string(id);
+		bits->ID = id;
+		bits->sendParamBits = d->bSendParamBits;
+		bits->saveBits = d->bSaveBits;
+		bits->saveAdd = d->dwSaveAdd;
+		bits->saveParamBits = d->dwSaveParamBits;
+		bits->op = d->bOp;
+		AllStatList.push_back(bits);
+		StatMap[bits->name] = bits;
+		lastID = (short)id;
 	}
 
-	std::map<std::string, std::string> throwableMap;
-	std::map<std::string, std::string> bodyLocMap;
-	std::map<std::string, std::string> parentMap1;
-	std::map<std::string, std::string> parentMap2;
-	for (auto d = MpqDataMap["itemtypes"]->data.begin(); d < MpqDataMap["itemtypes"]->data.end(); d++) {
-		if ((*d)["Code"].length() > 0) {
-			throwableMap[(*d)["Code"]] = (*d)["Throwable"];
-			bodyLocMap[(*d)["Code"]] = (*d)["BodyLoc1"];
-			if ((*d)["Equiv1"].length() > 0) {
-				parentMap1[(*d)["Code"]] = (*d)["Equiv1"];
-			}
-			if ((*d)["Equiv2"].length() > 0) {
-				parentMap2[(*d)["Code"]] = (*d)["Equiv2"];
-			}
+
+	//Weapons, Armors, and Misc.txts
+	for (auto i = 0; i < *p_D2COMMON_ItemsTxtRecords; i++) {
+		ItemsTxt* d = D2COMMON_GetItemsTxt(i);
+		if (!d) {
+			continue;
 		}
-	}
+		unsigned int flags = 0, flags2 = 0;
 
-	for (auto d = MpqDataMap["armor"]->data.begin(); d < MpqDataMap["armor"]->data.end(); d++) {
-		if ((*d)["code"].length() > 0) {
-			std::set<std::string> ancestorTypes;
-			char stackable = ((*d)["stackable"].length() > 0 ? (*d)["stackable"].at(0) - 48 : 0),
-				useable = ((*d)["useable"].length() > 0 ? (*d)["useable"].at(0) - 48 : 0),
-				throwable = ((*d)["throwable"].length() > 0 ? (*d)["throwable"].at(0) - 48 : 0);
+		BYTE throwable = 0;
 
-			unsigned int flags = ITEM_GROUP_ALLARMOR, flags2 = 0;
-			FindAncestorTypes((*d)["type"], ancestorTypes, parentMap1, parentMap2);
+		std::set<std::string> allTypeCodes;
+		std::function<void(WORD)> computeTypes;
+		computeTypes = [&](WORD t) {
+			if (t == 0) return;
+			ItemTypesTxt* type = &(*p_D2COMMON_sgptDataTable)->pItemsTypeTxt[t];
+			if (type->bThrowable) {
+				throwable = type->bThrowable;
+			}
+			allTypeCodes.insert(Trim(std::string(reinterpret_cast<char*>(type->szCode), 4)));
+			computeTypes(type->wEquiv[0]);
+			computeTypes(type->wEquiv[1]);
+		};
+		computeTypes(d->wtype);
+		computeTypes(d->wtype2);
 
-			if ((*d)["code"].compare((*d)["ultracode"]) == 0) {
-				flags |= ITEM_GROUP_ELITE;
-			}
-			else if ((*d)["code"].compare((*d)["ubercode"]) == 0) {
-				flags |= ITEM_GROUP_EXCEPTIONAL;
-			}
-			else {
-				flags |= ITEM_GROUP_NORMAL;
-			}
-			if (ancestorTypes.find("circ") != ancestorTypes.end()) {
-				flags |= ITEM_GROUP_CIRCLET;
-			}
-			else if (bodyLocMap[(*d)["type"]].compare("head") == 0) {
-				flags |= ITEM_GROUP_HELM;
-			}
-			else if (bodyLocMap[(*d)["type"]].compare("tors") == 0) {
-				flags |= ITEM_GROUP_ARMOR;
-			}
-			else if (bodyLocMap[(*d)["type"]].compare("glov") == 0) {
-				flags |= ITEM_GROUP_GLOVES;
-			}
-			else if (bodyLocMap[(*d)["type"]].compare("feet") == 0) {
-				flags |= ITEM_GROUP_BOOTS;
-			}
-			else if (bodyLocMap[(*d)["type"]].compare("belt") == 0) {
-				flags |= ITEM_GROUP_BELT;
-			}
-			else if (bodyLocMap[(*d)["type"]].compare(1, 3, "arm") == 0 && ancestorTypes.find("shld") != ancestorTypes.end()) {
-				flags |= ITEM_GROUP_SHIELD;
-			}
-			flags = AssignClassFlags((*d)["type"], ancestorTypes, flags);
-
-			ItemAttributes *attrs = new ItemAttributes();
-			attrs->name = (*d)["name"];
-			attrs->code[0] = (*d)["code"].c_str()[0];
-			attrs->code[1] = (*d)["code"].c_str()[1];
-			attrs->code[2] = (*d)["code"].c_str()[2];
-			attrs->code[3] = 0;
-			attrs->category = (*d)["type"];
-			attrs->width = (*d)["invwidth"].at(0) - '0';
-			attrs->height = (*d)["invheight"].at(0) - '0';
-			attrs->stackable = stackable;
-			attrs->useable = useable;
-			attrs->throwable = throwable;
-			attrs->itemLevel = 0;
-			attrs->unusedFlags = 0;
-			attrs->flags = flags;
-			attrs->flags2 = flags2;
-			attrs->qualityLevel = stoi((*d)["level"], nullptr, 10);
-			attrs->magicLevel = atoi((*d)["magic lvl"].c_str());
-			ItemAttributeMap[(*d)["code"]] = attrs;
+		if (allTypeCodes.find("weap") != allTypeCodes.end()) {
+			flags |= ITEM_GROUP_ALLWEAPON;
+		} else if (allTypeCodes.find("armo") != allTypeCodes.end()) {
+			flags |= ITEM_GROUP_ALLARMOR;
 		}
 
-		for (auto d = MpqDataMap["weapons"]->data.begin(); d < MpqDataMap["weapons"]->data.end(); d++) {
-			if ((*d)["code"].length() > 0) {
-				std::set<std::string> ancestorTypes;
-				char stackable = ((*d)["stackable"].length() > 0 ? (*d)["stackable"].at(0) - 48 : 0),
-					useable = ((*d)["useable"].length() > 0 ? (*d)["useable"].at(0) - 48 : 0),
-					throwable = ((*d)["throwable"].length() > 0 ? (*d)["throwable"].at(0) - 48 : 0);
-				unsigned int flags = ITEM_GROUP_ALLWEAPON, flags2 = 0;
-				FindAncestorTypes((*d)["type"], ancestorTypes, parentMap1, parentMap2);
-
-				if ((*d)["code"].compare((*d)["ultracode"]) == 0) {
-					flags |= ITEM_GROUP_ELITE;
-				}
-				else if ((*d)["code"].compare((*d)["ubercode"]) == 0) {
-					flags |= ITEM_GROUP_EXCEPTIONAL;
-				}
-				else {
-					flags |= ITEM_GROUP_NORMAL;
-				}
-				if (ancestorTypes.find("club") != ancestorTypes.end() ||
-					ancestorTypes.find("hamm") != ancestorTypes.end() ||
-					ancestorTypes.find("mace") != ancestorTypes.end()) {
-					flags |= ITEM_GROUP_MACE;
-				}
-				else if (ancestorTypes.find("wand") != ancestorTypes.end()) {
-					flags |= ITEM_GROUP_WAND;
-				}
-				else if (ancestorTypes.find("staf") != ancestorTypes.end()) {
-					flags |= ITEM_GROUP_STAFF;
-				}
-				else if (ancestorTypes.find("bow") != ancestorTypes.end()) {
-					flags |= ITEM_GROUP_BOW;
-				}
-				else if (ancestorTypes.find("axe") != ancestorTypes.end()) {
-					flags |= ITEM_GROUP_AXE;
-				}
-				else if (ancestorTypes.find("scep") != ancestorTypes.end()) {
-					flags |= ITEM_GROUP_SCEPTER;
-				}
-				else if (ancestorTypes.find("swor") != ancestorTypes.end()) {
-					flags |= ITEM_GROUP_SWORD;
-				}
-				else if (ancestorTypes.find("knif") != ancestorTypes.end()) {
-					flags |= ITEM_GROUP_DAGGER;
-				}
-				else if (ancestorTypes.find("spea") != ancestorTypes.end()) {
-					flags |= ITEM_GROUP_SPEAR;
-				}
-				else if (ancestorTypes.find("pole") != ancestorTypes.end()) {
-					flags |= ITEM_GROUP_POLEARM;
-				}
-				else if (ancestorTypes.find("xbow") != ancestorTypes.end()) {
-					flags |= ITEM_GROUP_CROSSBOW;
-				}
-				else if (ancestorTypes.find("jave") != ancestorTypes.end()) {
-					flags |= ITEM_GROUP_JAVELIN;
-				}
-				if (ancestorTypes.find("thro") != ancestorTypes.end()) {
-					flags |= ITEM_GROUP_THROWING;
-				}
-				flags = AssignClassFlags((*d)["type"], ancestorTypes, flags);
-
-				ItemAttributes *attrs = new ItemAttributes();
-				attrs->name = (*d)["name"];
-				attrs->code[0] = (*d)["code"].c_str()[0];
-				attrs->code[1] = (*d)["code"].c_str()[1];
-				attrs->code[2] = (*d)["code"].c_str()[2];
-				attrs->code[3] = 0;
-				attrs->category = (*d)["type"];
-				attrs->width = (*d)["invwidth"].at(0) - '0';
-				attrs->height = (*d)["invheight"].at(0) - '0';
-				attrs->stackable = stackable;
-				attrs->useable = useable;
-				attrs->throwable = throwable;
-				attrs->itemLevel = 0;
-				attrs->unusedFlags = 0;
-				attrs->flags = flags;
-				attrs->flags2 = flags2;
-				attrs->qualityLevel = stoi((*d)["level"], nullptr, 10);
-				attrs->magicLevel = atoi((*d)["magic lvl"].c_str());
-				ItemAttributeMap[(*d)["code"]] = attrs;
-			}
+		if (allTypeCodes.find("circ") != allTypeCodes.end()) {
+			flags |= ITEM_GROUP_CIRCLET;
+		} //not sure why elseif here, but dont wanna change func... a circlet is also a helm
+		else if (allTypeCodes.find("helm") != allTypeCodes.end()) {
+			flags |= ITEM_GROUP_HELM;
+		}
+		else if (allTypeCodes.find("tors") != allTypeCodes.end()) {
+			flags |= ITEM_GROUP_ARMOR;
+		}
+		else if (allTypeCodes.find("glov") != allTypeCodes.end()) {
+			flags |= ITEM_GROUP_GLOVES;
+		}
+		else if (allTypeCodes.find("boot") != allTypeCodes.end()) {
+			flags |= ITEM_GROUP_BOOTS;
+		}
+		else if (allTypeCodes.find("belt") != allTypeCodes.end()) {
+			flags |= ITEM_GROUP_BELT;
+		}
+		else if (allTypeCodes.find("shld") != allTypeCodes.end()) {
+			flags |= ITEM_GROUP_SHIELD;
 		}
 
-		for (auto d = MpqDataMap["misc"]->data.begin(); d < MpqDataMap["misc"]->data.end(); d++) {
-			if ((*d)["code"].length() > 0) {
-				std::set<std::string> ancestorTypes;
-				char stackable = ((*d)["stackable"].length() > 0 ? (*d)["stackable"].at(0) - 48 : 0),
-					useable = ((*d)["useable"].length() > 0 ? (*d)["useable"].at(0) - 48 : 0),
-					throwable = ((*d)["throwable"].length() > 0 ? (*d)["throwable"].at(0) - 48 : 0);
-				unsigned int flags = 0, flags2 = 0;
-				FindAncestorTypes((*d)["type"], ancestorTypes, parentMap1, parentMap2);
-				FindAncestorTypes((*d)["type2"], ancestorTypes, parentMap1, parentMap2);
-
-				if (ancestorTypes.find("rune") != ancestorTypes.end()) {
-					flags2 |= ITEM_GROUP_RUNE;
-				}
-				if (ancestorTypes.find("gem0") != ancestorTypes.end()) {
-					flags2 |= ITEM_GROUP_CHIPPED;
-				}
-				else if (ancestorTypes.find("gem1") != ancestorTypes.end()) {
-					flags2 |= ITEM_GROUP_FLAWED;
-				}
-				else if (ancestorTypes.find("gem2") != ancestorTypes.end()) {
-					flags2 |= ITEM_GROUP_REGULAR;
-				}
-				else if (ancestorTypes.find("gem3") != ancestorTypes.end()) {
-					flags2 |= ITEM_GROUP_FLAWLESS;
-				}
-				else if (ancestorTypes.find("gem4") != ancestorTypes.end()) {
-					flags2 |= ITEM_GROUP_PERFECT;
-				}
-				if (ancestorTypes.find("gema") != ancestorTypes.end()) {
-					flags2 |= ITEM_GROUP_AMETHYST;
-				}
-				else if (ancestorTypes.find("gemd") != ancestorTypes.end()) {
-					flags2 |= ITEM_GROUP_DIAMOND;
-				}
-				else if (ancestorTypes.find("geme") != ancestorTypes.end()) {
-					flags2 |= ITEM_GROUP_EMERALD;
-				}
-				else if (ancestorTypes.find("gemr") != ancestorTypes.end()) {
-					flags2 |= ITEM_GROUP_RUBY;
-				}
-				else if (ancestorTypes.find("gems") != ancestorTypes.end()) {
-					flags2 |= ITEM_GROUP_SAPPHIRE;
-				}
-				else if (ancestorTypes.find("gemt") != ancestorTypes.end()) {
-					flags2 |= ITEM_GROUP_TOPAZ;
-				}
-				else if (ancestorTypes.find("gemz") != ancestorTypes.end()) {
-					flags2 |= ITEM_GROUP_SKULL;
-				}
-
-				ItemAttributes *attrs = new ItemAttributes();
-				attrs->name = (*d)["name"];
-				attrs->code[0] = (*d)["code"].c_str()[0];
-				attrs->code[1] = (*d)["code"].c_str()[1];
-				attrs->code[2] = (*d)["code"].c_str()[2];
-				attrs->code[3] = 0;
-				attrs->category = (*d)["type"];
-				attrs->width = (*d)["invwidth"].at(0) - '0';
-				attrs->height = (*d)["invheight"].at(0) - '0';
-				attrs->stackable = stackable;
-				attrs->useable = useable;
-				attrs->throwable = throwable;
-				attrs->itemLevel = 0;
-				attrs->unusedFlags = 0;
-				attrs->flags = flags;
-				attrs->flags2 = flags2;
-				attrs->qualityLevel = stoi((*d)["level"], nullptr, 10);
-				attrs->magicLevel = 0;
-				ItemAttributeMap[(*d)["code"]] = attrs;
-			}
+		if (allTypeCodes.find("amaz") != allTypeCodes.end()) {
+			flags |= ITEM_GROUP_AMAZON_WEAPON;
 		}
+		else if (allTypeCodes.find("barb") != allTypeCodes.end()) {
+			flags |= ITEM_GROUP_BARBARIAN_HELM;
+		}
+		else if (allTypeCodes.find("necr") != allTypeCodes.end()) {
+			flags |= ITEM_GROUP_NECROMANCER_SHIELD;
+		}
+		else if (allTypeCodes.find("pala") != allTypeCodes.end()) {
+			flags |= ITEM_GROUP_PALADIN_SHIELD;
+		}
+		else if (allTypeCodes.find("sorc") != allTypeCodes.end()) {
+			flags |= ITEM_GROUP_SORCERESS_ORB;
+		}
+		else if (allTypeCodes.find("assn") != allTypeCodes.end()) {
+			flags |= ITEM_GROUP_ASSASSIN_KATAR;
+		}
+		else if (allTypeCodes.find("drui") != allTypeCodes.end()) {
+			flags |= ITEM_GROUP_DRUID_PELT;
+		}
+
+		if (allTypeCodes.find("club") != allTypeCodes.end() ||
+			allTypeCodes.find("hamm") != allTypeCodes.end() ||
+			allTypeCodes.find("mace") != allTypeCodes.end()) {
+			flags |= ITEM_GROUP_MACE;
+		}
+		else if (allTypeCodes.find("wand") != allTypeCodes.end()) {
+			flags |= ITEM_GROUP_WAND;
+		}
+		else if (allTypeCodes.find("staf") != allTypeCodes.end()) {
+			flags |= ITEM_GROUP_STAFF;
+		}
+		else if (allTypeCodes.find("bow") != allTypeCodes.end()) {
+			flags |= ITEM_GROUP_BOW;
+		}
+		else if (allTypeCodes.find("axe") != allTypeCodes.end()) {
+			flags |= ITEM_GROUP_AXE;
+		}
+		else if (allTypeCodes.find("scep") != allTypeCodes.end()) {
+			flags |= ITEM_GROUP_SCEPTER;
+		}
+		else if (allTypeCodes.find("swor") != allTypeCodes.end()) {
+			flags |= ITEM_GROUP_SWORD;
+		}
+		else if (allTypeCodes.find("knif") != allTypeCodes.end()) {
+			flags |= ITEM_GROUP_DAGGER;
+		}
+		else if (allTypeCodes.find("spea") != allTypeCodes.end()) {
+			flags |= ITEM_GROUP_SPEAR;
+		}
+		else if (allTypeCodes.find("pole") != allTypeCodes.end()) {
+			flags |= ITEM_GROUP_POLEARM;
+		}
+		else if (allTypeCodes.find("xbow") != allTypeCodes.end()) {
+			flags |= ITEM_GROUP_CROSSBOW;
+		}
+		else if (allTypeCodes.find("jave") != allTypeCodes.end()) {
+			flags |= ITEM_GROUP_JAVELIN;
+		}
+		if (allTypeCodes.find("thro") != allTypeCodes.end()) {
+			flags |= ITEM_GROUP_THROWING;
+		}
+		if (allTypeCodes.find("rune") != allTypeCodes.end()) {
+			flags2 |= ITEM_GROUP_RUNE;
+		}
+		if (allTypeCodes.find("gem0") != allTypeCodes.end()) {
+			flags2 |= ITEM_GROUP_CHIPPED;
+		}
+		else if (allTypeCodes.find("gem1") != allTypeCodes.end()) {
+			flags2 |= ITEM_GROUP_FLAWED;
+		}
+		else if (allTypeCodes.find("gem2") != allTypeCodes.end()) {
+			flags2 |= ITEM_GROUP_REGULAR;
+		}
+		else if (allTypeCodes.find("gem3") != allTypeCodes.end()) {
+			flags2 |= ITEM_GROUP_FLAWLESS;
+		}
+		else if (allTypeCodes.find("gem4") != allTypeCodes.end()) {
+			flags2 |= ITEM_GROUP_PERFECT;
+		}
+		if (allTypeCodes.find("gema") != allTypeCodes.end()) {
+			flags2 |= ITEM_GROUP_AMETHYST;
+		}
+		else if (allTypeCodes.find("gemd") != allTypeCodes.end()) {
+			flags2 |= ITEM_GROUP_DIAMOND;
+		}
+		else if (allTypeCodes.find("geme") != allTypeCodes.end()) {
+			flags2 |= ITEM_GROUP_EMERALD;
+		}
+		else if (allTypeCodes.find("gemr") != allTypeCodes.end()) {
+			flags2 |= ITEM_GROUP_RUBY;
+		}
+		else if (allTypeCodes.find("gems") != allTypeCodes.end()) {
+			flags2 |= ITEM_GROUP_SAPPHIRE;
+		}
+		else if (allTypeCodes.find("gemt") != allTypeCodes.end()) {
+			flags2 |= ITEM_GROUP_TOPAZ;
+		}
+		else if (allTypeCodes.find("gemz") != allTypeCodes.end()) {
+			flags2 |= ITEM_GROUP_SKULL;
+		}
+
+		if (strncmp(d->szultracode, d->szcode, 4) == 0) {
+			flags |= ITEM_GROUP_ELITE;
+		} else if(strncmp(d->szubercode, d->szcode, 4) == 0) {
+			flags |= ITEM_GROUP_EXCEPTIONAL;
+		} else {
+			flags |= ITEM_GROUP_NORMAL;
+		}
+		ItemTypesTxt* mainType = &(*p_D2COMMON_sgptDataTable)->pItemsTypeTxt[d->wtype];
+
+		ItemAttributes* attrs = new ItemAttributes();
+		std::string code(d->szcode, 4);
+		attrs->name = UnicodeToAnsi(D2LANG_GetLocaleTextFromString(Trim(code).c_str()));
+		std::strncpy(attrs->code, d->szcode, 4);
+		attrs->category = std::string(reinterpret_cast<char*>(mainType->szCode), 4);
+		attrs->width = d->binvwidth;
+		attrs->height = d->binvheight;
+		attrs->stackable = d->bstackable;
+		attrs->useable = d->buseable;
+		attrs->throwable = throwable;
+		attrs->itemLevel = 0;
+		attrs->unusedFlags = 0;
+		attrs->flags = flags;
+		attrs->flags2 = flags2;
+		attrs->qualityLevel = d->blevel;
+		attrs->magicLevel = d->bmagiclvl;
+		ItemAttributeMap[Trim(std::string(reinterpret_cast<char*>(attrs->code), 4))] = attrs;
 	}
 
 	initialized = true;
+	BH::moduleManager->MpqLoaded();
 }

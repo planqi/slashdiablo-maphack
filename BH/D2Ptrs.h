@@ -326,6 +326,7 @@ FUNCPTR(D2COMMON, LoadAct, Act* __stdcall, (DWORD ActNumber, DWORD MapId, DWORD 
 FUNCPTR(D2COMMON, GetLevelText, LevelText * __stdcall, (DWORD levelno), -10014, -10142)
 FUNCPTR(D2COMMON, GetObjectText, ObjectTxt * __stdcall, (DWORD objno), -10688, -10319)
 FUNCPTR(D2COMMON, GetItemText, ItemText *__stdcall, (DWORD dwItemNo), -10695, -10994)
+FUNCPTR(D2COMMON, GetItemsTxt, ItemsTxt* __stdcall, (DWORD dwItemNo), -10695, -10994)
 
 FUNCPTR(D2COMMON, GetLayer, AutomapLayer2* __fastcall, (DWORD dwLevelNo), -10749, -10087)
 FUNCPTR(D2COMMON, GetLevel, Level * __fastcall, (ActMisc *pMisc, DWORD dwLevelNo), -10207, -10287)
@@ -380,6 +381,10 @@ VARPTR(D2COMMON, AutoMagicTxt, AutoMagicTxt*, 0x9FBC8, 0xA4CE4)
 
 VARPTR(D2COMMON, ArmorTxt, ItemsTxt*, 0x9FBA4, 0xA4CC0)
 VARPTR(D2COMMON, ArmorTxtRecords, DWORD, 0x9FBA8, 0xA4CC4)
+
+VARPTR(D2COMMON, InventoryTxt, InventoryTxt*, 0x9FA5C, 0xA4CAC)
+
+VARPTR(D2COMMON, ItemsTxtRecords, DWORD, 0x9FB94, 0x0)
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -469,6 +474,7 @@ FUNCPTR(D2CMP, DeleteCellFile, void __stdcall, (CellFile *cellfile), -10106, -10
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
 FUNCPTR(D2LANG, GetLocaleText, wchar_t* __fastcall, (WORD nLocaleTxtNo), -10003, -10004)
+FUNCPTR(D2LANG, GetLocaleTextFromString, wchar_t* __fastcall, (const char* ptString), -10011, -10011)
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////

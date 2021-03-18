@@ -40,11 +40,9 @@
     <ClCompile Include="Modules\Party\Party.cpp" />
     <ClCompile Include="Modules\ScreenInfo\ScreenInfo.cpp" />
     <ClCompile Include="MPQInit.cpp" />
-    <ClCompile Include="MPQReader.cpp" />
     <ClCompile Include="Mustache.cpp" />
     <ClCompile Include="Patch.cpp" />
     <ClCompile Include="Modules\StashExport\StashExport.cpp" />
-    <ClCompile Include="TableReader.cpp" />
     <ClCompile Include="Task.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -101,11 +99,9 @@
     <ClInclude Include="Modules\Party\Party.h" />
     <ClInclude Include="Modules\ScreenInfo\ScreenInfo.h" />
     <ClInclude Include="MPQInit.h" />
-    <ClInclude Include="MPQReader.h" />
     <ClInclude Include="Mustache.h" />
     <ClInclude Include="Patch.h" />
     <ClInclude Include="Modules\StashExport\StashExport.h" />
-    <ClInclude Include="TableReader.h" />
     <ClInclude Include="Task.h" />
   </ItemGroup>
 </Project>

@@ -138,8 +138,9 @@ struct AutoMagicTxt
 struct UniqueItemsTxt
 {
 	WORD _1;	                  //0x00
-	char szName[34];              //0x02
-	DWORD dwVersion;              //0x24
+	char szName[32];              //0x02
+	WORD wTblIndex;              //0x22
+	DWORD wVersion;              //0x24
 	union
 	{
 		DWORD dwCode;
@@ -166,13 +167,14 @@ struct SetItemsTxt
 	WORD wSetItemId;               //0x00
 	char szName[32];               //0x02
 	WORD _1;	                   //0x22
-	DWORD dwTblIndex;              //0x24
+	WORD wTblIndex;              //0x24
+	WORD _2;              //0x24
 	union
 	{
 		DWORD dwCode;
 		char szCode[4];
 	};							   //0x28
-	DWORD _2;	                   //0x2C
+	DWORD _3;	                   //0x2C
 	WORD wLvl;                     //0x30
 	WORD wLvlReq;                  //0x32
 	DWORD dwRarity;                //0x34
@@ -188,6 +190,22 @@ struct SetItemsTxt
 	BYTE nAddFunc;                 //0x87
 	ItemsTxtStat hStats[9];        //0x88
 	ItemsTxtStat hGreenStats[10];   //0x118
+};
+
+struct SetsTxt
+{
+	WORD wSetId;						//0x00
+	WORD wStringId;						//0x02
+	WORD wVersion;						//0x04
+	WORD pad0x06;						//0x06
+	DWORD unk0x08;						//0x08
+	DWORD nSetItems;						//0x0C
+	ItemsTxtStat pBoni2[2];				//0x10
+	ItemsTxtStat pBoni3[2];				//0x30
+	ItemsTxtStat pBoni4[2];				//0x50
+	ItemsTxtStat pBoni5[2];				//0x70
+	ItemsTxtStat pFBoni[8];				//0x90
+	SetItemsTxt* pSetItem[6];				//0x110
 };
 
 struct RunesTxt
@@ -237,20 +255,7 @@ http://d2mods.info/forum/viewtopic.php?f=8&t=61189
 Isn't simpler now?
 */
 
-struct InventoryLayout {
-	BYTE SlotWidth;
-	BYTE SlotHeight;
-	BYTE unk1;
-	BYTE unk2;
-	DWORD Left;
-	DWORD Right;
-	DWORD Top;
-	DWORD Bottom;
-	BYTE SlotPixelWidth;
-	BYTE SlotPixelHeight;
-};
-/*
-	 struct InventoryLayout //sizeof 0x14
+ struct InventoryLayout //sizeof 0x14
 	 {
 	 DWORD dwLeft;		//0x00
 	 DWORD dwRight;		//0x04
@@ -272,7 +277,7 @@ struct InventoryLayout {
 	 WORD _align;		//0x12
 	 };
 
-	 struct InventoryTxt //sizeof 0xF0
+struct InventoryTxt //sizeof 0xF0
 	 {
 	 InventoryLayout Inventory;		//0x00
 	 InventoryLayout Grid;			//0x14
@@ -293,7 +298,7 @@ struct InventoryLayout {
 	 };
 	 InventoryLayout hItem[9];
 	 };
-	 };*/
+};
 
 struct BeltBox
 {
@@ -537,6 +542,20 @@ struct ItemStatCostTxt  //size 0x144
 	WORD	wOpStat2;			//0x5A
 	WORD	wOpStat3;			//0x5C
 	BYTE 	_Stuff[230];		//0x5E
+};
+
+
+struct ItemTypesTxt { //size 0xE4
+	CHAR szCode[0x4];				//0x00
+	WORD wEquiv[0x2];				//0x04
+	BYTE bRepair;					//0x08
+	BYTE bBody;						//0x09
+	BYTE bBodyLoc[0x2];				//0x10
+	WORD wShoots;					//0x12
+	WORD wQuiver;					//0x14
+	BYTE bThrowable;				//0x16
+	//can mostly be inferred from txt file, we dont use any of the other fields though
+	BYTE _Unk[0xD3];				//0x17
 };
 
 struct MissilesTxt
@@ -1359,6 +1378,32 @@ struct SkillDescTxt
 	DWORD dwDescCalcB[17];            //0xDC
 };
 
+struct TxtLinkNodeStrc
+{
+	char szText[32];				//0x00
+	int nLinkIndex;					//0x20
+	TxtLinkNodeStrc* pPrevious;	//0x24
+	TxtLinkNodeStrc* pNext;		//0x28
+};
+
+struct TxtLinkTblStrc
+{
+	union
+	{
+		char szCode[4];				//0x00
+		DWORD dwCode;			//0x00
+	};
+	int nLinkIndex;					//0x04
+};
+
+struct TxtLinkStrc
+{
+	DWORD nRecords;				//0x00
+	DWORD nAllocatedCells;		//0x04
+	TxtLinkTblStrc* pTbl;			//0x08
+	TxtLinkNodeStrc* pFirstNode;	//0x0C
+};
+
 #pragma pack(pop)
 
 struct ItemsTxt //size = 0x1A8, Valid for Weapons, Armors, Misc.txts
@@ -1371,10 +1416,10 @@ struct ItemsTxt //size = 0x1A8, Valid for Weapons, Armors, Misc.txts
 		DWORD	dwcode;					//0x80
 		char	szcode[4];				//0x80
 	};
-	DWORD	dwnormcode;				//0x84
-	DWORD	dwubercode;				//0x88
-	DWORD	dwultracode;			//0x8C
-	DWORD	dwalternategfx;			//0x90
+	char	sznormcode[4];				//0x84
+	char	szubercode[4];				//0x88
+	char	szultracode[4];			//0x8C
+	char	szalternategfx[4];			//0x90
 	DWORD	dwpSpell;				//0x94
 	WORD	wstate;					//0x98
 	WORD	wcstate1;				//0x9A
@@ -1389,10 +1434,10 @@ struct ItemsTxt //size = 0x1A8, Valid for Weapons, Armors, Misc.txts
 	WORD	bspelldesc;				//0xB4
 	WORD	wspelldescstr;			//0xB6
 	DWORD	dwspelldesccalc;		//0xB8
-	DWORD	dwBetterGem;			//0xBC
+	char	szBetterGem[4];			//0xBC
 	DWORD	dwwclass;				//0xC0
 	DWORD	dw2handedwclass;		//0xC4
-	DWORD	dwTMogType;				//0xC8
+	char	szTMogType[4];			//0xC8
 	DWORD	dwminac;				//0xCC
 	DWORD	dwmaxac;				//0xD0
 	DWORD	dwgamblecost;			//0xD4
@@ -1686,8 +1731,8 @@ struct sgptDataTable {
 	DWORD	dwOverlayRecs;			//0xBC0
 	CharStatsTxt*	pCharStatsTxt;	//0xBC4
 	DWORD	dwCharsStatsRecs;		//0xBC8
-	ItemStatCostTxt*pItemStatCostTxt;//0xBCC
-	BYTE*	pItemStatCost;			//0xBD0
+	ItemStatCostTxt*pItemStatCostTxt;	//0xBCC
+	TxtLinkStrc*	pItemStatCostLink;	//0xBD0
 	DWORD	dwItemStatCostRecs;		//0xBD4
 	BYTE*	pOpStatNesting;			//0xBD8
 	DWORD	dwOpStatNestingRecs;	//0xBDC
@@ -1697,12 +1742,12 @@ struct sgptDataTable {
 	BYTE*	pPetTypes;				//0xBEC
 	DWORD	dwPetTypesRecs;			//0xBF0
 	BYTE*	pItemsType;				//0xBF4
-	BYTE*	pItemsTypeTxt;			//0xBF8
+	ItemTypesTxt*	pItemsTypeTxt;			//0xBF8
 	DWORD	dwItemsTypeRecs;		//0xBFC
 	DWORD	dwItemsTypeNesting;		//0xC00
 	BYTE*	pItemsTypeNesting;		//0xC04
 	BYTE*	pSets;					//0xC08
-	BYTE*	pSetsTxt;				//0xC0C
+	SetsTxt*	pSetsTxt;				//0xC0C
 	DWORD	dwSetsRecs;				//0xC10
 	BYTE*	pSetItems;				//0xC14
 	SetItemsTxt* pSetItemsTxt;		//0xC18

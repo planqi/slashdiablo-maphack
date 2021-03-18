@@ -1,5 +1,6 @@
 #include "D2Handlers.h"
 #include "D2Ptrs.h"
+#include "MPQInit.h"
 
 VOID __declspec(naked) GameDraw_Interception()
 {
@@ -221,5 +222,15 @@ void __declspec(naked) ChannelEmote_Interception(void)
 
 SkipChat:
 		ret 8
+	}
+}
+
+void __declspec(naked) MPQDataLoaded_Interception(void)
+{
+	__asm
+	{
+		call InitializeMPQData
+		add esp, 0x10c
+		ret 0x0c
 	}
 }

@@ -26,6 +26,7 @@ private:
 	Drawing::UITab* settingsTab;
 	std::vector<std::string> options;
 
+	static void StashExport::fillStats(JSONArray* statsArray, JSONObject* itemDef, UnitAny* pItem, ItemsTxtStat stats[], int maxProps);
 	static void fillStats(JSONArray* statsArray, JSONObject *itemDef, UnitAny *pItem, std::string codeKey, std::string paramKey, std::string minKey, std::string maxKey, int maxProps);
 public:
 	static map<std::string, Toggle> Toggles;
