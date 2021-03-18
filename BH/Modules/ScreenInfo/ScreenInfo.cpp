@@ -9,9 +9,7 @@
 #include <time.h>
 #include <iomanip>
 #include <numeric>
-
-#define _SILENCE_EXPERIMENTAL_FILESYSTEM_DEPRECATION_WARNING
-#include <experimental/filesystem>
+#include <filesystem>
 
 using namespace Drawing;
 
@@ -613,17 +611,11 @@ void ScreenInfo::OnGameExit() {
 }
 
 void ScreenInfo::WriteRunTrackerData() {
-	string path = ReplaceAutomapTokens(szSavePath);
-	namespace fs = std::experimental::filesystem;
+	namespace fs = std::filesystem;
+	fs::path path(ReplaceAutomapTokens(szSavePath));
 	bool exist = fs::exists(path);
 
-	string directory;
-	const size_t last_slash_idx = path.rfind('\/');
-	if (std::string::npos != last_slash_idx)
-	{
-		directory = path.substr(0, last_slash_idx);
-		fs::create_directories(directory);
-	}
+	fs::create_directories(path.parent_path());
 
 	std::ofstream os;
 	os.open(path, std::ios_base::app);
