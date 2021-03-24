@@ -861,7 +861,7 @@ void Condition::BuildConditions(vector<Condition*> &conditions, string token) {
 		Condition::AddOperand(conditions, new ItemStatCondition(STAT_SOCKETS, 0, operation, value));
 	} else if (key.compare(0, 3, "SET") == 0) {
 		std::smatch match;
-		if (regex_search(key, match, regex("^SET([0-9]{1,3})$")) && match.size() == 2) {
+		if (regex_search(key, match, regex("^SET([0-9]{1,4})$")) && match.size() == 2) {
 			int id = stoi(match[1], nullptr, 10);
 			Condition::AddOperand(conditions, new QualityIdCondition(ITEM_QUALITY_SET, id));
 		} else {
@@ -873,7 +873,7 @@ void Condition::BuildConditions(vector<Condition*> &conditions, string token) {
 		Condition::AddOperand(conditions, new QualityCondition(ITEM_QUALITY_RARE));
 	} else if (key.compare(0, 3, "UNI") == 0) {
 		std::smatch match;
-		if (regex_search(key, match, regex("^UNI([0-9]{1,3})$")) && match.size() == 2) {
+		if (regex_search(key, match, regex("^UNI([0-9]{1,4})$")) && match.size() == 2) {
 			int id = stoi(match[1], nullptr, 10);
 			Condition::AddOperand(conditions, new QualityIdCondition(ITEM_QUALITY_UNIQUE, id));
 		} else {
