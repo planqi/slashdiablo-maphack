@@ -492,8 +492,6 @@ namespace ItemDisplay {
 
 		condition_group.clear();
 		BH::itemConfig->ReadAssoc("ConditionGroup", condition_group);
-		// debug info
-		/* printf("read conditions %d\n", condition_group.size()); */
 
 		BH::itemConfig->ReadMapList("ItemDisplay", rules);
 		for (unsigned int i = 0; i < rules.size(); i++) {
@@ -504,17 +502,19 @@ namespace ItemDisplay {
 				// check if buf matches any user idendified strings, and replace it if so
 				// todo: make config groups nestable?
 				// the group token has to be surrounded by whitespace
+				// e.g. `the_group && other_group` works but not `(the_group)`
 				if (condition_group.count(buf)) {
-					/* printf("found the key '%s'\n", buf); */
-					/* cout << "found the key: " << buf << endl; //'%s'\n", buf); */
 
 					string buf2;
 					stringstream ssg(condition_group[buf]);
 
+					// enclose group with parens
+					tokens.push_back("(");
+
 					while (ssg >> buf2) {
 						tokens.push_back(buf2);
-						/* cout << "adding: " << buf2 << endl; */
 					}
+					tokens.push_back(")");
 				}
 				else {
 					tokens.push_back(buf);
@@ -558,6 +558,7 @@ namespace ItemDisplay {
 				IgnoreRuleList.push_back(r);
 			}
 		}
+		cout << "Finished initializing item rules" << endl << endl;
 	}
 
 	void UninitializeItemRules() {
@@ -835,6 +836,7 @@ void Condition::BuildConditions(vector<Condition*> &conditions, string token) {
 		if (valueStr.length() > 0) {
 			stringstream ss(valueStr);
 			if ((ss >> value).fail()) {
+				cout << "Error processing value for token: " << token << endl;
 				return;  // TODO: returning errors
 			}
 		}
@@ -1214,6 +1216,9 @@ void Condition::BuildConditions(vector<Condition*> &conditions, string token) {
 		}
 		//PrintText(1, "Created PartialCondition with min_conditions=%d and rules size=%d", min_conditions, tokens.size());
 		Condition::AddOperand(conditions, new PartialCondition(operation, min_conditions, tokens));
+	} else if ( token.length() > 0 ){
+		PrintText(1, "Ignored ItemDisplay token: %s", token.c_str());
+		cout << "Ignored ItemDisplay token: " << token << endl;
 	}
 	for (vector<Condition*>::iterator it = endConditions.begin(); it != endConditions.end(); it++) {
 		Condition::AddNonOperand(conditions, (*it));
