@@ -44,6 +44,7 @@
 */
 
 #pragma once
+#include <unordered_set>
 #include "../Module.h"
 #include "../../Constants.h"
 #include "../../Config.h"
@@ -54,6 +55,7 @@ struct UnitAny;
 class Item : public Module {
 	private:
 		static map<std::string, Toggle> Toggles;
+		static unordered_set<string> no_ilvl_codes;
 		unsigned int showPlayer;
 		static UnitAny* viewingUnit;
 		Drawing::UITab* settingsTab;
@@ -70,6 +72,7 @@ class Item : public Module {
 		void OnUnload();
 
 		void LoadConfig();
+		void LoadNoIlvlCodes();
 		void DrawSettings();
 
 		void OnGameJoin();

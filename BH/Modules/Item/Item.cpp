@@ -57,6 +57,7 @@ ItemsTxtStat* GetItemsTxtStatByMod(ItemsTxtStat* pStats, int nStats, int nStat, 
 RunesTxt* GetRunewordTxtById(int rwId);
 
 map<std::string, Toggle> Item::Toggles;
+unordered_set<string> Item::no_ilvl_codes;
 unsigned int Item::filterLevelSetting = 0;
 unsigned int Item::pingLevelSetting = 0;
 unsigned int Item::trackerPingLevelSetting = -1;
@@ -142,11 +143,30 @@ void Item::LoadConfig() {
 	BH::config->ReadInt("Ping Level", pingLevelSetting);
 	BH::config->ReadInt("Run Details Ping Level", trackerPingLevelSetting);
 
+	LoadNoIlvlCodes();
+
 	ItemDisplay::UninitializeItemRules();
 
 	//InitializeMPQData();
 
 	BH::config->ReadKey("Show Players Gear", "VK_0", showPlayer);
+}
+
+void Item::LoadNoIlvlCodes() {
+	// this method does not support saving back to the file
+	vector<pair<string, string>> no_ilvls;
+
+	BH::itemConfig->ReadMapList("No Item Level", no_ilvls);
+
+	no_ilvl_codes.clear();
+
+	string buf;
+	for (auto & entry: no_ilvls) {
+		stringstream ss(entry.second);
+		while (ss >> buf) {
+			no_ilvl_codes.insert(buf);
+		}
+	}
 }
 
 void Item::ResetPatches() {
@@ -747,7 +767,7 @@ void __stdcall Item::OnProperties(wchar_t * wTxt)
 	}
 
 	int ilvl = pItem->pItemData->dwItemLevel;
-	int alvl = GetAffixLevel((BYTE)pItem->pItemData->dwItemLevel, (BYTE)uInfo.attrs->qualityLevel, uInfo.attrs->magicLevel);
+	int alvl = GetAffixLevel(ilvl, (BYTE)uInfo.attrs->qualityLevel, uInfo.attrs->magicLevel);
 	int quality = pItem->pItemData->dwQuality;
 	// Add alvl
 	if (Toggles["Advanced Item Display"].state && Toggles["Show iLvl"].state
@@ -757,16 +777,20 @@ void __stdcall Item::OnProperties(wchar_t * wTxt)
 		swprintf_s(wTxt + aLen, MAXLEN - aLen,
 				L"%sAffix Level: %d\n",
 				GetColorCode(TextColor::White).c_str(),
-				GetAffixLevel((BYTE)pItem->pItemData->dwItemLevel, (BYTE)uInfo.attrs->qualityLevel, uInfo.attrs->magicLevel));
+				alvl);
 	}
 
 	// Add ilvl
-	if (Toggles["Advanced Item Display"].state && Toggles["Show iLvl"].state) {
+	if (Toggles["Advanced Item Display"].state &&
+			Toggles["Show iLvl"].state &&
+			ilvl > 1 &&
+			no_ilvl_codes.count(uInfo.itemCode) == 0)
+	{
 		int aLen = wcslen(wTxt);
 		swprintf_s(wTxt + aLen, MAXLEN - aLen,
 				L"%sItem Level: %d\n",
 				GetColorCode(TextColor::White).c_str(),
-				pItem->pItemData->dwItemLevel);
+				ilvl);
 	}
 }
 
