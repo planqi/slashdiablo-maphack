@@ -189,83 +189,83 @@ void Item::ResetPatches() {
 }
 
 void Item::DrawSettings() {
-	settingsTab = new UITab("Item", BH::settingsUI);
+	settingsTab = new UITab(BH::GetL10nString("Item"), BH::settingsUI);
 	int y = 10;
 	int keyhook_x = 230;
 
-	new Checkhook(settingsTab, 4, y, &Toggles["Show Ethereal"].state, "Show Ethereal");
+	new Checkhook(settingsTab, 4, y, &Toggles["Show Ethereal"].state, BH::GetL10nString("Show Ethereal"));
 	new Keyhook(settingsTab, keyhook_x, y+2, &Toggles["Show Ethereal"].toggle, "");
 	y += 15;
 
-	new Checkhook(settingsTab, 4, y, &Toggles["Show Sockets"].state, "Show Sockets");
+	new Checkhook(settingsTab, 4, y, &Toggles["Show Sockets"].state, BH::GetL10nString("Show Sockets"));
 	new Keyhook(settingsTab, keyhook_x, y+2, &Toggles["Show Sockets"].toggle, "");
 	y += 15;
 
-	new Checkhook(settingsTab, 4, y, &Toggles["Show iLvl"].state, "Show iLvl");
+	new Checkhook(settingsTab, 4, y, &Toggles["Show iLvl"].state, BH::GetL10nString("Show iLvl"));
 	new Keyhook(settingsTab, keyhook_x, y+2, &Toggles["Show iLvl"].toggle, "");
 	y += 15;
 
-	new Checkhook(settingsTab, 4, y, &Toggles["Show Rune Numbers"].state, "Show Rune #");
+	new Checkhook(settingsTab, 4, y, &Toggles["Show Rune Numbers"].state, BH::GetL10nString("Show Rune #"));
 	new Keyhook(settingsTab, keyhook_x, y+2, &Toggles["Show Rune Numbers"].toggle, "");
 	y += 15;
 
-	new Checkhook(settingsTab, 4, y, &Toggles["Alt Item Style"].state, "Alt Style");
+	new Checkhook(settingsTab, 4, y, &Toggles["Alt Item Style"].state, BH::GetL10nString("Alt Style"));
 	new Keyhook(settingsTab, keyhook_x, y+2, &Toggles["Alt Item Style"].toggle, "");
 	y += 15;
 
-	new Checkhook(settingsTab, 4, y, &Toggles["Color Mod"].state, "Color Mod");
+	new Checkhook(settingsTab, 4, y, &Toggles["Color Mod"].state, BH::GetL10nString("Color Mod"));
 	new Keyhook(settingsTab, keyhook_x, y+2, &Toggles["Color Mod"].toggle, "");
 	y += 15;
 
-	new Checkhook(settingsTab, 4, y, &Toggles["Shorten Item Names"].state, "Shorten Names");
+	new Checkhook(settingsTab, 4, y, &Toggles["Shorten Item Names"].state, BH::GetL10nString("Shorten Names"));
 	new Keyhook(settingsTab, keyhook_x, y+2, &Toggles["Shorten Item Names"].toggle, "");
 	y += 15;
 
-	new Checkhook(settingsTab, 4, y, &Toggles["Always Show Items"].state, "Always Show Items");
+	new Checkhook(settingsTab, 4, y, &Toggles["Always Show Items"].state, BH::GetL10nString("Always Show Items"));
 	new Keyhook(settingsTab, keyhook_x, y + 2, &Toggles["Always Show Items"].toggle, "");
 	y += 15;
 
-	new Checkhook(settingsTab, 4, y, &Toggles["Always Show Item Stat Ranges"].state, "Always Show Item Stat Ranges");
+	new Checkhook(settingsTab, 4, y, &Toggles["Always Show Item Stat Ranges"].state, BH::GetL10nString("Always Show Item Stat Ranges"));
 	new Keyhook(settingsTab, keyhook_x, y+2, &Toggles["Always Show Item Stat Ranges"].toggle, "");
 	y += 15;
 	
-	new Checkhook(settingsTab, 4, y, &Toggles["Advanced Item Display"].state, "Advanced Item Display");
+	new Checkhook(settingsTab, 4, y, &Toggles["Advanced Item Display"].state, BH::GetL10nString("Advanced Item Display"));
 	new Keyhook(settingsTab, keyhook_x, y+2, &Toggles["Advanced Item Display"].toggle, "");
 	y += 15;
 
-	new Checkhook(settingsTab, 4, y, &Toggles["Item Drop Notifications"].state, "Item Drop Notifications");
+	new Checkhook(settingsTab, 4, y, &Toggles["Item Drop Notifications"].state, BH::GetL10nString("Item Drop Notifications"));
 	new Keyhook(settingsTab, keyhook_x, y+2, &Toggles["Item Drop Notifications"].toggle, "");
 	y += 15;
 
-	new Checkhook(settingsTab, 4, y, &Toggles["Item Close Notifications"].state, "Item Close Notifications");
+	new Checkhook(settingsTab, 4, y, &Toggles["Item Close Notifications"].state, BH::GetL10nString("Item Close Notifications"));
 	new Keyhook(settingsTab, keyhook_x, y+2, &Toggles["Item Close Notifications"].toggle, "");
 	y += 15;
 
-	new Checkhook(settingsTab, 4, y, &Toggles["Item Detailed Notifications"].state, "Item Detailed Notifications");
+	new Checkhook(settingsTab, 4, y, &Toggles["Item Detailed Notifications"].state, BH::GetL10nString("Item Detailed Notifications"));
 	new Keyhook(settingsTab, keyhook_x, y + 2, &Toggles["Item Detailed Notifications"].toggle, "");
 	y += 15;
 
-	new Checkhook(settingsTab, 4, y, &Toggles["Verbose Notifications"].state, "Verbose Notifications");
+	new Checkhook(settingsTab, 4, y, &Toggles["Verbose Notifications"].state, BH::GetL10nString("Verbose Notifications"));
 	new Keyhook(settingsTab, keyhook_x, y+2, &Toggles["Verbose Notifications"].toggle, "");
 	y += 15;
 
-	new Checkhook(settingsTab, 4, y, &Toggles["Suppress Invalid Stats"].state, "Suppress Invalid Stats");
+	new Checkhook(settingsTab, 4, y, &Toggles["Suppress Invalid Stats"].state, BH::GetL10nString("Suppress Invalid Stats"));
 	new Keyhook(settingsTab, keyhook_x, y+2, &Toggles["Suppress Invalid Stats"].toggle, "");
 	y += 15;
 	
-	new Keyhook(settingsTab, 4, y+2, &showPlayer, "Show Player's Gear:   ");
+	new Keyhook(settingsTab, 4, y+2, &showPlayer, BH::GetL10nString("Show Player's Gear") + ":   ");
 	y += 15;
 
-	new Texthook(settingsTab, 4, y, "Filter Level:");
+	new Texthook(settingsTab, 4, y, BH::GetL10nString("Filter Level") + ":");
 
 	vector<string> options;
-	options.push_back("0 - None");
-	options.push_back("1 - Minimal");
-	options.push_back("2 - Moderate");
-	options.push_back("3 - Aggressive");
+	options.push_back(BH::GetL10nString("0 - None"));
+	options.push_back(BH::GetL10nString("1 - Minimal"));
+	options.push_back(BH::GetL10nString("2 - Moderate"));
+	options.push_back(BH::GetL10nString("3 - Aggressive"));
 	new Combohook(settingsTab, 85, y, 120, &filterLevelSetting, options);
 
-	new Texthook(settingsTab, 234, y, "Ping Tiers <=:");
+	new Texthook(settingsTab, 234, y, BH::GetL10nString("Ping Tiers") + " <=:");
 
 	vector<string> ping_options;
 	ping_options.push_back("0");
@@ -390,17 +390,17 @@ void __fastcall Item::ItemNamePatch(wchar_t *name, UnitAny *item)
 	}
 
 	// Some common color codes for text strings (see TextColor enum):
-	// \xFF" "c; (purple)
-	// \xFF" "c0 (white)
-	// \xFF" "c1 (red)
-	// \xFF" "c2 (green)
-	// \xFF" "c3 (blue)
-	// \xFF" "c4 (gold)
-	// \xFF" "c5 (gray)
-	// \xFF" "c6 (black)
-	// \xFF" "c7 (tan)
-	// \xFF" "c8 (orange)
-	// \xFF" "c9 (yellow)
+	// ÿc; (purple)
+	// ÿc0 (white)
+	// ÿc1 (red)
+	// ÿc2 (green)
+	// ÿc3 (blue)
+	// ÿc4 (gold)
+	// ÿc5 (gray)
+	// ÿc6 (black)
+	// ÿc7 (tan)
+	// ÿc8 (orange)
+	// ÿc9 (yellow)
 
 	/* Test code to display item codes */
 	//string test3 = test_code;
@@ -419,12 +419,12 @@ void Item::OrigGetItemName(UnitAny *item, string &itemName, char *code)
 		// We will also strip ilvls from these items
 		if (code[0] == 't' && code[1] == 's' && code[2] == 'c')  // town portal scroll
 		{
-			itemName = "\xFF" "c2**\xFF" "c0TP";
+			itemName = "ÿc2**ÿc0TP";
 			displayItemLevel = false;
 		}
 		else if (code[0] == 'i' && code[1] == 's' && code[2] == 'c')  // identify scroll
 		{
-			itemName = "\xFF" "c2**\xFF" "c0ID";
+			itemName = "ÿc2**ÿc0ID";
 			displayItemLevel = false;
 		}
 		else if (code[0] == 'v' && code[1] == 'p' && code[2] == 's')  // stamina potion
@@ -476,27 +476,27 @@ void Item::OrigGetItemName(UnitAny *item, string &itemName, char *code)
 		{
 			if (code[2] == '1')
 			{
-				itemName = "\xFF" "c1**\xFF" "c0Min Heal";
+				itemName = "ÿc1**ÿc0Min Heal";
 				displayItemLevel = false;
 			}
 			else if (code[2] == '2')
 			{
-				itemName = "\xFF" "c1**\xFF" "c0Lt Heal";
+				itemName = "ÿc1**ÿc0Lt Heal";
 				displayItemLevel = false;
 			}
 			else if (code[2] == '3')
 			{
-				itemName = "\xFF" "c1**\xFF" "c0Heal";
+				itemName = "ÿc1**ÿc0Heal";
 				displayItemLevel = false;
 			}
 			else if (code[2] == '4')
 			{
-				itemName = "\xFF" "c1**\xFF" "c0Gt Heal";
+				itemName = "ÿc1**ÿc0Gt Heal";
 				displayItemLevel = false;
 			}
 			else if (code[2] == '5')
 			{
-				itemName = "\xFF" "c1**\xFF" "c0Sup Heal";
+				itemName = "ÿc1**ÿc0Sup Heal";
 				displayItemLevel = false;
 			}
 		}
@@ -504,27 +504,27 @@ void Item::OrigGetItemName(UnitAny *item, string &itemName, char *code)
 		{
 			if (code[2] == '1')
 			{
-				itemName = "\xFF" "c3**\xFF" "c0Min Mana";
+				itemName = "ÿc3**ÿc0Min Mana";
 				displayItemLevel = false;
 			}
 			else if (code[2] == '2')
 			{
-				itemName = "\xFF" "c3**\xFF" "c0Lt Mana";
+				itemName = "ÿc3**ÿc0Lt Mana";
 				displayItemLevel = false;
 			}
 			else if (code[2] == '3')
 			{
-				itemName = "\xFF" "c3**\xFF" "c0Mana";
+				itemName = "ÿc3**ÿc0Mana";
 				displayItemLevel = false;
 			}
 			else if (code[2] == '4')
 			{
-				itemName = "\xFF" "c3**\xFF" "c0Gt Mana";
+				itemName = "ÿc3**ÿc0Gt Mana";
 				displayItemLevel = false;
 			}
 			else if (code[2] == '5')
 			{
-				itemName = "\xFF" "c3**\xFF" "c0Sup Mana";
+				itemName = "ÿc3**ÿc0Sup Mana";
 				displayItemLevel = false;
 			}
 		}
@@ -532,12 +532,12 @@ void Item::OrigGetItemName(UnitAny *item, string &itemName, char *code)
 		{
 			if (code[2] == 's')
 			{
-				itemName = "\xFF" "c;**\xFF" "c0Rejuv";
+				itemName = "ÿc;**ÿc0Rejuv";
 				displayItemLevel = false;
 			}
 			else if (code[2] == 'l')
 			{
-				itemName = "\xFF" "c;**\xFF" "c0Full";
+				itemName = "ÿc;**ÿc0Full";
 				displayItemLevel = false;
 			}
 		}
@@ -633,13 +633,13 @@ void Item::OrigGetItemName(UnitAny *item, string &itemName, char *code)
 		//if( (code[0] == 'g' && code[1] == 'l'					) ||
 		//	(code[0] == 's' && code[1] == 'k' && code[2] == 'l' ) )
 		//{
-		//	itemName = "\xFF" "c:" + itemName;
+		//	itemName = "ÿc:" + itemName;
 		//}
 		///*Perfect Gems*/
 		//if( (code[0] == 'g' && code[1] == 'p'                   ) ||
 		//	(code[0] == 's' && code[1] == 'k' && code[2] == 'p' ) )
 		//{
-		//	itemName = "\xFF" "c<" + itemName;
+		//	itemName = "ÿc<" + itemName;
 		//}
 		/*Ethereal*/
 		if( item->pItemData->dwFlags & 0x400000 )
@@ -648,7 +648,7 @@ void Item::OrigGetItemName(UnitAny *item, string &itemName, char *code)
 			if( (code[0] == 'u'                                    ) ||
 				(code[0] == 'p' && code[1] == 'a' && code[2] >= 'b') )
 			{
-				itemName = "\xFF" "c;" + itemName;
+				itemName = "ÿc;" + itemName;
 			}
 		}
 		/*Runes*/
@@ -656,33 +656,33 @@ void Item::OrigGetItemName(UnitAny *item, string &itemName, char *code)
 		{
 			if( code[1] == '0' )
 			{
-				itemName = "\xFF" "c0" + itemName;
+				itemName = "ÿc0" + itemName;
 			}
 			else if( code[1] == '1' )
 			{
 				if( code[2] <= '6')
 				{
-					itemName = "\xFF" "c4" + itemName;
+					itemName = "ÿc4" + itemName;
 				}
 				else
 				{
-					itemName = "\xFF" "c8" + itemName;
+					itemName = "ÿc8" + itemName;
 				}
 			}
 			else if( code[1] == '2' )
 			{
 				if( code[2] <= '2' )
 				{
-					itemName = "\xFF" "c8" + itemName;
+					itemName = "ÿc8" + itemName;
 				}
 				else
 				{
-					itemName = "\xFF" "c1" + itemName;
+					itemName = "ÿc1" + itemName;
 				}
 			}
 			else if( code[1] == '3' )
 			{
-				itemName = "\xFF" "c1" + itemName;
+				itemName = "ÿc1" + itemName;
 			}
 		}
 	}
@@ -718,7 +718,7 @@ void __stdcall Item::OnProperties(wchar_t * wTxt)
 			auto chars_written = MultiByteToWideChar(CODE_PAGE, MB_PRECOMPOSED, desc.c_str(), -1, wDesc, 128);
 			swprintf_s(wTxt + aLen, MAXLEN - aLen,
 				L"%s%s\n",
-				(chars_written > 0) ? wDesc : L"\377c1 Descirption string too long!",
+				(chars_written > 0) ? wDesc : L"ÿc1 Descirption string too long!",
 				GetColorCode(TextColor::White).c_str());
 		}
 	}
@@ -755,12 +755,13 @@ void __stdcall Item::OnProperties(wchar_t * wTxt)
 		// Don't show range if item spawned with edef and hasn't been upgraded.
 		if (!spawned_with_ed) {
 			swprintf_s(wTxt + aLen, MAXLEN - aLen,
-					L"%sBase Defense: %d %s[%d - %d]%s%s\n",
+					L"%s%s%d %s[%d - %d]%s%s\n",
 					GetColorCode(TextColor::White).c_str(),
+					L"Base Defense: ",//todo:GetL10n
 					base,
 					GetColorCode(TextColor::DarkGreen).c_str(),
 					min, max_no_ed,
-					ebugged ? L"\377c5 Ebug" : L"",
+					ebugged ? L"ÿc5 Ebug" : L"",
 					GetColorCode(TextColor::White).c_str()
 					);
 		}
@@ -775,7 +776,7 @@ void __stdcall Item::OnProperties(wchar_t * wTxt)
 			&& (quality == ITEM_QUALITY_MAGIC || quality == ITEM_QUALITY_RARE || quality == ITEM_QUALITY_CRAFT)) {
 		int aLen = wcslen(wTxt);
 		swprintf_s(wTxt + aLen, MAXLEN - aLen,
-				L"%sAffix Level: %d\n",
+				L"%sAffix Level: %d\n",//todo:GetL10n
 				GetColorCode(TextColor::White).c_str(),
 				alvl);
 	}
@@ -788,7 +789,7 @@ void __stdcall Item::OnProperties(wchar_t * wTxt)
 	{
 		int aLen = wcslen(wTxt);
 		swprintf_s(wTxt + aLen, MAXLEN - aLen,
-				L"%sItem Level: %d\n",
+				L"%sItem Level: %d\n",//todo:GetL10n
 				GetColorCode(TextColor::White).c_str(),
 				ilvl);
 	}

@@ -18,48 +18,48 @@ void AutoTele::OnLoad() {
 	std::map<string, bool>* bnetBools (BH::BnetBools);
 	std::map<string, bool>* gamefilterBools(BH::GamefilterBools);
 
-	settingsTab = new UITab("Misc", BH::settingsUI);
+	settingsTab = new UITab(BH::GetL10nString("Misc"), BH::settingsUI);
 	unsigned int Y = 12;
 	unsigned int col = 40;
 
-	new Texthook(settingsTab, col+20, Y, "Toggles");
+	new Texthook(settingsTab, col+20, Y, BH::GetL10nString("Toggles"));
 
 	new Checkhook(settingsTab, col, (Y += 15),
-			&Toggles["Draw Destination"].state, "Draw Paths");
+			&Toggles["Draw Destination"].state, BH::GetL10nString("Draw Paths"));
 
 	new Checkhook(settingsTab, col, (Y += 15),
-			&Toggles["Quest Drop Warning"].state, "Quest Drop Warning");
+			&Toggles["Quest Drop Warning"].state, BH::GetL10nString("Quest Drop Warning"));
 
-	new Texthook(settingsTab, col+20, (Y += 22), "Game creation");
+	new Texthook(settingsTab, col+20, (Y += 22), BH::GetL10nString("Game creation"));
 	new Checkhook(settingsTab, col, (Y += 15),
-			&(*bnetBools)["Autofill Last Game"], "Autofill Last Game");
+			&(*bnetBools)["Autofill Last Game"], BH::GetL10nString("Autofill Last Game"));
 	new Checkhook(settingsTab, col, (Y += 15),
-			&(*bnetBools)["Autofill Next Game"], "Autofill Next Game");
+			&(*bnetBools)["Autofill Next Game"], BH::GetL10nString("Autofill Next Game"));
 	new Checkhook(settingsTab, col, (Y += 15),
-			&(*bnetBools)["Autofill Last Password"], "Autofill Last Password");
+			&(*bnetBools)["Autofill Last Password"], BH::GetL10nString("Autofill Last Password"));
 	new Checkhook(settingsTab, col, (Y += 15),
-			&(*bnetBools)["Autofill Description"], "Autofill Description");
+			&(*bnetBools)["Autofill Description"], BH::GetL10nString("Autofill Description"));
 	new Checkhook(settingsTab, col, (Y += 15),
-			&(*gamefilterBools)["Show Difficulty"], "Show Difficulty");
+			&(*gamefilterBools)["Show Difficulty"], BH::GetL10nString("Show Difficulty"));
 	new Checkhook(settingsTab, col, (Y += 15),
-			&(*gamefilterBools)["Show Gameserver"], "Show Gameserver");
+			&(*gamefilterBools)["Show Gameserver"], BH::GetL10nString("Show Gameserver"));
 
 	//this doesn't change the path.  I can't figure out how to make it work either.
 	//new Checkhook(settingsTab, 40, 42, &Toggles["CP to cave"].state, "CP to cave");
 
-	new Texthook(settingsTab, 250, 12, "Map Colors");
+	new Texthook(settingsTab, 250, 12, BH::GetL10nString("Map Colors"));
 
-	new Colorhook(settingsTab, 250, 27, &Colors[0], "Path");
+	new Colorhook(settingsTab, 250, 27, &Colors[0], BH::GetL10nString("Path"));
 
-	new Colorhook(settingsTab, 250, 42, &Colors[1], "Next");
+	new Colorhook(settingsTab, 250, 42, &Colors[1], BH::GetL10nString("Next"));
 
-	new Colorhook(settingsTab, 250, 57, &Colors[2], "Other");
+	new Colorhook(settingsTab, 250, 57, &Colors[2], BH::GetL10nString("Other"));
 
-	new Colorhook(settingsTab, 250, 72, &Colors[3], "WP");
+	new Colorhook(settingsTab, 250, 72, &Colors[3], BH::GetL10nString("WP"));
 
-	new Colorhook(settingsTab, 250, 87, &Colors[4], "Prev");
+	new Colorhook(settingsTab, 250, 87, &Colors[4], BH::GetL10nString("Prev"));
 
-	new Colorhook(settingsTab, 250, 102, &Colors[5], "Other Extra");
+	new Colorhook(settingsTab, 250, 102, &Colors[5], BH::GetL10nString("Other Extra"));
 }
 
 void AutoTele::LoadConfig() {
@@ -141,7 +141,7 @@ void AutoTele::OnLoop() {
 		if(SetTele) {
 			if(!SetSkill(0x36, 0)) {	//0x36 is teleport
 				TPath.RemoveAll();
-				PrintText(1, "ÿc4AutoTele:ÿc1 Failed to set teleport!");
+				PrintText(1, "Ã¿c4AutoTele:Ã¿c1 Failed to set teleport!");
 			}
 			_timer = GetTickCount();
 			SetTele = 0;
@@ -153,12 +153,12 @@ void AutoTele::OnLoop() {
 			if(TeleActive) {
 				TeleActive = 0;
 				TPath.RemoveAll();
-				PrintText(1, "ÿc4AutoTele:ÿc1 Aborting teleport, deselected teleport");
+				PrintText(1, "Ã¿c4AutoTele:Ã¿c1 Aborting teleport, deselected teleport");
 				return;
 			}
 			if((GetTickCount() - _timer) > 1000) {
 				TPath.RemoveAll();
-				PrintText(1, "ÿc4AutoTele:ÿc1 Failed to set teleport skill. Ping: %d", *p_D2CLIENT_Ping);
+				PrintText(1, "Ã¿c4AutoTele:Ã¿c1 Failed to set teleport skill. Ping: %d", *p_D2CLIENT_Ping);
 				return;
 			}
 			return;
@@ -175,7 +175,7 @@ void AutoTele::OnLoop() {
 
 		if((GetTickCount() - _timer2) > 500) {
 			if(Try >= 5) {
-				PrintText(1, "ÿc4AutoTele:ÿc1 Failed to teleport after 5 tries");
+				PrintText(1, "Ã¿c4AutoTele:Ã¿c1 Failed to teleport after 5 tries");
 				TPath.RemoveAll();
 				Try = 0;
 				DoInteract = 0;
@@ -379,7 +379,7 @@ void AutoTele::ManageTele(Vector T) {
 	}
 
 	if(!T.Id) {
-		PrintText(1, "ÿc4AutoTele:ÿc1 Invalid destination");
+		PrintText(1, "Ã¿c4AutoTele:Ã¿c1 Invalid destination");
 		return;
 	}
 
@@ -415,7 +415,7 @@ void AutoTele::ManageTele(Vector T) {
 				} else DoInteract = 0;
 
 				int nodes = MakePath(ExitArray[i]->ptPos.x, ExitArray[i]->ptPos.y, Areas, AreaCount, ExitArray[i]->dwType == EXIT_LEVEL ? 1: 0);
-				PrintText(1, "ÿc4AutoTele:ÿc1 Going to %s, %d nodes.", lvltext->szName, nodes);
+				PrintText(1, "Ã¿c4AutoTele:Ã¿c1 Going to %s, %d nodes.", lvltext->szName, nodes);
 				break;
 			}
 		}
@@ -425,11 +425,11 @@ void AutoTele::ManageTele(Vector T) {
 	if(T.dwType == XY) {
 		DoInteract = 0;
 		if(!T.Id || !T.Id2) {
-			PrintText(1, "ÿc4AutoTele:ÿc1 No X/Y value found");
+			PrintText(1, "Ã¿c4AutoTele:Ã¿c1 No X/Y value found");
 			return;
 		}
 		int nodes = MakePath(T.Id, T.Id2, Areas, AreaCount, 0);
-		PrintText(1, "ÿc4AutoTele:ÿc1 Going to X: %d, Y: %d, %d nodes", T.Id, T.Id2, nodes);
+		PrintText(1, "Ã¿c4AutoTele:Ã¿c1 Going to X: %d, Y: %d, %d nodes", T.Id, T.Id2, nodes);
 		return;
 	}
 
@@ -451,13 +451,13 @@ void AutoTele::ManageTele(Vector T) {
 		if(nodes = MakePath(PresetUnit.x,PresetUnit.y, Areas, AreaCount, 0)) {
 			if(T.dwType == UNIT_OBJECT) {
 				ObjectTxt * ObjTxt = D2COMMON_GetObjectTxt(T.Id);
-				PrintText(1, "ÿc4AutoTele:ÿc1 Going to %s, %d nodes", ObjTxt->szName, nodes);
+				PrintText(1, "Ã¿c4AutoTele:Ã¿c1 Going to %s, %d nodes", ObjTxt->szName, nodes);
 			}
 			InteractType = T.dwType;
 		}
 		else return;
 	} else {
-		PrintText(1, "ÿc4AutoTele:ÿc1 Can't find object");
+		PrintText(1, "Ã¿c4AutoTele:Ã¿c1 Can't find object");
 		return;
 	}
 }

@@ -16,6 +16,9 @@ HINSTANCE BH::instance;
 ModuleManager* BH::moduleManager;
 Config* BH::config;
 Config* BH::itemConfig;
+Config* BH::l10nConfig;
+map<string, string> BH::l10nStrings;
+map<string, Toggle> BH::l10nToggles;
 Drawing::UI* BH::settingsUI;
 Drawing::StatsDisplay* BH::statsDisplay;
 bool BH::initialized;
@@ -106,6 +109,10 @@ void BH::Initialize()
 	}
 	itemConfig = new Config("BH.cfg");
 	itemConfig->Parse();
+	l10nConfig = new Config("BH_l10n.cfg");
+	l10nConfig->Parse();
+	l10nConfig->ReadToggle("Use Translation", "None", false, BH::l10nToggles["Use Translation"]);
+	l10nConfig->ReadAssoc("UiString", BH::l10nStrings);
 
 	// Do this asynchronously because D2GFX_GetHwnd() will be null if
 	// we inject on process start
@@ -187,6 +194,7 @@ bool BH::Shutdown() {
 		oogDraw->Remove();
 		delete config;
 		delete itemConfig;
+		delete l10nConfig;
 	}
 	
 	return true;
@@ -197,11 +205,21 @@ bool BH::ReloadConfig() {
 		if (D2CLIENT_GetPlayerUnit()) {
 			PrintText(0, "Reloading config: %s", config->GetConfigName().c_str());
 			PrintText(0, "Reloading Item config: %s", itemConfig->GetConfigName().c_str());
+			PrintText(0, "Reloading l10n config: %s", l10nConfig->GetConfigName().c_str());
 		}
 		config->Parse();
 		itemConfig->Parse();
+		l10nConfig->Parse();
 		moduleManager->ReloadConfig();
 		statsDisplay->LoadConfig();
 	}
 	return true;
+}
+
+string BH::GetL10nString(string query) {
+	string str = BH::l10nStrings[query];
+	if (BH::l10nToggles["Use Translation"].state && str != ""){
+		return str;
+	}
+	return query;
 }

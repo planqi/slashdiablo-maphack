@@ -2,7 +2,7 @@
 
 #define BH_VERSION "BH 1.9.10-b3"
 
-#define CODE_PAGE 1252 // windows-1252	ANSI Latin 1; Western European (Windows)
+#define CODE_PAGE CP_UTF8 // windows-1252	ANSI Latin 1; Western European (Windows)
 
 enum TextColor {
 	Disabled=-1,

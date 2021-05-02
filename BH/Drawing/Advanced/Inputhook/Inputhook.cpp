@@ -141,8 +141,8 @@ unsigned int Inputhook::GetCharacterLimit() {
 
 	 
 	 if (IsSelected()) {
-		 drawnText.insert(GetSelectionPosition() + GetSelectionLength(), "ÿc0");
-		 drawnText.insert(GetSelectionPosition(), "ÿc9");
+		 drawnText.insert(GetSelectionPosition() + GetSelectionLength(), "Ã¿c0");
+		 drawnText.insert(GetSelectionPosition(), "Ã¿c9");
 	 }
 
 	
