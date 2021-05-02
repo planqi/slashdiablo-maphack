@@ -58,7 +58,7 @@ void Keyhook::OnDraw() {
 			timeout = 0;
 		char num[100];
 		_itoa_s(time, num, 100, 10);
-		text = prefix + string(num) + " secs";
+		text = prefix + string(num) + " secs";//todo:GetL10n
 	}
 	DWORD size = D2WIN_SetTextSize(0);
 	wchar_t* keyText = AnsiToUnicode(text.c_str());

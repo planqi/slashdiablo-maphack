@@ -51,4 +51,9 @@ namespace BH {
 	extern "C" __declspec(dllexport) void Initialize();
 	extern bool Shutdown();
 	extern bool ReloadConfig();
+
+	extern Config* l10nConfig;
+	extern map<string, string> l10nStrings;
+	extern map<string, Toggle> l10nToggles;
+	extern string GetL10nString(string query);
 };

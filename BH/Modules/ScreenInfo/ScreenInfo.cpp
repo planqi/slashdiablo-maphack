@@ -28,7 +28,7 @@ void ScreenInfo::OnLoad() {
 	d2VersionText->SetFont(1);
 
 	if (BH::cGuardLoaded) {
-		Texthook* cGuardText = new Texthook(Perm, 790, 23, "�c4cGuard Loaded");
+		Texthook* cGuardText = new Texthook(Perm, 790, 23, "\377c4cGuard Loaded");
 		cGuardText->SetAlignment(Right);
 	}
 	gameTimer = GetTickCount();

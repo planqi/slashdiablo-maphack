@@ -189,83 +189,83 @@ void Item::ResetPatches() {
 }
 
 void Item::DrawSettings() {
-	settingsTab = new UITab("Item", BH::settingsUI);
+	settingsTab = new UITab(BH::GetL10nString("Item"), BH::settingsUI);
 	int y = 10;
 	int keyhook_x = 230;
 
-	new Checkhook(settingsTab, 4, y, &Toggles["Show Ethereal"].state, "Show Ethereal");
+	new Checkhook(settingsTab, 4, y, &Toggles["Show Ethereal"].state, BH::GetL10nString("Show Ethereal"));
 	new Keyhook(settingsTab, keyhook_x, y+2, &Toggles["Show Ethereal"].toggle, "");
 	y += 15;
 
-	new Checkhook(settingsTab, 4, y, &Toggles["Show Sockets"].state, "Show Sockets");
+	new Checkhook(settingsTab, 4, y, &Toggles["Show Sockets"].state, BH::GetL10nString("Show Sockets"));
 	new Keyhook(settingsTab, keyhook_x, y+2, &Toggles["Show Sockets"].toggle, "");
 	y += 15;
 
-	new Checkhook(settingsTab, 4, y, &Toggles["Show iLvl"].state, "Show iLvl");
+	new Checkhook(settingsTab, 4, y, &Toggles["Show iLvl"].state, BH::GetL10nString("Show iLvl"));
 	new Keyhook(settingsTab, keyhook_x, y+2, &Toggles["Show iLvl"].toggle, "");
 	y += 15;
 
-	new Checkhook(settingsTab, 4, y, &Toggles["Show Rune Numbers"].state, "Show Rune #");
+	new Checkhook(settingsTab, 4, y, &Toggles["Show Rune Numbers"].state, BH::GetL10nString("Show Rune #"));
 	new Keyhook(settingsTab, keyhook_x, y+2, &Toggles["Show Rune Numbers"].toggle, "");
 	y += 15;
 
-	new Checkhook(settingsTab, 4, y, &Toggles["Alt Item Style"].state, "Alt Style");
+	new Checkhook(settingsTab, 4, y, &Toggles["Alt Item Style"].state, BH::GetL10nString("Alt Style"));
 	new Keyhook(settingsTab, keyhook_x, y+2, &Toggles["Alt Item Style"].toggle, "");
 	y += 15;
 
-	new Checkhook(settingsTab, 4, y, &Toggles["Color Mod"].state, "Color Mod");
+	new Checkhook(settingsTab, 4, y, &Toggles["Color Mod"].state, BH::GetL10nString("Color Mod"));
 	new Keyhook(settingsTab, keyhook_x, y+2, &Toggles["Color Mod"].toggle, "");
 	y += 15;
 
-	new Checkhook(settingsTab, 4, y, &Toggles["Shorten Item Names"].state, "Shorten Names");
+	new Checkhook(settingsTab, 4, y, &Toggles["Shorten Item Names"].state, BH::GetL10nString("Shorten Names"));
 	new Keyhook(settingsTab, keyhook_x, y+2, &Toggles["Shorten Item Names"].toggle, "");
 	y += 15;
 
-	new Checkhook(settingsTab, 4, y, &Toggles["Always Show Items"].state, "Always Show Items");
+	new Checkhook(settingsTab, 4, y, &Toggles["Always Show Items"].state, BH::GetL10nString("Always Show Items"));
 	new Keyhook(settingsTab, keyhook_x, y + 2, &Toggles["Always Show Items"].toggle, "");
 	y += 15;
 
-	new Checkhook(settingsTab, 4, y, &Toggles["Always Show Item Stat Ranges"].state, "Always Show Item Stat Ranges");
+	new Checkhook(settingsTab, 4, y, &Toggles["Always Show Item Stat Ranges"].state, BH::GetL10nString("Always Show Item Stat Ranges"));
 	new Keyhook(settingsTab, keyhook_x, y+2, &Toggles["Always Show Item Stat Ranges"].toggle, "");
 	y += 15;
 	
-	new Checkhook(settingsTab, 4, y, &Toggles["Advanced Item Display"].state, "Advanced Item Display");
+	new Checkhook(settingsTab, 4, y, &Toggles["Advanced Item Display"].state, BH::GetL10nString("Advanced Item Display"));
 	new Keyhook(settingsTab, keyhook_x, y+2, &Toggles["Advanced Item Display"].toggle, "");
 	y += 15;
 
-	new Checkhook(settingsTab, 4, y, &Toggles["Item Drop Notifications"].state, "Item Drop Notifications");
+	new Checkhook(settingsTab, 4, y, &Toggles["Item Drop Notifications"].state, BH::GetL10nString("Item Drop Notifications"));
 	new Keyhook(settingsTab, keyhook_x, y+2, &Toggles["Item Drop Notifications"].toggle, "");
 	y += 15;
 
-	new Checkhook(settingsTab, 4, y, &Toggles["Item Close Notifications"].state, "Item Close Notifications");
+	new Checkhook(settingsTab, 4, y, &Toggles["Item Close Notifications"].state, BH::GetL10nString("Item Close Notifications"));
 	new Keyhook(settingsTab, keyhook_x, y+2, &Toggles["Item Close Notifications"].toggle, "");
 	y += 15;
 
-	new Checkhook(settingsTab, 4, y, &Toggles["Item Detailed Notifications"].state, "Item Detailed Notifications");
+	new Checkhook(settingsTab, 4, y, &Toggles["Item Detailed Notifications"].state, BH::GetL10nString("Item Detailed Notifications"));
 	new Keyhook(settingsTab, keyhook_x, y + 2, &Toggles["Item Detailed Notifications"].toggle, "");
 	y += 15;
 
-	new Checkhook(settingsTab, 4, y, &Toggles["Verbose Notifications"].state, "Verbose Notifications");
+	new Checkhook(settingsTab, 4, y, &Toggles["Verbose Notifications"].state, BH::GetL10nString("Verbose Notifications"));
 	new Keyhook(settingsTab, keyhook_x, y+2, &Toggles["Verbose Notifications"].toggle, "");
 	y += 15;
 
-	new Checkhook(settingsTab, 4, y, &Toggles["Suppress Invalid Stats"].state, "Suppress Invalid Stats");
+	new Checkhook(settingsTab, 4, y, &Toggles["Suppress Invalid Stats"].state, BH::GetL10nString("Suppress Invalid Stats"));
 	new Keyhook(settingsTab, keyhook_x, y+2, &Toggles["Suppress Invalid Stats"].toggle, "");
 	y += 15;
 	
-	new Keyhook(settingsTab, 4, y+2, &showPlayer, "Show Player's Gear:   ");
+	new Keyhook(settingsTab, 4, y+2, &showPlayer, BH::GetL10nString("Show Player's Gear") + ":   ");
 	y += 15;
 
-	new Texthook(settingsTab, 4, y, "Filter Level:");
+	new Texthook(settingsTab, 4, y, BH::GetL10nString("Filter Level") + ":");
 
 	vector<string> options;
-	options.push_back("0 - None");
-	options.push_back("1 - Minimal");
-	options.push_back("2 - Moderate");
-	options.push_back("3 - Aggressive");
+	options.push_back(BH::GetL10nString("0 - None"));
+	options.push_back(BH::GetL10nString("1 - Minimal"));
+	options.push_back(BH::GetL10nString("2 - Moderate"));
+	options.push_back(BH::GetL10nString("3 - Aggressive"));
 	new Combohook(settingsTab, 85, y, 120, &filterLevelSetting, options);
 
-	new Texthook(settingsTab, 234, y, "Ping Tiers <=:");
+	new Texthook(settingsTab, 234, y, BH::GetL10nString("Ping Tiers") + " <=:");
 
 	vector<string> ping_options;
 	ping_options.push_back("0");
@@ -755,8 +755,9 @@ void __stdcall Item::OnProperties(wchar_t * wTxt)
 		// Don't show range if item spawned with edef and hasn't been upgraded.
 		if (!spawned_with_ed) {
 			swprintf_s(wTxt + aLen, MAXLEN - aLen,
-					L"%sBase Defense: %d %s[%d - %d]%s%s\n",
+					L"%s%s%d %s[%d - %d]%s%s\n",
 					GetColorCode(TextColor::White).c_str(),
+					L"Base Defense: ",//todo:GetL10n
 					base,
 					GetColorCode(TextColor::DarkGreen).c_str(),
 					min, max_no_ed,
@@ -775,7 +776,7 @@ void __stdcall Item::OnProperties(wchar_t * wTxt)
 			&& (quality == ITEM_QUALITY_MAGIC || quality == ITEM_QUALITY_RARE || quality == ITEM_QUALITY_CRAFT)) {
 		int aLen = wcslen(wTxt);
 		swprintf_s(wTxt + aLen, MAXLEN - aLen,
-				L"%sAffix Level: %d\n",
+				L"%sAffix Level: %d\n",//todo:GetL10n
 				GetColorCode(TextColor::White).c_str(),
 				alvl);
 	}
@@ -788,7 +789,7 @@ void __stdcall Item::OnProperties(wchar_t * wTxt)
 	{
 		int aLen = wcslen(wTxt);
 		swprintf_s(wTxt + aLen, MAXLEN - aLen,
-				L"%sItem Level: %d\n",
+				L"%sItem Level: %d\n",//todo:GetL10n
 				GetColorCode(TextColor::White).c_str(),
 				ilvl);
 	}
