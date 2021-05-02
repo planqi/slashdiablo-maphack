@@ -575,7 +575,7 @@ void ScreenInfo::OnGameExit() {
 	});
 	BH::drops.clear();
 
-	drops = regex_replace(drops, regex("\xFF" "c."), "");
+	drops = regex_replace(drops, regex("ÿc."), "");
 	drops = regex_replace(drops, regex("\n"), " ");
 
 	automap["GAMESTOLVL"] = szGamesToLevel;
@@ -586,7 +586,7 @@ void ScreenInfo::OnGameExit() {
 	automap["LASTXPPERSECLONG"] = to_string(lastExpPerSecond);
 	automap["LASTGAMETIME"] = szLastGameTime;
 	automap["LASTGAMETIMESEC"] = to_string(lastGameLength);
-	automap["DROPS"] = regex_replace(drops, regex("\xFF" "c."), "");
+	automap["DROPS"] = regex_replace(drops, regex("ÿc."), "");
 
 	int idx = 0;
 	for (int i = 0; i < 8; i++) {

@@ -572,7 +572,7 @@ void ItemMover::OnGamePacketRecv(BYTE* packet, bool* block) {
 							 ) {
 							PrintText(color, "%s%s",
 									item.name.c_str(),
-									(*BH::MiscToggles2)["Verbose Notifications"].state ? " \377c5drop" : ""
+									(*BH::MiscToggles2)["Verbose Notifications"].state ? " ÿc5drop" : ""
 									);
 						}
 						if ((*BH::MiscToggles2)["Item Close Notifications"].state &&
@@ -581,7 +581,7 @@ void ItemMover::OnGamePacketRecv(BYTE* packet, bool* block) {
 							 ) {
 							PrintText(color, "%s%s",
 									item.name.c_str(),
-									(*BH::MiscToggles2)["Verbose Notifications"].state ? " \377c5close" : ""
+									(*BH::MiscToggles2)["Verbose Notifications"].state ? " ÿc5close" : ""
 									);
 						}
 					}

@@ -46,9 +46,9 @@ void Keyhook::OnDraw() {
 	bool IsInRange = InRange(*p_D2CLIENT_MouseX, *p_D2CLIENT_MouseY);
 	if (name.length() > 0) {
 		if(IsInRange)
-			prefix = name + "\377c7 ";
+			prefix = name + "ÿc7 ";
 		else
-			prefix = name + "\377c4 ";
+			prefix = name + "ÿc4 ";
 	}
 
 	string text = prefix + keyCode.literalName;
@@ -86,7 +86,7 @@ unsigned int Keyhook::GetXSize() {
 	KeyCode keyCode = GetKeyCode(GetKey());
 	string prefix = "";
 	if (name.length() > 0)
-		prefix = name + ":�c4 ";
+		prefix = name + ":ÿc4 ";
 	string text = prefix + keyCode.literalName;
 	DWORD width, fileNo;
 	wchar_t* wString = AnsiToUnicode(text.c_str());
