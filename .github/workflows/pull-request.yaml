@@ -1,0 +1,21 @@
+name: Pull Request Builder
+
+on:
+  pull_request:
+    types: ['opened', 'edited', 'reopened', 'synchronize']
+
+jobs:
+  build:
+
+    runs-on: windows-latest
+
+    steps:
+    - name: Setup MSBuild.exe
+      uses: microsoft/setup-msbuild@master
+    - uses: actions/checkout@master
+    - name: MSBuild
+      run: msbuild /t:BH:Rebuild /p:Configuration=Release BH.sln
+    - uses: actions/upload-artifact@v2
+      with:
+        name: BH.dll
+        path: Release/BH.dll
