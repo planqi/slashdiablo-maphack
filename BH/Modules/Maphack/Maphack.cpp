@@ -49,12 +49,13 @@ Maphack::Maphack() : Module("Maphack") {
 
 	monsterResistanceThreshold = 99;
 	lkLinesColor = 105;
-	mbMonColor = 0;
 
 	ReadConfig();
 }
 
 void Maphack::LoadConfig() {
+	enhancementColors.clear();
+	auraColors.clear();
 	automapMonsterColors.clear();
 	automapMonsterLines.clear();
 	automapHiddenMonsters.clear();
@@ -66,7 +67,6 @@ void Maphack::ReadConfig() {
 	BH::config->ReadInt("Reveal Mode", revealType);
 	BH::config->ReadInt("Show Monster Resistance", monsterResistanceThreshold);
 	BH::config->ReadInt("LK Chest Lines", lkLinesColor);
-	BH::config->ReadInt("Manaburn Monster Color", mbMonColor);
 
 	BH::config->ReadKey("Reload Config", "VK_NUMPAD0", reloadConfig);
 	BH::config->ReadToggle("Show Settings", "VK_NUMPAD8", true, Toggles["Show Settings"]);
@@ -90,6 +90,18 @@ void Maphack::ReadConfig() {
 	TextColorMap["\377c\x07"] = 0x82; // sage
 	TextColorMap["\377c\x09"] = 0xCB; // teal
 	TextColorMap["\377c\x0C"] = 0xD6; // light gray
+
+	std::vector<std::pair<std::string, std::string>> enhancementColorsString;
+	BH::config->ReadMapList("Enhancement Color", enhancementColorsString);
+	for (auto& entry : enhancementColorsString) {
+		enhancementColors.push_back(std::pair(StringToNumber(entry.first), StringToNumber(entry.second)));
+	}
+	std::vector<std::pair<std::string, std::string>> auraColorsString;
+	BH::config->ReadMapList("Aura Color", auraColorsString);
+	for (auto& entry : auraColorsString) {
+		auraColors.push_back(std::pair(StringToNumber(entry.first), StringToNumber(entry.second)));
+	}
+
 
 	BH::config->ReadAssoc("Monster Color", MonsterColors);
 	for (auto it = MonsterColors.cbegin(); it != MonsterColors.cend(); it++) {
@@ -520,24 +532,30 @@ void Maphack::OnAutomapDraw() {
 						}
 					}
 					
+					std::unordered_map<unsigned int, bool> enhancements;
+
 					//Determine Enchantments
 					string enchantText;
-					if (Toggles["Monster Enchantments"].state) {
-						string szEnchantments[] = {"\377c3m", "\377c1e", "\377c9e", "\377c3e"};						
+					string szEnchantments[] = {"\377c3m", "\377c1e", "\377c9e", "\377c3e"};
 						
-						for (int n = 0; n < 9; n++) {
-							if (unit->pMonsterData->fBoss) {
-								if (unit->pMonsterData->anEnchants[n] == ENCH_MANA_BURN)
-									enchantText += szEnchantments[0];
-								if (unit->pMonsterData->anEnchants[n] == ENCH_FIRE_ENCHANTED)
-									enchantText += szEnchantments[1];
-								if (unit->pMonsterData->anEnchants[n] == ENCH_LIGHTNING_ENCHANTED)
-									enchantText += szEnchantments[2];
-								if (unit->pMonsterData->anEnchants[n] == ENCH_COLD_ENCHANTED)
-									enchantText += szEnchantments[3];
-							}
-							if (unit->pMonsterData->anEnchants[n] == ENCH_MANA_BURN && mbMonColor > 0 && !unit->pMonsterData->fBoss)
-								color = mbMonColor;
+					for (int n = 0; n < 9; n++) {
+						if (Toggles["Monster Enchantments"].state && unit->pMonsterData->fBoss) {
+							if (unit->pMonsterData->anEnchants[n] == ENCH_MANA_BURN)
+								enchantText += szEnchantments[0];
+							if (unit->pMonsterData->anEnchants[n] == ENCH_FIRE_ENCHANTED)
+								enchantText += szEnchantments[1];
+							if (unit->pMonsterData->anEnchants[n] == ENCH_LIGHTNING_ENCHANTED)
+								enchantText += szEnchantments[2];
+							if (unit->pMonsterData->anEnchants[n] == ENCH_COLD_ENCHANTED)
+								enchantText += szEnchantments[3];
+						}
+						enhancements[unit->pMonsterData->anEnchants[n]] = true;
+					}
+
+					for (auto& enhancement : enhancementColors) {
+						if (enhancements.find(enhancement.first) != enhancements.end() && enhancement.second > 0 && !unit->pMonsterData->fBoss) {
+							color = enhancement.second;
+							break;
 						}
 					}
 
@@ -545,6 +563,16 @@ void Maphack::OnAutomapDraw() {
 					if (unit->pMonsterData->fSuperUniq &&
 						automapSuperUniqueColors.find(unit->pMonsterData->wUniqueNo) != automapSuperUniqueColors.end()) {
 						color = automapSuperUniqueColors[unit->pMonsterData->wUniqueNo];
+					}
+
+					// auras has highest predence
+					if (enhancements[ENCH_AURACHANT]) {
+						for (auto& enhancement : auraColors) {
+							if (D2COMMON_GetUnitState(unit, enhancement.first) != 0 && enhancement.second > 0) {
+								color = enhancement.second;
+								break;
+							}
+						}
 					}
 
 					xPos = unit->pPath->xPos;
