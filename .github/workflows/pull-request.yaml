@@ -11,7 +11,7 @@ jobs:
 
     steps:
     - name: Setup MSBuild.exe
-      uses: microsoft/setup-msbuild@master
+      uses: microsoft/setup-msbuild@v1.0.2
     - uses: actions/checkout@master
     - name: MSBuild
       run: msbuild /t:BH:Rebuild /p:Configuration=Release BH.sln
