@@ -159,6 +159,7 @@ void Item::LoadConfig() {
 	BH::config->ReadToggle("Alt Item Style", "None", true, Toggles["Alt Item Style"]);
 	BH::config->ReadToggle("Color Mod", "None", false, Toggles["Color Mod"]);
 	BH::config->ReadToggle("Shorten Item Names", "None", false, Toggles["Shorten Item Names"]);
+	BH::config->ReadToggle("Show More Items", "None", true, Toggles["Show More Items"]);
 	BH::config->ReadToggle("Always Show Items", "None", false, Toggles["Always Show Items"]);
 	BH::config->ReadToggle("Advanced Item Display", "None", false, Toggles["Advanced Item Display"]);
 	BH::config->ReadToggle("Item Drop Notifications", "None", false, Toggles["Item Drop Notifications"]);
@@ -215,6 +216,30 @@ void Item::ResetPatches() {
 		permShowItems4->Remove();
 		permShowItems5->Remove();
 	}
+
+	if (Toggles["Show More Items"].state) {
+		showMoreItems1->Install();
+		showMoreItems2->Install();
+		showMoreItems3->Install();
+		showMoreItems4->Install();
+		showMoreItems5->Install();
+		showMoreItems6->Install();
+		showMoreItems7->Install();
+		showMoreItems8->Install();
+		showMoreItems9->Install();
+		showMoreItems10->Install();
+	} else {
+		showMoreItems1->Remove();
+		showMoreItems2->Remove();
+		showMoreItems3->Remove();
+		showMoreItems4->Remove();
+		showMoreItems5->Remove();
+		showMoreItems6->Remove();
+		showMoreItems7->Remove();
+		showMoreItems8->Remove();
+		showMoreItems9->Remove();
+		showMoreItems10->Remove();
+	}
 }
 
 void Item::DrawSettings() {
@@ -248,6 +273,10 @@ void Item::DrawSettings() {
 
 	new Checkhook(settingsTab, 4, y, &Toggles["Shorten Item Names"].state, "Shorten Names");
 	new Keyhook(settingsTab, keyhook_x, y+2, &Toggles["Shorten Item Names"].toggle, "");
+	y += 15;
+
+	new Checkhook(settingsTab, 4, y, &Toggles["Show More Items"].state, "Show More Items");
+	new Keyhook(settingsTab, keyhook_x, y + 2, &Toggles["Show More Items"].toggle, "");
 	y += 15;
 
 	new Checkhook(settingsTab, 4, y, &Toggles["Always Show Items"].state, "Always Show Items");
