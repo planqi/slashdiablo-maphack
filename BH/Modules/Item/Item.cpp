@@ -63,6 +63,9 @@ unsigned int Item::pingLevelSetting = 0;
 unsigned int Item::trackerPingLevelSetting = -1;
 UnitAny* Item::viewingUnit;
 
+LPVOID Item::pItemBuf;
+
+
 Patch* itemNamePatch = new Patch(Call, D2CLIENT, { 0x92366, 0x96736 }, (int)ItemName_Interception, 6);
 Patch* itemPropertiesPatch = new Patch(Jump, D2CLIENT, { 0x5612C, 0x2E3FC }, (int)GetProperties_Interception, 6);
 Patch* itemPropertyStringDamagePatch = new Patch(Call, D2CLIENT, { 0x55D7B, 0x2E04B }, (int)GetItemPropertyStringDamage_Interception, 5);
@@ -77,6 +80,19 @@ Patch* permShowItems2 = new Patch(Call, D2CLIENT, { 0xC0E9A, 0x1A89A }, (int)Per
 Patch* permShowItems3 = new Patch(Call, D2CLIENT, { 0x59483, 0x4EA13 }, (int)PermShowItemsPatch2_ASM, 6);
 Patch* permShowItems4 = new Patch(Call, D2CLIENT, { 0x5908A, 0x4E61A }, (int)PermShowItemsPatch3_ASM, 6);
 Patch* permShowItems5 = new Patch(Call, D2CLIENT, { 0xA6BA3, 0x63443 }, (int)PermShowItemsPatch4_ASM, 6);
+
+//credits to rnd2k in DiabloMods discord
+Patch* showMoreItems1 = new Patch(Call, D2CLIENT, { 0x58E82, 0x4E412 }, (int)ShowMoreItemsItemsPatch1_ASM, 5);
+Patch* showMoreItems2 = new Patch(Call, D2CLIENT, { 0x58F05, 0x4E495 }, (int)ShowMoreItemsItemsPatch2_ASM, 6);
+Patch* showMoreItems3 = new Patch(Call, D2CLIENT, { 0x58F2D, 0x4E4BD }, (int)ShowMoreItemsItemsPatch3_ASM, 6);
+Patch* showMoreItems4 = new Patch(Call, D2CLIENT, { 0x58F6E, 0x4E4FE }, (int)ShowMoreItemsItemsPatch4_ASM, 6);
+Patch* showMoreItems5 = new Patch(Call, D2CLIENT, { 0x58F92, 0x4E522 }, (int)ShowMoreItemsItemsPatch5_ASM, 6);
+Patch* showMoreItems6 = new Patch(Call, D2CLIENT, { 0x5909B, 0x4E62B }, (int)ShowMoreItemsItemsPatch6_ASM, 6);
+Patch* showMoreItems7 = new Patch(Call, D2CLIENT, { 0x59447, 0x4E9D7 }, (int)ShowMoreItemsItemsPatch7_ASM, 5);
+
+Patch* showMoreItems8 = new Patch(NOP, D2CLIENT, { 0x58E57, 0x4E3E7 }, 0, 3);
+Patch* showMoreItems9 = new Patch(JumpRelative, D2CLIENT, { 0x58E5A, 0x4E3EA }, (int)0x1C, 2);
+Patch* showMoreItems10 = new Patch(NOP, D2CLIENT, { 0x59087, 0x4E617 }, 0, 9);
 
 using namespace Drawing;
 
@@ -96,6 +112,19 @@ void Item::OnLoad() {
 	itemPropertiesPatch->Install();
 	itemPropertyStringDamagePatch->Install();
 	itemPropertyStringPatch->Install();
+
+	// 0x120 bytes per item = ~ maximum 3500 items per screen
+	Item::pItemBuf = VirtualAlloc(0, 0xF7000, MEM_COMMIT + MEM_RESERVE, PAGE_READWRITE);
+	showMoreItems1->Install();
+	showMoreItems2->Install();
+	showMoreItems3->Install();
+	showMoreItems4->Install();
+	showMoreItems5->Install();
+	showMoreItems6->Install();
+	showMoreItems7->Install();
+	showMoreItems8->Install();
+	showMoreItems9->Install();
+	showMoreItems10->Install();
 
 	if (Toggles["Show Ethereal"].state || Toggles["Show Sockets"].state || Toggles["Show iLvl"].state || Toggles["Color Mod"].state ||
 		Toggles["Show Rune Numbers"].state || Toggles["Alt Item Style"].state || Toggles["Shorten Item Names"].state || Toggles["Advanced Item Display"].state)
@@ -1424,5 +1453,96 @@ void __declspec(naked) PermShowItemsPatch4_ASM()
 		mov ecx, eax
 		pop eax
 		ret
+	}
+}
+
+// MOV EAX,OFFSET pBuf
+__declspec(naked) void ShowMoreItemsItemsPatch1_ASM() {
+	__asm
+	{
+		mov eax, Item::pItemBuf
+		retn
+	}
+}
+
+//MOV EAX,DWORD PTR DS:[EAX+pBuf]
+__declspec(naked) void ShowMoreItemsItemsPatch2_ASM() {
+	__asm
+	{
+		pushfd
+		push esi
+		mov esi, Item::pItemBuf
+		mov eax, [eax + esi]
+		pop esi
+		popfd
+		retn
+	}
+}
+
+//MOV EAX,DWORD PTR DS:[ECX+pBuf+0x8]
+__declspec(naked) void ShowMoreItemsItemsPatch3_ASM() {
+	__asm
+	{
+		pushfd
+		push esi
+		mov esi, Item::pItemBuf
+		add esi, 0x8
+		mov eax, [ecx + esi]
+		pop esi
+		popfd
+		retn
+	}
+}
+
+//MOV EAX,DWORD PTR DS:[EAX+pBuf+0x4]
+__declspec(naked) void ShowMoreItemsItemsPatch4_ASM() {
+	__asm
+	{
+		pushfd
+		push esi
+		mov esi, Item::pItemBuf
+		add esi, 0x4
+		mov eax, [eax + esi]
+		pop esi
+		popfd
+		retn
+	}
+}
+
+//MOV EAX,DWORD PTR DS:[ECX+pBuf+0xC]
+__declspec(naked) void ShowMoreItemsItemsPatch5_ASM() {
+	__asm
+	{
+		pushfd
+		push esi
+		mov esi, Item::pItemBuf
+		add esi, 0xC
+		mov eax, [ecx + esi]
+		pop esi
+		popfd
+		retn
+	}
+}
+
+//ADD EBP,OFFSET pBuf
+__declspec(naked) void ShowMoreItemsItemsPatch6_ASM() {
+	__asm
+	{
+		pushfd
+		add ebp, Item::pItemBuf
+		popfd
+		retn
+	}
+}
+
+//MOV ESI,OFFSET pBuf+0x118
+__declspec(naked) void ShowMoreItemsItemsPatch7_ASM() {
+	__asm
+	{
+		pushfd
+		mov esi, Item::pItemBuf
+		add esi, 0x118
+		popfd
+		retn
 	}
 }
