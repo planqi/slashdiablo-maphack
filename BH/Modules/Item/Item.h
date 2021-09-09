@@ -62,6 +62,7 @@ class Item : public Module {
 		static unsigned int filterLevelSetting;
 		static unsigned int pingLevelSetting;
 		static unsigned int trackerPingLevelSetting;
+		static int statRangeColor;
 
 		void ResetPatches();
 	public:
