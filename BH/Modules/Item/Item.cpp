@@ -61,6 +61,7 @@ unordered_set<string> Item::no_ilvl_codes;
 unsigned int Item::filterLevelSetting = 0;
 unsigned int Item::pingLevelSetting = 0;
 unsigned int Item::trackerPingLevelSetting = -1;
+int Item::statRangeColor = TextColor::DarkGreen;
 UnitAny* Item::viewingUnit;
 
 Patch* itemNamePatch = new Patch(Call, D2CLIENT, { 0x92366, 0x96736 }, (int)ItemName_Interception, 6);
@@ -142,6 +143,7 @@ void Item::LoadConfig() {
 	BH::config->ReadInt("Filter Level", filterLevelSetting);
 	BH::config->ReadInt("Ping Level", pingLevelSetting);
 	BH::config->ReadInt("Run Details Ping Level", trackerPingLevelSetting);
+	BH::config->ReadInt("Stat Range Color", statRangeColor);
 
 	LoadNoIlvlCodes();
 
@@ -758,7 +760,7 @@ void __stdcall Item::OnProperties(wchar_t * wTxt)
 					L"%sBase Defense: %d %s[%d - %d]%s%s\n",
 					GetColorCode(TextColor::White).c_str(),
 					base,
-					GetColorCode(TextColor::DarkGreen).c_str(),
+					GetColorCode(statRangeColor).c_str(),
 					min, max_no_ed,
 					ebugged ? L"\377c5 Ebug" : L"",
 					GetColorCode(TextColor::White).c_str()
@@ -989,7 +991,7 @@ void __stdcall Item::OnPropertyBuild(wchar_t* wOut, int nStat, UnitAny* pItem, i
 				if (leftSpace) {
 					swprintf_s(wOut + aLen, leftSpace,
 							L" %s[%d - %d]%s",
-							GetColorCode(TextColor::DarkGreen).c_str(),
+							GetColorCode(statRangeColor).c_str(),
 							statMin,
 							statMax,
 							GetColorCode(TextColor::Blue).c_str());
@@ -1027,7 +1029,7 @@ void __stdcall Item::OnPropertyBuild(wchar_t* wOut, int nStat, UnitAny* pItem, i
 					if (leftSpace)
 						swprintf_s(wOut + aLen, leftSpace,
 								L" %s[%d - %d]%s",
-								GetColorCode(TextColor::DarkGreen).c_str(),
+								GetColorCode(statRangeColor).c_str(),
 								statMin,
 								statMax,
 								GetColorCode(TextColor::Blue).c_str());
@@ -1108,7 +1110,7 @@ void __stdcall Item::OnPropertyBuild(wchar_t* wOut, int nStat, UnitAny* pItem, i
 				if (leftSpace)
 					swprintf_s(wOut + aLen, leftSpace,
 							L" %s[%d - %d]%s",
-							GetColorCode(TextColor::DarkGreen).c_str(),
+							GetColorCode(statRangeColor).c_str(),
 							min,
 							max,
 							GetColorCode(TextColor::Blue).c_str());
