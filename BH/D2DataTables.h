@@ -437,12 +437,8 @@ struct LevelsTxt
 	BYTE nDrawEdges;
 	WORD unk0x0A;
 	DWORD dwWarpDist;
-	WORD wMonLvl1;
-	WORD wMonLvl2;
-	WORD wMonLvl3;
-	WORD wMonLvl1Ex;
-	WORD wMonLvl2Ex;
-	WORD wMonLvl3Ex;
+	WORD wMonLvl[3];
+	WORD wMonLvlEx[3];
 	DWORD dwMonDen[3];
 	BYTE nMonUMin[3];
 	BYTE nMonUMax[3];
