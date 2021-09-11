@@ -403,6 +403,15 @@ void ScreenInfo::OnDraw() {
 	CHAR szPing[10] = "";
 	sprintf_s(szPing, sizeof(szPing), "%d", *p_D2CLIENT_Ping);
 
+	DWORD levelId = pUnit->pPath->pRoom1->pRoom2->pLevel->dwLevelNo;
+	LevelsTxt* levelTxt = &(*p_D2COMMON_sgptDataTable)->pLevelsTxt[levelId];
+	WORD areaLevel = 0;
+	if (pData->nCharFlags & PLAYER_TYPE_EXPANSION) {
+		areaLevel = levelTxt->wMonLvlEx[D2CLIENT_GetDifficulty()];
+	} else {
+		areaLevel = levelTxt->wMonLvl[D2CLIENT_GetDifficulty()];
+	}
+
 	automap["CURRENTCHARLEVEL"] = to_string(currentLevel);
 	automap["CURRENTCHARLEVELPERCENT"] = to_string(static_cast<double>(currentLevel) + (pExp / 100.0));
 	automap["CURRENTCHARXPPERCENT"] = to_string(pExp);
@@ -411,6 +420,7 @@ void ScreenInfo::OnDraw() {
 	automap["PING"] = szPing;
 	automap["GAMETIME"] = gameTime;
 	automap["REALTIME"] = szTime;
+	automap["AREALEVEL"] = to_string(areaLevel);
 	aPlayerCountAverage[GetPlayerCount() - 1]++;
 
 	delete [] level;
