@@ -1,0 +1,19 @@
+name: Build Branch
+
+on: workflow_dispatch
+
+jobs:
+  build:
+
+    runs-on: windows-latest
+
+    steps:
+    - name: Setup MSBuild.exe
+      uses: microsoft/setup-msbuild@v1.0.2
+    - uses: actions/checkout@master
+    - name: MSBuild
+      run: msbuild /t:BH:Rebuild /p:Configuration=Release /p:CustomDefinitions=`"SHA=\`"($env:GITHUB_SHA.substring(0,7))\`"`" BH.sln
+    - uses: actions/upload-artifact@v2
+      with:
+        name: BH.dll
+        path: Release/BH.dll

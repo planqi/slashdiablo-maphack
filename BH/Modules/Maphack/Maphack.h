@@ -24,7 +24,6 @@ class Maphack : public Module {
 	private:
 		int monsterResistanceThreshold;
 		int lkLinesColor;
-		int mbMonColor;
 		unsigned int revealType;
 		unsigned int maxGhostSelection;
 		unsigned int reloadConfig;
@@ -35,6 +34,8 @@ class Maphack : public Module {
 		std::map<string, string> MonsterHides;
 		std::map<string, unsigned int> TextColorMap; 
 		std::map<string, unsigned int> monsterColors;
+		std::vector<std::pair<unsigned int, unsigned int>> enhancementColors;
+		std::vector<std::pair<unsigned int, unsigned int>> auraColors;
 		std::map<string, unsigned int> missileColors;
 		std::map<int, unsigned int> automapMonsterColors;
 		std::map<int, unsigned int> automapSuperUniqueColors;
