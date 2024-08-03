@@ -20,13 +20,13 @@ using namespace Drawing;
 void StashExport::OnLoad() {
 	LoadConfig();
 
-	settingsTab = new UITab("StashExport", BH::settingsUI);
+	settingsTab = new UITab(BH::GetL10nString("StashExport"), BH::settingsUI);
 
 	int y = 15;
-	new Checkhook(settingsTab, 4, y, &Toggles["Include Equipment"].state, "Include Equipment");
-	new Checkhook(settingsTab, 4, (y+=15), &Toggles["Include Fixed Stats"].state, "Include Fixed Stats");
-	new Checkhook(settingsTab, 4, (y += 15), &Toggles["Condense Stats"].state, "Condense Stats");
-	new Checkhook(settingsTab, 4, (y += 15), &Toggles["Export On Menu"].state, "Export On Menu");
+	new Checkhook(settingsTab, 4, y, &Toggles["Include Equipment"].state, BH::GetL10nString("Include Equipment"));
+	new Checkhook(settingsTab, 4, (y+=15), &Toggles["Include Fixed Stats"].state, BH::GetL10nString("Include Fixed Stats"));
+	new Checkhook(settingsTab, 4, (y += 15), &Toggles["Condense Stats"].state, BH::GetL10nString("Condense Stats"));
+	new Checkhook(settingsTab, 4, (y += 15), &Toggles["Export On Menu"].state, BH::GetL10nString("Export On Menu"));
 
 	// the MustacheTemplates will not be reloaded
 	options.clear();

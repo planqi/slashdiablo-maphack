@@ -145,7 +145,7 @@ void Checkhook::OnDraw() {
 	}
 
 	if (IsChecked())
-		Texthook::Draw(GetX() + 3, GetY() + 2, false, 0, (TextColor)checkColor, "X");
+		Texthook::Draw(GetX() + 3, GetY() + 2, false, 0, (TextColor)checkColor, "X");//todo:GetL10n
 
 	Texthook::Draw(GetX() + 18, GetY() + 2, false, 0, (TextColor)drawColor, text);
 	Unlock();

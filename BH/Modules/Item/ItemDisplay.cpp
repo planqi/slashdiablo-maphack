@@ -16,22 +16,22 @@
 
 // All colors here must also be defined in MAP_COLOR_REPLACEMENTS
 #define COLOR_REPLACEMENTS	\
-	{"WHITE", "\377c0"},		\
-	{"RED", "\377c1"},			\
-	{"GREEN", "\377c2"},		\
-	{"BLUE", "\377c3"},		\
-	{"GOLD", "\377c4"},		\
-	{"GRAY", "\377c5"},		\
-	{"BLACK", "\377c6"},		\
-	{"TAN", "\377c7"},			\
-	{"ORANGE", "\377c8"},		\
-	{"YELLOW", "\377c9"},		\
-	{"PURPLE", "\377c;"},		\
-	{"DARK_GREEN", "\377c:"},	\
-	{"CORAL", "\377c\x06"},		\
-	{"SAGE", "\377c\x07"},		\
-	{"TEAL", "\377c\x09"},		\
-	{"LIGHT_GRAY", "\xFF" "c\x0C"}
+	{"WHITE", "ÿc0"},		\
+	{"RED", "ÿc1"},			\
+	{"GREEN", "ÿc2"},		\
+	{"BLUE", "ÿc3"},		\
+	{"GOLD", "ÿc4"},		\
+	{"GRAY", "ÿc5"},		\
+	{"BLACK", "ÿc6"},		\
+	{"TAN", "ÿc7"},			\
+	{"ORANGE", "ÿc8"},		\
+	{"YELLOW", "ÿc9"},		\
+	{"PURPLE", "ÿc;"},		\
+	{"DARK_GREEN", "ÿc:"},	\
+	{"CORAL", "ÿc\x06"},		\
+	{"SAGE", "ÿc\x07"},		\
+	{"TEAL", "ÿc\x09"},		\
+	{"LIGHT_GRAY", "ÿc\x0C"}
 
 #define MAP_COLOR_WHITE     0x20
 
@@ -338,13 +338,13 @@ void SubstituteNameVariables(UnitItemInfo *uInfo, string &name, const string &ac
 		// Revert to non-glide colors here
 		if (*p_D2GFX_VideoMode != VIDEO_MODE_GLIDE) {
 			if (replacements[n].key == "CORAL") {
-				replacements[n].value = "\377c1"; // red
+				replacements[n].value = "ÿc1"; // red
 			} else if (replacements[n].key == "SAGE") {
-				replacements[n].value = "\377c2"; // green
+				replacements[n].value = "ÿc2"; // green
 			} else if (replacements[n].key == "TEAL") {
-				replacements[n].value = "\377c3"; // blue
+				replacements[n].value = "ÿc3"; // blue
 			} else if (replacements[n].key == "LIGHT_GRAY") {
-				replacements[n].value = "\377c5"; // gray
+				replacements[n].value = "ÿc5"; // gray
 			}
 		}
 		
